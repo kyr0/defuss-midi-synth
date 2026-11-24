@@ -63,7 +63,7 @@ Pause freezes the file and the synthesizer and emits silence. Stop silences, rew
 
 The first engine's module reaches the worklet compiled, in the processor's options. VERIFIED (Chromium 141): a `WebAssembly.Module` posted through the node's port never arrives, and the command times out; a later engine therefore travels as bytes and the worklet compiles them asynchronously, without blocking the audio thread. A rejected SoundFont keeps the loaded one, since `synth_load` parses the new file before it closes the old one.
 
-The worklet passes the session `max(currentFrame, session frame)`. HYPOTHESIS: Chrome once handed the processor a `currentFrame` below the frames it had already rendered, so the session rejected it and the instance failed. The probe that counted such quanta found none in three later Chromium runs. The guard keeps the session's clock monotonic either way.
+The worklet passes the session `max(currentFrame, session frame)`, so the session's clock stays monotonic even if a browser reports a `currentFrame` below the frames already rendered. VERIFIED: a probe that counted such quanta found none in three Chromium runs.
 
 ## Security and privacy
 

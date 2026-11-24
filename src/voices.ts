@@ -165,7 +165,17 @@ export class FmVoices implements Voices {
     return [...GM_PROGRAMS.map((name, program) => ({ bank: 0, program, name })), { bank: 128, program: 0, name: 'Percussion' }];
   }
   maxVoices(): number { return this.wasm.fm_chips() * 18; }
-  message(status: number, data1: number, data2: number): void { this.wasm.fm_message(status, data1, data2); }
+  /** VERIFIED: FFh's libADLMIDI reset (adl_rt_resetState, adlmidi_midiplay.cpp) resets the controllers but keeps each channel's bank and program, so
+   *  the General MIDI state's bank 0, program 1 follows it here. */
+  message(status: number, data1: number, data2: number): void {
+    this.wasm.fm_message(status, data1, data2);
+    if (status !== MIDI_RESET) return;
+    for (let channel = 0; channel < 16; channel++) {
+      this.wasm.fm_message(0xb0 | channel, 0, 0);
+      this.wasm.fm_message(0xb0 | channel, 32, 0);
+      this.wasm.fm_message(0xc0 | channel, 0, 0);
+    }
+  }
   /** Bank 128 is the percussion, which plays on channel 10 only; other banks go out as bank select and program. */
   setPreset(channel: number, bank: number, program: number): boolean {
     if (bank === 128) {

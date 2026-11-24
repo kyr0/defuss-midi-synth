@@ -87,8 +87,29 @@ test('FM percussion plays on channel 10; note off releases and panic ends every 
     assert.ok(energy(s.render(9600).left) > 0.01, 'snare drum');
     s.schedule([{ time: s.session.frame / 48000, type: 'noteOn', channel: 0, note: 60, velocity: 100 }, { time: s.session.frame / 48000, type: 'noteOn', channel: 1, note: 64, velocity: 100 }]);
     s.render(480); assert.ok(s.engine.voices() >= 2);
+    const off = s.session.frame / 48000;
+    s.schedule([{ time: off, type: 'noteOff', channel: 9, note: 38 }, { time: off, type: 'noteOff', channel: 0, note: 60 }, { time: off, type: 'noteOff', channel: 1, note: 64 }]);
+    // fm_voices counts the channels notes hold: 0 once every note is off, while the released notes still ring out.
+    assert.ok(energy(s.render(4800).left) > 0.01, 'note off releases the notes instead of cutting them');
+    assert.equal(s.engine.voices(), 0, 'note off frees the voices');
+    s.schedule([{ time: s.session.frame / 48000, type: 'noteOn', channel: 0, note: 60, velocity: 100 }]);
+    s.render(480); assert.ok(s.engine.voices() >= 1);
     s.engine.panic(); s.render(480); assert.equal(s.engine.voices(), 0);
   } finally { s.close(); }
+});
+test('an FM reset returns every channel to bank 0, program 1 (General MIDI), as file loads, stop and seek rely on', async () => {
+  const note = async (program: number, reset: boolean) => {
+    const s = await fm();
+    try {
+      s.schedule([{ time: 0, type: 'controlChange', channel: 0, controller: 0, value: 1 }, { time: 0, type: 'programChange', channel: 0, program },
+        ...(reset ? [{ time: 0, type: 'reset' } as const] : [])]);
+      s.render(4800);
+      return hash(held(s, 60));
+    } finally { s.close(); }
+  };
+  const piano = await note(0, false);
+  assert.notEqual(await note(73, false), piano, 'program 74 (flute) sounds unlike program 1');
+  assert.equal(await note(73, true), piano, 'after a reset the channel plays program 1 again');
 });
 test('FM render blocks that are multiples of the 64-frame grid do not change the PCM', async () => {
   const a = await fm(), b = await fm();

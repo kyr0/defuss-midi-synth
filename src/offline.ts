@@ -18,9 +18,15 @@ export interface OfflineOptions extends EngineOptions {
 }
 
 /** Faster-than-real-time rendering in Node.js, Bun or a browser with the same WASM, engine and scheduler. */
+/** The frames a 16-bit stereo WAV file holds: its data size field is 32 bits. */
+const MAX_WAV_FRAMES = Math.floor((0xffffffff - 36) / 4);
+
 export class OfflineSynth {
   readonly session: RenderSession;
   private readonly stream = new MidiStream();
+  /** Engines being loaded, so concurrent useEngine calls share one load. VERIFIED: without it the second call's add
+   *  threw 'already loaded'. */
+  private readonly loading = new Map<EngineKind, Promise<void>>();
   private constructor(readonly engine: Engine, capacity: number, private readonly base: URL, private readonly soundfont?: SoundFontSource, private readonly onProgress?: ProgressListener) {
     this.session = new RenderSession(engine, capacity);
   }
@@ -41,16 +47,30 @@ export class OfflineSynth {
     return new SoundFontVoices(instance, font, settings);
   }
   get info(): SynthInfo { return this.engine.info(); }
-  /** Makes kind's engine play, loading it first when needed; a loaded file plays on. */
+  /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,
+   *  as in the browser. */
   async useEngine(kind: EngineKind): Promise<SynthInfo> {
     engineKind(kind);
-    if (!this.engine.has(kind)) this.engine.add(await OfflineSynth.voices(kind, this.engine.options, this.base, this.soundfont, this.onProgress));
+    if (!this.engine.has(kind)) {
+      let load = this.loading.get(kind);
+      if (!load) {
+        load = OfflineSynth.voices(kind, this.engine.options, this.base, this.soundfont, this.onProgress)
+          .then(voices => this.engine.add(voices)).finally(() => this.loading.delete(kind));
+        this.loading.set(kind, load);
+      }
+      await load;
+    }
+    this.session.clear();
     this.engine.use(kind);
     return this.engine.info();
   }
-  /** Replaces the SoundFont engine's SoundFont with SF2 bytes or a URL relative to baseUrl, plain or Brotli-compressed. */
+  /** Replaces the SoundFont engine's SoundFont with SF2 bytes or a URL relative to baseUrl, plain or Brotli-compressed;
+   *  scheduled events are cleared. Without the SoundFont engine it rejects before reading the file. */
   async loadSoundFont(source: SoundFontSource): Promise<SynthInfo> {
-    this.engine.loadSoundFont(await soundFontBytes(source, this.base, SOUNDFONT_ASSET, undefined, this.onProgress)); return this.engine.info();
+    if (!this.engine.has('soundfont')) throw new Error('The soundfont engine is not loaded');
+    const bytes = await soundFontBytes(source, this.base, SOUNDFONT_ASSET, undefined, this.onProgress);
+    this.session.clear();
+    this.engine.loadSoundFont(bytes); return this.engine.info();
   }
   /** Selects the FM engine's embedded bank (0 to 78, numbered as libADLMIDI's banks.ini). */
   setFmBank(bank: number): SynthInfo { this.engine.setFmBank(bank); return this.engine.info(); }
@@ -61,15 +81,17 @@ export class OfflineSynth {
   }
   /** Schedules the messages of a MIDI byte stream at time (seconds); running status carries over between calls. */
   sendMidi(bytes: ArrayLike<number>, time: number): void { this.schedule(this.stream.events(bytes, time)); }
-  /** Loads a Standard MIDI, RMI or MUS file for playback from its start; options.tempo scales its clock. */
+  /** Loads a Standard MIDI, RMI or MUS file for playback from its start; options.tempo scales its clock. Scheduled
+   *  events are cleared, as in the browser. */
   loadMidi(data: Uint8Array | ArrayBuffer, options: MidiLoadOptions = {}): PlaybackInfo {
+    this.session.clear();
     return this.engine.loadMidi(data instanceof ArrayBuffer ? new Uint8Array(data) : data, options);
   }
   /** Plays the loaded file from its position as the following renders advance; loop restarts it at its end. */
   play(loop = false): void { this.engine.play(loop); }
-  /** Allocating convenience method. Use renderInto for repeated streaming blocks. */
+  /** Allocating convenience method, up to the frames a WAV file holds. Use renderInto for repeated streaming blocks. */
   render(frames: number): StereoPcm {
-    integer(frames, 0, 10000000, 'frames');
+    integer(frames, 0, MAX_WAV_FRAMES, 'frames');
     const left = new Float32Array(frames), right = new Float32Array(frames);
     this.renderInto(left, right); return { sampleRate: this.engine.options.sampleRate, left, right };
   }
@@ -81,7 +103,7 @@ export class OfflineSynth {
 export function encodeWav(pcm: StereoPcm): Uint8Array {
   integer(pcm.sampleRate, 8000, 192000, 'sampleRate');
   if (pcm.left.length !== pcm.right.length) throw new RangeError('Stereo lengths differ');
-  integer(pcm.left.length, 0, Math.floor((0xffffffff - 36) / 4), 'WAV frames');
+  integer(pcm.left.length, 0, MAX_WAV_FRAMES, 'WAV frames');
   const size = pcm.left.length * 4, bytes = new Uint8Array(44 + size), v = new DataView(bytes.buffer);
   const text = (at: number, value: string) => { for (let i = 0; i < value.length; i++) bytes[at + i] = value.charCodeAt(i); };
   text(0, 'RIFF'); v.setUint32(4, 36 + size, true); text(8, 'WAVE'); text(12, 'fmt ');

@@ -33,6 +33,9 @@ CONFIG = {
     # geschuetzte_begriffe: terms a replacement must keep) and "edit" (max_part_chars, heading_depth, attempts, the
     # budgets, tool_scope, trace, max_tokens_total); unset keys keep pro-edit's defaults.
     "prose": {"allow": {}, "phrases": [], "html": []},
+    # The review and docs steps cover only the changed paths matching these globs (the owner's decision, 2026-11-24);
+    # verify (lint, tests, coverage, e2e, prose, RULES) still covers every change.
+    "review": {"include": ["*.ts"]},
 }
 
 # Deterministic invariants only; no semantic guesses.
@@ -52,4 +55,11 @@ RULES = [{
                r"jest\.(?:mock|fn|spyOn)\(|vi\.(?:mock|fn|spyOn)\(|sinon\.|gomock\.|mock\.Mock\b|Mockito\.|@Mock\s|mockk\(|"
                r"@Mock(?:ito)?Bean\b|new\s+Mock<|Mock\.Of<|Substitute\.For<|A\.Fake<|mockall:{2}|#\[automock\]",
     "claim": "tests exercise real subsystems, not mock frameworks",
+}, {
+    "id": "make.pinned-tools",
+    "kind": "not_regex",
+    "path": "Makefile",
+    # Make 3.81 runs a recipe's first word from its startup PATH, past the mise pin; $(NODE) and $(BUN) hold it.
+    "pattern": r"(?m)^\t(?:node|bunx?)\s",
+    "claim": "Makefile recipes call Node and Bun through $(NODE) and $(BUN), the versions mise.toml pins",
 }]

@@ -4,7 +4,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { compress, init } from 'defuss-brotli/compressor';
+import { unpack } from '../src/assets.ts';
 import { OfflineSynth } from '../src/offline.ts';
+import type { LoadProgress } from '../src/types.ts';
 import { midiFixture, soundfont } from './fixtures.ts';
 
 const assets = new URL('../dist/', import.meta.url);
@@ -94,4 +96,33 @@ test('OfflineSynth plays a loaded file at its clock, and tempo stretches it', as
     assert.equal(s.loadMidi(file, { tempo: 0.5 }).duration, info.duration * 2);
     assert.throws(() => s.loadMidi(new Uint8Array([1, 2, 3])), Error);
   } finally { s.close(); }
+});
+test('OfflineSynth clears scheduled events where the browser does, and concurrent useEngine calls share one load', async () => {
+  const s = await OfflineSynth.create({ baseUrl: assets });
+  try {
+    const queued = () => s.session.stats().queuedEvents;
+    const later = () => { s.schedule([{ time: s.session.frame / 48000 + 0.5, type: 'noteOn', channel: 0, note: 60, velocity: 100 }]); assert.equal(queued(), 1); };
+    later(); s.loadMidi(midiFixture()); assert.equal(queued(), 0, 'loadMidi');
+    later(); await s.loadSoundFont(soundfont()); assert.equal(queued(), 0, 'loadSoundFont');
+    later();
+    const [a, b] = await Promise.all([s.useEngine('fm'), s.useEngine('fm')]);
+    assert.equal(a.kind, 'fm'); assert.equal(b.kind, 'fm');
+    assert.equal(queued(), 0, 'useEngine');
+  } finally { s.close(); }
+});
+test('without the SoundFont engine loadSoundFont rejects before reading; Brotli output past the limit is a RangeError', async () => {
+  const heard: LoadProgress[] = [];
+  const s = await OfflineSynth.create({ baseUrl: assets, engine: 'fm', onProgress: progress => heard.push(progress) });
+  try {
+    heard.length = 0;
+    await assert.rejects(s.loadSoundFont('assets/TimGM6mb.sf2.br'), /soundfont engine is not loaded/);
+    assert.deepEqual(heard, [], 'nothing was read');
+  } finally { s.close(); }
+  const packed = new Uint8Array(readFileSync(new URL('assets/TimGM6mb.sf2.br', assets)));
+  await assert.rejects(unpack(packed, 'RIFF', 1 << 20, assets, undefined, undefined, 'TimGM6mb.sf2.br'),
+    (error: Error) => error instanceof RangeError && /TimGM6mb\.sf2\.br decompresses to more than 1048576 bytes/.test(error.message));
+});
+test('render takes more than ten million frames, as the README example needs for a song over 208 s at 48 kHz', async () => {
+  const s = await OfflineSynth.create({ baseUrl: assets });
+  try { assert.equal(s.render(10_000_064).left.length, 10_000_064); } finally { s.close(); }
 });

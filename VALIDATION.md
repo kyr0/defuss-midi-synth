@@ -24,7 +24,7 @@ VERIFIED: the release was built and tested on macOS arm64 (Apple M5 Max) with No
 | Lifecycle and errors | Queue overflow, a missing preset, an FM bank out of range, a percussion preset outside channel 10, a playback rate out of range, repeated disposal, caller-context preservation and owned-context closure passed. |
 | Layout | The Matrix rain and the cover on its CRT shader drew (defuss-shadcn's `data-ready`), the rain sped up with the music, the sleeves carry their years, the text is set in VT323, and the footer has no API notes. A full-page desktop screenshot, the 390 px phone layout per section (player, crates, synth) and the visualizer were captured; the phone document has no horizontal overflow. |
 
-The raw reports, logs, renders and screenshots are in `evidence/`. Reproduce with `make verify` and `make wasm`; fresh results go to `output/`.
+Reproduce with `make verify` and `make wasm`; their reports, renders and screenshots go to `output/`.
 
 ## Throughput measurement
 

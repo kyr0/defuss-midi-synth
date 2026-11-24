@@ -114,9 +114,11 @@ export class MidiStream {
     (time, status, data1, data2) => { const event = messageEvent(time, status, data1, data2); if (event) this.out.push(event); },
     (time, bytes) => { if (isReset(bytes)) this.out.push({ time, type: 'reset' }); });
 
-  /** The events that bytes (each an integer from 0 to 255) complete, all at time. */
+  /** The events that bytes (each an integer from 0 to 255) complete, all at time. Every byte is checked before any is
+   *  fed. VERIFIED: tests/core.test.ts shows a rejected call then leaks no events and no running status into the next. */
   events(bytes: ArrayLike<number>, time: number): TimedEvent[] {
-    for (let i = 0; i < bytes.length; i++) this.parser.feed(integer(bytes[i]!, 0, 255, 'MIDI byte'), time);
+    for (let i = 0; i < bytes.length; i++) integer(bytes[i]!, 0, 255, 'MIDI byte');
+    for (let i = 0; i < bytes.length; i++) this.parser.feed(bytes[i]!, time);
     const out = this.out;
     this.out = [];
     return out;

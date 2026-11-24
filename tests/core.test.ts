@@ -178,6 +178,9 @@ test('the SMF, RMI and MUS parsers time messages by tempo, division and clock', 
   assert.throws(() => parseSong(smf(0, 96, [[[0, 60, 1]]])), /without a status/);
   assert.throws(() => parseSong(midiFixture().slice(0, 30)), /Truncated/);
   assert.throws(() => parseSong(musFixture().slice(0, 19)), /Truncated MUS/);
+  const longDelay = [0x90, 60 | 0x80, 100, 0x81, 0x81, 0x81, 0x81, 0x01, 0x60];
+  assert.throws(() => parseSong(Uint8Array.from([77, 85, 83, 26, longDelay.length, 0, 16, 0, 1, 0, 0, 0, 0, 0, 0, 0, ...longDelay])),
+    /Malformed MUS score: variable-length quantity over four bytes/, 'a MUS delay over four bytes is malformed, not an endless song');
 });
 test('MIDI file load/play/pause/seek/stop/end/loop and malformed recovery', async () => {
   const s = await create();
@@ -255,6 +258,10 @@ test('MidiStream turns byte streams into typed events and keeps running status b
     { time: 3, type: 'pitchBend', channel: 2, value: 16383 }, { time: 3, type: 'channelPressure', channel: 3, value: 5 },
     { time: 3, type: 'polyPressure', channel: 4, note: 60, value: 9 }, { time: 3, type: 'reset' }]);
   assert.throws(() => stream.events([256], 0), RangeError);
+  const fresh = new MidiStream();
+  assert.deepEqual(fresh.events([0x90, 60, 100], 0), [on(0, 60, 0, 100)]);
+  assert.throws(() => fresh.events([0x80, 60, 0, 0x91, 256], 1), RangeError);
+  assert.deepEqual(fresh.events([61, 100], 2), [on(2, 61, 0, 100)], 'a rejected call leaves no events and keeps the running status');
 });
 test('WAV headers, stereo ordering, clipping and non-finite rejection', () => {
   const bytes = encodeWav({ sampleRate: 48000, left: Float32Array.of(-2, 1), right: Float32Array.of(0, 0.5) });

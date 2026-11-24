@@ -36,6 +36,8 @@ export class MidiSynth {
   private disposed = false;
   private failure?: Error;
   private disposeTask?: Promise<void>;
+  /** Engines being fetched and added, so concurrent useEngine calls share one load. */
+  private readonly loading = new Map<EngineKind, Promise<void>>();
   private constructor(readonly context: AudioContext, private readonly node: AudioWorkletNode, info: SynthInfo,
     private readonly base: URL, private readonly owned: boolean, private readonly timeout: number, private readonly options: SynthOptions) {
     this.current = info;
@@ -135,10 +137,12 @@ export class MidiSynth {
   sendMidi(bytes: ArrayLike<number>, time = this.context.currentTime): Promise<void> { return this.schedule(this.stream.events(bytes, time)); }
   clearScheduled(): Promise<void> { return this.request('clear'); }
   panic(): Promise<void> { return this.request('panic'); }
-  /** Replaces the SoundFont (bytes, or a URL relative to baseUrl) and resolves with the new info. Stops file
-   *  playback and clears queued events; a rejected SoundFont keeps the loaded one. */
+  /** Replaces the SoundFont (bytes, or a URL relative to baseUrl) and resolves with the new info. Clears queued events
+   *  and, while the SoundFont engine plays, stops file playback; a rejected SoundFont keeps the loaded one. Without
+   *  the SoundFont engine it rejects before downloading. */
   async loadSoundFont(source: SoundFontSource): Promise<SynthInfo> {
     if (this.disposed) throw new Error('Synth is disposed');
+    if (!this.current.engines.includes('soundfont')) throw new Error('The soundfont engine is not loaded');
     const bytes = await soundFontBytes(source, this.base, SOUNDFONT_ASSET, this.timeout, this.options.onProgress);
     this.current = await this.request<SynthInfo>('loadSoundFont', [bytes]);
     return this.current;
@@ -149,8 +153,15 @@ export class MidiSynth {
     if (this.disposed) throw new Error('Synth is disposed');
     engineKind(kind);
     if (!this.current.engines.includes(kind)) {
-      const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress);
-      this.current = await this.request<SynthInfo>('addEngine', [part]);
+      let load = this.loading.get(kind);
+      if (!load) {
+        load = (async () => {
+          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress);
+          this.current = await this.request<SynthInfo>('addEngine', [part]);
+        })().finally(() => this.loading.delete(kind));
+        this.loading.set(kind, load);
+      }
+      await load;
     }
     this.current = await this.request<SynthInfo>('useEngine', [kind]);
     return this.current;
@@ -193,7 +204,10 @@ export class MidiSynth {
     const acknowledgement = this.request('dispose');
     this.disposed = true;
     this.disposeTask = (async () => {
+      // VERIFIED: after a processor failure request() rejects at once, so the acknowledgement rejects; cleanup still
+      // runs and dispose resolves, as README's 'idempotent cleanup' promises.
       try { await acknowledgement; }
+      catch { /* nothing left to report: the instance is gone either way */ }
       finally {
         this.node.disconnect(); this.output.disconnect(); this.node.port.close();
         for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(new Error('Synth is disposed')); }

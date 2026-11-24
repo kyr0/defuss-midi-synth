@@ -84,10 +84,16 @@ function brotli(base: URL, timeoutMs?: number): Promise<BrotliDecoder> {
 }
 /** bytes as they are when they start with magic (a SoundFont's RIFF, a WOPL file's signature), else Brotli-decompressed
  *  up to max bytes, with onProgress hearing the decompression of label. Bytes that are neither stay as they are, so the
- *  synthesizer's own check names the error. */
+ *  synthesizer's own check names the error; a Brotli stream that decompresses past max is a RangeError. */
 export async function unpack(bytes: Uint8Array, magic: string, max: number, base: URL, timeoutMs?: number, onProgress?: ProgressListener, label = ''): Promise<Uint8Array> {
   if (bytes.length >= magic.length && [...magic].every((c, i) => bytes[i] === c.charCodeAt(0))) return bytes;
   const brotliDecoder = await brotli(base, timeoutMs);
   const report = onProgress && ((loaded: number, total: number) => onProgress({ phase: 'decompress', url: label, loaded, total }));
-  try { return await brotliDecoder.decode(bytes, max, report); } catch { return bytes; }
+  try { return await brotliDecoder.decode(bytes, max, report); }
+  catch (error) {
+    // VERIFIED: a probe of 2026-11-24 showed the decoder reporting output past max as 'decompressed data exceeds max_output_size',
+    // and input that is not Brotli as 'invalid|truncated brotli stream'.
+    if (error instanceof Error && error.message.includes('max_output_size')) throw new RangeError(`${label || 'File'} decompresses to more than ${max} bytes`);
+    return bytes;
+  }
 }

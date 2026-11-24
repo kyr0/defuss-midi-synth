@@ -161,11 +161,9 @@ function parseMus(bytes: Uint8Array): Song {
       case 5: break;
       default: throw new Error(`Malformed MUS score: event type ${kind}`);
     }
-    if (event & 0x80) {
-      let delay = 0, byte;
-      do { byte = r.u8(); delay = delay * 128 + (byte & 0x7f); } while (byte & 0x80);
-      tick += delay;
-    }
+    // VERIFIED: a MUS delay has the encoding of a MIDI variable-length quantity (7 bits per byte, high bit continues);
+    // over four bytes it is malformed rather than an endless song.
+    if (event & 0x80) tick += r.vlq();
   }
   return { title: '', duration: tick / MUS_RATE, times: Float64Array.from(times), messages: Uint32Array.from(messages) };
 }

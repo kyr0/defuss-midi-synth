@@ -1,33 +1,41 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 -include .env
+# Recipes run the Bun and Node pinned in mise.toml even when the shell has not activated mise.
+# Make 3.81 looks a recipe's first word up in its startup PATH, so the tools are resolved here.
+MISE_PATH := $(shell command -v mise >/dev/null && mise bin-paths 2>/dev/null | paste -sd: -)
+ifneq ($(MISE_PATH),)
+PATH := $(MISE_PATH):$(PATH)
+endif
+NODE := $(shell PATH='$(PATH)' command -v node || echo node)
+BUN := $(shell PATH='$(PATH)' command -v bun || echo bun)
 export
 .PHONY: help setup build dev start stop restart status log metrics bench test coverage lint e2e verify wasm wasm-docker vae pack release-hashes
 help: ## List supported commands
 	@awk 'BEGIN {FS = ":.*## "} /^[a-z-]+:.*## / {printf "%-16s %s\n", $$1, $$2}' Makefile
 setup: ## Install pinned JS tools and Chromium
 	@if command -v mise >/dev/null; then mise install; fi
-	bun install --frozen-lockfile
-	bunx playwright install chromium
+	$(BUN) install --frozen-lockfile
+	$(BUN) x playwright install chromium
 build: ## Build ESM, types, worklet and browser demo
-	bun run build
+	$(BUN) run build
 lint: ## Check TypeScript and lint without warnings
-	bun run lint
-	node scripts/integrity.mjs
+	$(BUN) run lint
+	$(NODE) scripts/integrity.mjs
 test: build ## Run real WASM and scheduling tests
-	bun run test
+	$(BUN) run test
 coverage: ## Measure shared engine and scheduler coverage
-	node scripts/coverage.mjs
+	$(NODE) scripts/coverage.mjs
 e2e: build ## Test built package and real Chromium AudioWorklet
-	node scripts/pack-test.mjs
-	bun run e2e
+	$(NODE) scripts/pack-test.mjs
+	$(BUN) run e2e
 verify: lint test coverage e2e ## Run deterministic verification
 bench: build ## Benchmark SoundFont load and rendering throughput
-	bun run bench
+	$(BUN) run bench
 metrics: ## Read saved benchmark evidence
 	@cat output/benchmark.json
 dev: build ## Serve the browser demo in the foreground
-	bun run dev
+	$(BUN) run dev
 start: build ## Start the demo server with logs and a PID
 	python3 scripts/service.py start
 stop: ## Stop this project's demo server
@@ -44,6 +52,6 @@ wasm-docker: ## Rebuild both engines with the Emscripten 4.0.10 container
 vae: ## Run the pinned defuss-vae gate
 	bash scripts/vae.sh gate --session defuss-midi-synth
 pack: build ## Create the npm-compatible package tarball
-	bun pm pack --destination output
+	$(BUN) pm pack --destination output
 release-hashes: build ## Hash every release file into RELEASE_SHA256.json
-	node scripts/integrity.mjs --release
+	$(NODE) scripts/integrity.mjs --release

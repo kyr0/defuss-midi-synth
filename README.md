@@ -5,8 +5,6 @@ A General MIDI synthesizer for the browser and for offline rendering, with two e
 - **SoundFont** (default): TinySoundFont 0.9 plays SoundFont 2 files. The package bundles TimGM6mb, a General MIDI SoundFont with all 128 General MIDI programs and 8 drum kits (6.0 MB, shipped Brotli-compressed as 5.2 MB).
 - **FM**: libADLMIDI 1.6.2 drives emulated Yamaha OPL3 chips (Nuked OPL3), the sound of AdLib and Sound Blaster cards. It embeds 79 instrument banks taken from DOS and Windows games and drivers, and loads WOPL bank files.
 
-Copyright of SoundFonts and music belongs to thier creators.
-
 A song switches engines while it plays and keeps its position. Browser synthesis runs in an AudioWorklet. Node.js, Bun and browser offline rendering use the same engines and the same event scheduler.
 
 ## Run the demo
@@ -75,7 +73,7 @@ For the SoundFont engine, `maxVoices` limits the voices. Beyond that limit, a ne
 | `schedule(events)` | Atomically enqueue a batch; the promise acknowledges acceptance. |
 | `clearScheduled()` | Remove future events; sounding notes continue. |
 | `panic()` | Clear queued events and end every sound at once. File transport keeps emitting later notes; `stop()` stops it. |
-| `loadSoundFont(source)` | Replace the SoundFont with SF2 bytes or a URL, plain or Brotli-compressed; resolves with the new `info`. Stops the transport and clears queued events. A rejected file keeps the loaded SoundFont. |
+| `loadSoundFont(source)` | Replace the SoundFont with SF2 bytes or a URL, plain or Brotli-compressed; resolves with the new `info`. Clears queued events and, while the SoundFont engine plays, stops the transport. A rejected file keeps the loaded SoundFont. Before `useEngine('soundfont')` has loaded that engine, it rejects without downloading. |
 | `loadMidi(bytes, { tempo })` | Parse a Standard MIDI File (format 0 or 1), an RMI file or a MUS file. Stops the transport, clears events and returns title and duration. `tempo` (0.25 to 4, default 1) scales the file's own clock for files converted at a wrong one: 0.5 plays a MIDI file converted from Raptor's 70 Hz MUS data at Doom's 140 Hz, or such a MUS file, at its real speed. Positions, seeking and the duration count real seconds. |
 | `play(loop)`, `pause()`, `stop()`, `seek(seconds)` | Control file playback. `stop()` rewinds and returns to real-time synthesis. |
 | `status()` | Transport position, rate and end state, frame, queue depth, late-event count and sounding voices. |
@@ -113,7 +111,7 @@ try {
 }
 ```
 
-`render(frames)` allocates planar Float32 output. `renderInto(left, right)` reuses caller buffers for streaming. Offline time starts at zero and advances with rendering. `schedule(events)` and `sendMidi(bytes, time)` work as in the browser, with time in seconds from zero. `OfflineSynth.create` takes the browser's engine options (`engine`, `chips`, `fmBank`, `soundfont`, `maxVoices`, `onProgress`); `loadMidi(bytes, { tempo })` and `play(loop)` play a file through the following renders; `useEngine(kind)`, `loadSoundFont(source)` and `loadFmBank(source)` (async) and `setFmBank(bank)` work as in the browser, `engine.loadMidi(bytes, { tempo })` as `loadMidi` does. The public `engine` provides `loadSoundFont`, `loadMidi`, `play`, `pause`, `stop`, `seek`, `setRate`, `panic`, `voices`, `info` and `playbackInfo`. `session.stats()` reports timing counters. Under Node.js (22.3 or later) and Bun the package reads its assets from the file system; the `soundfont` option takes other SF2 bytes or a file URL. `encodeWav` writes 16-bit stereo PCM and rejects non-finite samples.
+`render(frames)` allocates planar Float32 output. `renderInto(left, right)` reuses caller buffers for streaming. Offline time starts at zero and advances with rendering. `schedule(events)` and `sendMidi(bytes, time)` work as in the browser, with time in seconds from zero. `OfflineSynth.create` takes the browser's engine options (`engine`, `chips`, `fmBank`, `soundfont`, `maxVoices`, `onProgress`); `loadMidi(bytes, { tempo })` and `play(loop)` play a file through the following renders; `useEngine(kind)`, `loadSoundFont(source)` and `loadFmBank(source)` (async) and `setFmBank(bank)` work as in the browser, `engine.loadMidi(bytes, { tempo })` as `loadMidi` does. The public `engine` provides `loadSoundFont`, `loadMidi`, `play`, `pause`, `stop`, `seek`, `setRate`, `panic`, `voices`, `info` and `playbackInfo`; unlike the synthesizer's own methods, these leave scheduled events queued, which `session.clear()` removes. `session.stats()` reports timing counters. Under Node.js (22.3 or later) and Bun the package reads its assets from the file system; the `soundfont` option takes other SF2 bytes or a file URL. `encodeWav` writes 16-bit stereo PCM and rejects non-finite samples.
 
 ## Build and verify
 
@@ -135,4 +133,4 @@ The test suite checks pitch against SoundFont 2 rules with a SoundFont the tests
 
 ## License
 
-The package is distributed under GPL-3.0-or-later. TinySoundFont keeps its MIT licence and TimGM6mb its GPL-2.0 licence. libADLMIDI is GPL-3.0-or-later; Nuked OPL3 and libADLMIDI's chip interface are LGPL-2.1-or-later, its volume models and file readers MIT. The notices ship beside the files they cover in `dist/assets/`. See [THIRD_PARTY.md](THIRD_PARTY.md) for provenance.
+This project's own source code is licensed under the MIT License ([LICENSE](LICENSE)). Copyright in the SoundFonts, FM instrument banks, music files and other third-party components remains with their respective holders; [THIRD_PARTY.md](THIRD_PARTY.md) lists each with its source and licence.

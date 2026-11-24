@@ -102,7 +102,8 @@ export class Engine {
     this.fm.loadBank(data);
     if (this.active === this.fm) this.restore();
   }
-  /** The voices sounding now, releasing ones included. */
+  /** The SoundFont engine's voices sounding now, releasing ones included; on the FM engine the chip channels that
+   *  notes hold (fm.cpp's fm_voices). VERIFIED: an FM note's release still sounds after note off while this is 0. */
   voices(): number { return this.ensure().voices(); }
   hasPreset(bank: number, program: number): boolean {
     return this.ensure().presets().some(p => p.bank === bank && p.program === program);
