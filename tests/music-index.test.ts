@@ -26,8 +26,8 @@ test('every MIDI file of the album folders is indexed once, except the excluded 
   assert.deepEqual(files.filter(f => !indexed.includes(f)), ['Wolfenstein 3D (1992)/01 - Horst-Wessel-Lied.mid']);
   assert.equal(indexed.length, 943); assert.equal(index.albums.length, 33);
   // The human's order of 2026-11-24 first, then the rest by title.
-  assert.deepEqual(index.albums.slice(0, 11).map(a => a.title), ['Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors', 'Jazz Jackrabbit 2',
-    'The Settlers II', 'Warcraft II: Tides of Darkness', 'Z', 'Raptor: Call of the Shadows', 'Tyrian', 'Doom 2', 'Wolfenstein 3D', 'Descent II']);
+  assert.deepEqual(index.albums.slice(0, 11).map(a => a.title), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors',
+    'Jazz Jackrabbit 2', 'The Settlers II', 'Z', 'Raptor: Call of the Shadows', 'Tyrian', 'Doom 2', 'Wolfenstein 3D', 'Descent II']);
   const rest = index.albums.slice(11).map(a => a.title);
   assert.deepEqual(rest, [...rest].sort((a, b) => a.localeCompare(b, 'en')));
 });

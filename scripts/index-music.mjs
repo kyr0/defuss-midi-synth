@@ -234,9 +234,10 @@ for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'
     editions,
   });
 }
-/** The albums the human put first (2026-11-24), in this order; the rest follow by title. */
-const FIRST = ['age-of-empires-ii-the-age-of-kings-1999', 'age-of-empires-ii-the-conquerors-2000', 'jazz-jackrabbit-2-1998', 'the-settlers-ii-1996',
-  'warcraft-ii-tides-of-darkness-1995', 'z-1996', 'raptor-call-of-the-shadows-1994', 'tyrian-1995', 'doom-2-1994', 'wolfenstein-3d-1992', 'descent-ii-1996'];
+/** The albums the human put first (2026-11-24; Warcraft II moved to the front the same day), in this order; the rest
+ *  follow by title. */
+const FIRST = ['warcraft-ii-tides-of-darkness-1995', 'age-of-empires-ii-the-age-of-kings-1999', 'age-of-empires-ii-the-conquerors-2000',
+  'jazz-jackrabbit-2-1998', 'the-settlers-ii-1996', 'z-1996', 'raptor-call-of-the-shadows-1994', 'tyrian-1995', 'doom-2-1994', 'wolfenstein-3d-1992', 'descent-ii-1996'];
 const rank = album => { const at = FIRST.indexOf(album.id); return at < 0 ? FIRST.length : at; };
 for (const id of FIRST) if (!albums.some(a => a.id === id)) throw new Error(`FIRST names ${id}, which is not indexed`);
 albums.sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title, 'en'));

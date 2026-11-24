@@ -45,22 +45,22 @@ try {
   assert.equal(await text('#library'), '33 ALBUMS · 943 TRACKS');
   // The page has no power state text.
   assert.equal(await page.locator('#state').count(), 0);
-  // The page opens on Age of Empires II, with its bank alone in the list before audio starts; the test plays Doom.
-  assert.equal(await text('#album-title'), 'Age of Empires II: The Age of Kings');
-  assert.equal(await page.locator('#tracks li').count(), 16);
-  assert.match(await page.locator('#fm-banks').textContent(), /^58 · .*\(Age of Empires II: The Age of Kings\)$/);
+  // The page opens on Warcraft II, with its bank alone in the list before audio starts; the test plays Doom.
+  assert.equal(await text('#album-title'), 'Warcraft II: Tides of Darkness');
+  assert.equal(await page.locator('#tracks li').count(), 18);
+  assert.match(await page.locator('#fm-banks').textContent(), /^18 · .*\(Warcraft II: Tides of Darkness\)$/);
   // A sleeve's click starts audio on the FM engine with Doom's bank and plays the album's first track.
   await album('doom-1993'); assert.equal(await text('#album-title'), 'Doom');
   // One list holds all of an album's editions (GM 23, Adlib 1, Unreleased 31), each row naming its own.
   assert.equal(await page.locator('#tracks li').count(), 55); assert.equal(await page.locator('#edition').count(), 0);
   assert.equal(await page.locator('#tracks small', { hasText: /^Adlib$/ }).count(), 1);
   assert.equal(await page.locator('#tracks small', { hasText: /^Unreleased$/ }).count(), 31);
-  assert.deepEqual((await page.locator('#albums label strong').allTextContents()).slice(0, 3), ['Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors', 'Jazz Jackrabbit 2']);
+  assert.deepEqual((await page.locator('#albums label strong').allTextContents()).slice(0, 3), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors']);
   // The DOS page: the Matrix rain behind it and the album's cover on a CRT tube, both drawn by defuss-shadcn's shaders; the
   // sleeves carry their years; the footer has no API notes.
   await page.waitForSelector('#page-rain[data-ready]'); await page.waitForSelector('#cover-art[data-ready]');
   assert.equal(await page.getAttribute('#page-rain', 'data-effect'), 'matrix');
-  assert.equal(await page.locator('#albums .album-year').first().textContent(), '1999');
+  assert.equal(await page.locator('#albums .album-year').first().textContent(), '1995');
   assert.equal(await page.locator('footer a', { hasText: 'API notes' }).count(), 0);
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).fontFamily.includes('IBM VGA 8x14')), true);
   // Every sleeve shows its cover on the release cover's CRT tube.

@@ -3,6 +3,138 @@
   "source": "https://www.karlsitretro.com/game_midi",
   "albums": [
     {
+      "id": "warcraft-ii-tides-of-darkness-1995",
+      "title": "Warcraft II: Tides of Darkness",
+      "year": 1995,
+      "composers": [
+        "Matthias Steinwachs"
+      ],
+      "platform": "DOS",
+      "cover": "Warcraft II - Tides of Darkness (1995)/Warcraft II - Tides of Darkness (1995).jpg",
+      "thumbnail": "covers/warcraft-ii-tides-of-darkness-1995.jpg",
+      "fm": {
+        "bank": 18,
+        "name": "AIL (Warcraft 2)",
+        "file": "fm_banks_new/ail/fatman-2op-ail-warcraft2.woplx",
+        "match": "game"
+      },
+      "editions": [
+        {
+          "name": "GM",
+          "tracks": [
+            {
+              "number": 1,
+              "title": "Intro",
+              "file": "Warcraft II - Tides of Darkness (1995)/01 - Intro.mid",
+              "duration": 169.5
+            },
+            {
+              "number": 2,
+              "title": "Title",
+              "file": "Warcraft II - Tides of Darkness (1995)/02 - Title.mid",
+              "duration": 37.9
+            },
+            {
+              "number": 3,
+              "title": "Human War Room",
+              "file": "Warcraft II - Tides of Darkness (1995)/03 - Human War Room.mid",
+              "duration": 51.8
+            },
+            {
+              "number": 4,
+              "title": "Human 1",
+              "file": "Warcraft II - Tides of Darkness (1995)/04 - Human 1.mid",
+              "duration": 147.6
+            },
+            {
+              "number": 5,
+              "title": "Human 2",
+              "file": "Warcraft II - Tides of Darkness (1995)/05 - Human 2.mid",
+              "duration": 124.5
+            },
+            {
+              "number": 6,
+              "title": "Human 3",
+              "file": "Warcraft II - Tides of Darkness (1995)/06 - Human 3.mid",
+              "duration": 127.2
+            },
+            {
+              "number": 7,
+              "title": "Human 4",
+              "file": "Warcraft II - Tides of Darkness (1995)/07 - Human 4.mid",
+              "duration": 181.5
+            },
+            {
+              "number": 8,
+              "title": "Human Lost",
+              "file": "Warcraft II - Tides of Darkness (1995)/08 - Human Lost.mid",
+              "duration": 43.3
+            },
+            {
+              "number": 9,
+              "title": "Human Victory",
+              "file": "Warcraft II - Tides of Darkness (1995)/09 - Human Victory.mid",
+              "duration": 17.1
+            },
+            {
+              "number": 10,
+              "title": "Human End",
+              "file": "Warcraft II - Tides of Darkness (1995)/10 - Human End.mid",
+              "duration": 170.5
+            },
+            {
+              "number": 11,
+              "title": "Orc War Room",
+              "file": "Warcraft II - Tides of Darkness (1995)/11 - Orc War Room.mid",
+              "duration": 51
+            },
+            {
+              "number": 12,
+              "title": "Orc 1",
+              "file": "Warcraft II - Tides of Darkness (1995)/12 - Orc 1.mid",
+              "duration": 121.3
+            },
+            {
+              "number": 13,
+              "title": "Orc 2",
+              "file": "Warcraft II - Tides of Darkness (1995)/13 - Orc 2.mid",
+              "duration": 137.6
+            },
+            {
+              "number": 14,
+              "title": "Orc 3",
+              "file": "Warcraft II - Tides of Darkness (1995)/14 - Orc 3.mid",
+              "duration": 1524.4
+            },
+            {
+              "number": 15,
+              "title": "Orc 4",
+              "file": "Warcraft II - Tides of Darkness (1995)/15 - Orc 4.mid",
+              "duration": 151.3
+            },
+            {
+              "number": 16,
+              "title": "Orc Lost",
+              "file": "Warcraft II - Tides of Darkness (1995)/16 - Orc Lost.mid",
+              "duration": 16.7
+            },
+            {
+              "number": 17,
+              "title": "Orc Victory",
+              "file": "Warcraft II - Tides of Darkness (1995)/17 - Orc Victory.mid",
+              "duration": 19.7
+            },
+            {
+              "number": 18,
+              "title": "Orc End",
+              "file": "Warcraft II - Tides of Darkness (1995)/18 - Orc End.mid",
+              "duration": 129.7
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "age-of-empires-ii-the-age-of-kings-1999",
       "title": "Age of Empires II: The Age of Kings",
       "year": 1999,
@@ -447,138 +579,6 @@
               "title": "Track 15",
               "file": "Settlers II (1996)/Track 15.mid",
               "duration": 376.1
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "warcraft-ii-tides-of-darkness-1995",
-      "title": "Warcraft II: Tides of Darkness",
-      "year": 1995,
-      "composers": [
-        "Matthias Steinwachs"
-      ],
-      "platform": "DOS",
-      "cover": "Warcraft II - Tides of Darkness (1995)/Warcraft II - Tides of Darkness (1995).jpg",
-      "thumbnail": "covers/warcraft-ii-tides-of-darkness-1995.jpg",
-      "fm": {
-        "bank": 18,
-        "name": "AIL (Warcraft 2)",
-        "file": "fm_banks_new/ail/fatman-2op-ail-warcraft2.woplx",
-        "match": "game"
-      },
-      "editions": [
-        {
-          "name": "GM",
-          "tracks": [
-            {
-              "number": 1,
-              "title": "Intro",
-              "file": "Warcraft II - Tides of Darkness (1995)/01 - Intro.mid",
-              "duration": 169.5
-            },
-            {
-              "number": 2,
-              "title": "Title",
-              "file": "Warcraft II - Tides of Darkness (1995)/02 - Title.mid",
-              "duration": 37.9
-            },
-            {
-              "number": 3,
-              "title": "Human War Room",
-              "file": "Warcraft II - Tides of Darkness (1995)/03 - Human War Room.mid",
-              "duration": 51.8
-            },
-            {
-              "number": 4,
-              "title": "Human 1",
-              "file": "Warcraft II - Tides of Darkness (1995)/04 - Human 1.mid",
-              "duration": 147.6
-            },
-            {
-              "number": 5,
-              "title": "Human 2",
-              "file": "Warcraft II - Tides of Darkness (1995)/05 - Human 2.mid",
-              "duration": 124.5
-            },
-            {
-              "number": 6,
-              "title": "Human 3",
-              "file": "Warcraft II - Tides of Darkness (1995)/06 - Human 3.mid",
-              "duration": 127.2
-            },
-            {
-              "number": 7,
-              "title": "Human 4",
-              "file": "Warcraft II - Tides of Darkness (1995)/07 - Human 4.mid",
-              "duration": 181.5
-            },
-            {
-              "number": 8,
-              "title": "Human Lost",
-              "file": "Warcraft II - Tides of Darkness (1995)/08 - Human Lost.mid",
-              "duration": 43.3
-            },
-            {
-              "number": 9,
-              "title": "Human Victory",
-              "file": "Warcraft II - Tides of Darkness (1995)/09 - Human Victory.mid",
-              "duration": 17.1
-            },
-            {
-              "number": 10,
-              "title": "Human End",
-              "file": "Warcraft II - Tides of Darkness (1995)/10 - Human End.mid",
-              "duration": 170.5
-            },
-            {
-              "number": 11,
-              "title": "Orc War Room",
-              "file": "Warcraft II - Tides of Darkness (1995)/11 - Orc War Room.mid",
-              "duration": 51
-            },
-            {
-              "number": 12,
-              "title": "Orc 1",
-              "file": "Warcraft II - Tides of Darkness (1995)/12 - Orc 1.mid",
-              "duration": 121.3
-            },
-            {
-              "number": 13,
-              "title": "Orc 2",
-              "file": "Warcraft II - Tides of Darkness (1995)/13 - Orc 2.mid",
-              "duration": 137.6
-            },
-            {
-              "number": 14,
-              "title": "Orc 3",
-              "file": "Warcraft II - Tides of Darkness (1995)/14 - Orc 3.mid",
-              "duration": 1524.4
-            },
-            {
-              "number": 15,
-              "title": "Orc 4",
-              "file": "Warcraft II - Tides of Darkness (1995)/15 - Orc 4.mid",
-              "duration": 151.3
-            },
-            {
-              "number": 16,
-              "title": "Orc Lost",
-              "file": "Warcraft II - Tides of Darkness (1995)/16 - Orc Lost.mid",
-              "duration": 16.7
-            },
-            {
-              "number": 17,
-              "title": "Orc Victory",
-              "file": "Warcraft II - Tides of Darkness (1995)/17 - Orc Victory.mid",
-              "duration": 19.7
-            },
-            {
-              "number": 18,
-              "title": "Orc End",
-              "file": "Warcraft II - Tides of Darkness (1995)/18 - Orc End.mid",
-              "duration": 129.7
             }
           ]
         }

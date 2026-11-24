@@ -55,8 +55,8 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   $('library').textContent = `${albums.length} ALBUMS · ${count} TRACKS`;
   // album shown; current is what the synthesizer holds: {album, edition, index} or a file of the user's. An album's list
   // holds the tracks of all its editions (GM first), each row naming its edition.
-  // The page opens on Age of Empires II (the human's choice of 2026-11-24).
-  let album = albums.find(a => a.id === 'age-of-empires-ii-the-age-of-kings-1999') ?? albums[0];
+  // The page opens on Warcraft II, the first album (the human's choice of 2026-11-24).
+  let album = albums.find(a => a.id === 'warcraft-ii-tides-of-darkness-1995') ?? albums[0];
   const entries = a => a.editions.flatMap(e => e.tracks.map((track, index) => ({ edition: e, index, track })));
   const position = (a, e, index) => entries(a).findIndex(x => x.edition === e && x.index === index);
   let current = null, playing = false, duration = 0, busy = false, muted = false, volume = Number($('volume').value);

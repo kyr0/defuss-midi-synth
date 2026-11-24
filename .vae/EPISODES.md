@@ -31,3 +31,5 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T02:49:28Z s=5ed957d1 DONE fp=2abd95bbdbfd cov=96.8% paths=README.md,THIRD_PARTY.md,docs/ARCH.md,docs/app.js(+2)
 2026-11-24T03:01:37Z s=5ed957d1 DONE fp=20face035a98 cov=96.8% paths=docs/ARCH.md,docs/synth/assets-DQy7EZWb.d.ts,docs/synth/gm-CtLpIGC8.js,docs/synth/index.d.ts(+4)
 2026-11-24T03:01:37Z s=5ed957d1 FINDING .gitignore:docs/synth/ (live site https://midi-synth.defuss.org/) learn=verifier: .vae/VERIFY.py pages.synth-tracked rejects a .gitignore line that ignores docs/synth
+2026-11-24T04:02:30Z s=5ed957d1 FAIL tests.e2e.1
+2026-11-24T04:05:45Z s=5ed957d1 DONE fp=a62e3e10aa55 cov=96.8% paths=README.md,VALIDATION.md,docs/ARCH.md,docs/music/index.json(+5)
