@@ -62,4 +62,11 @@ RULES = [{
     # Make 3.81 runs a recipe's first word from its startup PATH, past the mise pin; $(NODE) and $(BUN) hold it.
     "pattern": r"(?m)^\t(?:node|bunx?)\s",
     "claim": "Makefile recipes call Node and Bun through $(NODE) and $(BUN), the versions mise.toml pins",
+}, {
+    "id": "pages.synth-tracked",
+    "kind": "not_regex",
+    "path": ".gitignore",
+    # GitHub Pages serves docs/ from main as committed; an ignored docs/synth/ left the live demo without its library.
+    "pattern": r"(?m)^/?docs/synth",
+    "claim": "docs/synth/ (the demo's library, worklet and WASM) is committed, so GitHub Pages serves it",
 }]

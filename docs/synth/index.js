@@ -1,0 +1,294 @@
+import { M as MidiStream, f as finite, i as integer, n as normalizeOptions, r as readBytes, F as FM_WASM_ASSET, W as WASM_ASSET, s as soundFontBytes, p as packEvent, S as SOUNDFONT_ASSET, e as engineKind, b as bankBytes, a as inputBytes, O as OPERAND_MAX, c as MAX_SONG_BYTES } from './gm-CtLpIGC8.js';
+export { G as GM_PROGRAMS, d as MidiParser, g as isReset } from './gm-CtLpIGC8.js';
+
+class MidiSynth {
+  constructor(context, node, info, base, owned, timeout, options) {
+    this.context = context;
+    this.node = node;
+    this.base = base;
+    this.owned = owned;
+    this.timeout = timeout;
+    this.options = options;
+    this.current = info;
+    this.output = context.createGain();
+    this.output.gain.value = options.gain ?? 1;
+    node.connect(this.output);
+    if (options.connect !== false) this.output.connect(context.destination);
+    node.port.onmessage = (event) => {
+      const msg = event.data;
+      if (msg.type === "fatal") {
+        this.fail(new Error(msg.error));
+        return;
+      }
+      const pending = this.pending.get(msg.id);
+      if (pending) {
+        clearTimeout(pending.timer);
+        this.pending.delete(msg.id);
+        if (msg.error) pending.reject(new Error(msg.error));
+        else pending.resolve(msg.result);
+      }
+    };
+    node.onprocessorerror = () => this.fail(new Error("AudioWorklet processor failed"));
+  }
+  context;
+  node;
+  base;
+  owned;
+  timeout;
+  options;
+  output;
+  /** The synthesizer's signal before output's gain, for meters and visualizers that should not follow the volume. */
+  get source() {
+    return this.node;
+  }
+  current;
+  pending = /* @__PURE__ */ new Map();
+  stream = new MidiStream();
+  nextId = 1;
+  disposed = false;
+  failure;
+  disposeTask;
+  /** Engines being fetched and added, so concurrent useEngine calls share one load. */
+  loading = /* @__PURE__ */ new Map();
+  static async create(options = {}) {
+    finite(options.gain ?? 1, 0, 4, "gain");
+    const timeout = integer(options.timeoutMs ?? 15e3, 100, 12e4, "timeoutMs");
+    const capacity = integer(options.queueCapacity ?? 8192, 1, 1048576, "queueCapacity");
+    const owned = !options.context;
+    const context = options.context ?? new AudioContext({ latencyHint: "interactive" });
+    let node;
+    try {
+      const settings = normalizeOptions({ ...options, sampleRate: context.sampleRate });
+      const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL("./", import.meta.url);
+      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress), context.audioWorklet.addModule(new URL("worklet.js", base))]);
+      node = new AudioWorkletNode(context, "defuss-midi-synth", {
+        numberOfInputs: 0,
+        numberOfOutputs: 1,
+        outputChannelCount: [2],
+        processorOptions: { part, settings, capacity }
+      });
+      const worklet = node;
+      const info = await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("AudioWorklet initialization timed out")), timeout);
+        worklet.onprocessorerror = () => {
+          clearTimeout(timer);
+          reject(new Error("AudioWorklet initialization failed"));
+        };
+        worklet.port.onmessage = (event) => {
+          if (event.data.type === "ready") {
+            clearTimeout(timer);
+            resolve(event.data.info);
+          } else if (event.data.type === "fatal") {
+            clearTimeout(timer);
+            reject(new Error(event.data.error));
+          }
+        };
+      });
+      return new MidiSynth(context, worklet, info, base, owned, timeout, options);
+    } catch (error) {
+      if (node) {
+        node.port.postMessage({ id: 0, method: "dispose", args: [] });
+        node.disconnect();
+        node.port.close();
+      }
+      if (owned && context.state !== "closed") await context.close();
+      throw error;
+    }
+  }
+  /** Fetches kind's module, with the SoundFont for the soundfont engine, and compiles it off the audio thread when
+   *  compile is true. Structured cloning copies the buffers into the audio thread; slices keep a caller's untouched. */
+  static async part(kind, base, soundfont, timeout, compile, onProgress) {
+    const [wasm, font] = await Promise.all([
+      readBytes(new URL(kind === "fm" ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress),
+      kind === "soundfont" ? soundFontBytes(soundfont, base, SOUNDFONT_ASSET, timeout, onProgress) : void 0
+    ]);
+    const copy = (bytes) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    const part = compile ? { kind, module: await WebAssembly.compile(wasm) } : { kind, wasm: copy(wasm) };
+    if (font) part.soundfont = copy(font);
+    return part;
+  }
+  /** The active engine, the loaded engines, sample rate, voice limit, the presets selectPreset takes, and the FM
+   *  engine's banks once it is loaded. */
+  get info() {
+    return this.current;
+  }
+  fail(error) {
+    this.failure = error;
+    this.node.disconnect();
+    for (const p of this.pending.values()) {
+      clearTimeout(p.timer);
+      p.reject(error);
+    }
+    this.pending.clear();
+  }
+  request(method, args = []) {
+    if (this.disposed) return Promise.reject(new Error("Synth is disposed"));
+    if (this.failure) return Promise.reject(this.failure);
+    if (this.pending.size >= 1024) return Promise.reject(new Error("Too many pending commands"));
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error(`Command timed out: ${method}`));
+      }, this.timeout);
+      this.pending.set(id, { resolve: (value) => resolve(value), reject, timer });
+      try {
+        this.node.port.postMessage({ id, method, args });
+      } catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        reject(error);
+      }
+    });
+  }
+  /** Schedules a batch atomically. Resolve means accepted, not yet played. */
+  schedule(events) {
+    const packed = events.map((event) => packEvent(event, this.context.sampleRate));
+    return this.request("schedule", [packed]);
+  }
+  send(event, time = this.context.currentTime) {
+    return this.schedule([{ ...event, time }]);
+  }
+  noteOn(channel, note, velocity = 100, time) {
+    return this.send({ type: "noteOn", channel, note, velocity }, time);
+  }
+  noteOff(channel, note, time) {
+    return this.send({ type: "noteOff", channel, note }, time);
+  }
+  programChange(channel, program, time) {
+    return this.send({ type: "programChange", channel, program }, time);
+  }
+  controlChange(channel, controller, value, time) {
+    return this.send({ type: "controlChange", channel, controller, value }, time);
+  }
+  pitchBend(channel, value, time) {
+    return this.send({ type: "pitchBend", channel, value }, time);
+  }
+  /** Selects a preset of info.presets on a channel; a pair the SoundFont lacks is a RangeError. */
+  selectPreset(channel, bank, program, time) {
+    integer(bank, 0, OPERAND_MAX, "bank");
+    integer(program, 0, 127, "program");
+    if (!this.current.presets.some((p) => p.bank === bank && p.program === program)) throw new RangeError(`The ${this.current.kind} engine has no preset ${bank}:${program}`);
+    if (this.current.kind === "fm" && bank === 128 && channel !== 9) throw new RangeError("FM percussion plays on channel 10 (channel index 9)");
+    return this.send({ type: "preset", channel, bank, program }, time);
+  }
+  /** Returns every channel to its General MIDI state. */
+  reset(time) {
+    return this.send({ type: "reset" }, time);
+  }
+  /** Schedules the messages of a MIDI byte stream (Web MIDI input, an emulated MPU-401) at time; running status
+   *  carries over between calls. */
+  sendMidi(bytes, time = this.context.currentTime) {
+    return this.schedule(this.stream.events(bytes, time));
+  }
+  clearScheduled() {
+    return this.request("clear");
+  }
+  panic() {
+    return this.request("panic");
+  }
+  /** Replaces the SoundFont (bytes, or a URL relative to baseUrl) and resolves with the new info. Clears queued events
+   *  and, while the SoundFont engine plays, stops file playback; a rejected SoundFont keeps the loaded one. Without
+   *  the SoundFont engine it rejects before downloading. */
+  async loadSoundFont(source) {
+    if (this.disposed) throw new Error("Synth is disposed");
+    if (!this.current.engines.includes("soundfont")) throw new Error("The soundfont engine is not loaded");
+    const bytes = await soundFontBytes(source, this.base, SOUNDFONT_ASSET, this.timeout, this.options.onProgress);
+    this.current = await this.request("loadSoundFont", [bytes]);
+    return this.current;
+  }
+  /** Makes kind's engine play, fetching and compiling it first when needed, and resolves with the new info. A loaded
+   *  file keeps its position and plays on; scheduled events are cleared. */
+  async useEngine(kind) {
+    if (this.disposed) throw new Error("Synth is disposed");
+    engineKind(kind);
+    if (!this.current.engines.includes(kind)) {
+      let load = this.loading.get(kind);
+      if (!load) {
+        load = (async () => {
+          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress);
+          this.current = await this.request("addEngine", [part]);
+        })().finally(() => this.loading.delete(kind));
+        this.loading.set(kind, load);
+      }
+      await load;
+    }
+    this.current = await this.request("useEngine", [kind]);
+    return this.current;
+  }
+  /** Selects the FM engine's embedded bank (0 to 78, numbered as libADLMIDI's banks.ini); a playing file plays on
+   *  with the new instruments. */
+  async setFmBank(bank) {
+    integer(bank, 0, 78, "FM bank");
+    this.current = await this.request("setFmBank", [bank]);
+    return this.current;
+  }
+  /** Replaces the FM engine's instruments with a WOPL bank file (bytes, or a URL relative to baseUrl); a rejected
+   *  file keeps the bank. */
+  async loadFmBank(source) {
+    if (this.disposed) throw new Error("Synth is disposed");
+    const bytes = await bankBytes(source, this.base, this.timeout, this.options.onProgress);
+    this.current = await this.request("loadFmBank", [bytes]);
+    return this.current;
+  }
+  /** Plays the loaded file at rate (0.25 to 4) times its tempo, at the same pitch. */
+  setPlaybackRate(rate) {
+    finite(rate, 0.25, 4, "playback rate");
+    return this.request("rate", [rate]);
+  }
+  /** Parses a MIDI, RMI or MUS file and makes it the file to play; tempo scales its clock (see MidiLoadOptions). */
+  loadMidi(data, options = {}) {
+    finite(options.tempo ?? 1, 0.25, 4, "tempo");
+    return this.request("loadMidi", [inputBytes(data, MAX_SONG_BYTES, "file length"), { tempo: options.tempo ?? 1 }]);
+  }
+  play(loop = false) {
+    return this.request("play", [loop]);
+  }
+  pause() {
+    return this.request("pause");
+  }
+  stop() {
+    return this.request("stop");
+  }
+  seek(seconds) {
+    finite(seconds, 0, Number.MAX_SAFE_INTEGER, "seek");
+    return this.request("seek", [seconds]);
+  }
+  status() {
+    return this.request("status");
+  }
+  setGain(value) {
+    if (this.disposed) throw new Error("Synth is disposed");
+    finite(value, 0, 4, "gain");
+    this.output.gain.setTargetAtTime(value, this.context.currentTime, 0.01);
+  }
+  async resume() {
+    if (this.disposed) throw new Error("Synth is disposed");
+    await this.context.resume();
+  }
+  /** Repeated calls share cleanup; a caller-owned AudioContext is never closed. */
+  dispose() {
+    if (this.disposeTask) return this.disposeTask;
+    const acknowledgement = this.request("dispose");
+    this.disposed = true;
+    this.disposeTask = (async () => {
+      try {
+        await acknowledgement;
+      } catch {
+      } finally {
+        this.node.disconnect();
+        this.output.disconnect();
+        this.node.port.close();
+        for (const p of this.pending.values()) {
+          clearTimeout(p.timer);
+          p.reject(new Error("Synth is disposed"));
+        }
+        this.pending.clear();
+        if (this.owned && this.context.state !== "closed") await this.context.close();
+      }
+    })();
+    return this.disposeTask;
+  }
+}
+
+export { MidiSynth };

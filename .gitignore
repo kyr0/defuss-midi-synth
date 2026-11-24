@@ -15,7 +15,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .coverage
-# Generated browser package mirrors dist/.
-docs/synth/
+# docs/synth/, the build's copy of dist/, stays tracked: GitHub Pages serves docs/ from main without a build.
 output/# 135 MB raw demo SoundFont; git keeps only its Brotli copy, in LFS.
 docs/sf2_sb16/OPL-3_FM_128M.sf2
