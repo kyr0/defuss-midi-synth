@@ -4,8 +4,10 @@ import { createProgress } from './progress.js';
 import { renderWav, save } from './render.js';
 const $ = id => document.getElementById(id);
 // The page starts on the FM engine; the SoundFont engine plays the OPL-3 FM 128M SoundFont, Brotli-compressed
-// (scripts/compress-banks.mjs; the library unpacks it with defuss-brotli).
-const SOUNDFONT = new URL('./sf2_sb16/OPL-3_FM_128M.sf2.br', import.meta.url);
+// (scripts/compress-banks.mjs; the library unpacks it with defuss-brotli). It comes from the Hugging Face model repo of
+// this project's soundbanks: at 104 MB it exceeds GitHub's 100 MB file limit, so git keeps it in LFS, which GitHub
+// Pages does not serve. The Hub allows cross-origin requests.
+const SOUNDFONT = new URL('https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br');
 let synth, starting, analyser, waveform, customFont, customBank, player;
 const soundFontName = () => customFont ? 'Your SoundFont file' : 'OPL-3 FM 128M SoundFont (104 MB)';
 const progress = createProgress($('load-progress'));

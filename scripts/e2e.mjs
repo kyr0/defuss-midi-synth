@@ -12,6 +12,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 1100 } });
 const errors = []; page.on('pageerror', error => errors.push(error.message));
 page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
 page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
+const hub = []; page.on('request', request => { if (request.url().startsWith('https://huggingface.co/')) hub.push(request.url()); });
 page.on('response', response => { if (response.status() >= 400) errors.push(`${response.url()}: HTTP ${response.status()}`); });
 const url = `http://127.0.0.1:${server.address().port}`;
 const text = id => page.locator(id).textContent();
@@ -148,7 +149,7 @@ try {
     new MutationObserver(() => window.__labels.add(document.querySelector('#load-label').textContent))
       .observe(document.querySelector('#load-label'), { childList: true, characterData: true, subtree: true });
   });
-  // From localhost the download ends within a frame; at 50 MB/s, a fast real connection, it takes about two seconds.
+  // The SoundFont comes from huggingface.co over the real network, capped at 50 MB/s, so the bar shows both phases.
   const network = await page.context().newCDPSession(page);
   await network.send('Network.enable');
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: 50 * 1024 * 1024, uploadThroughput: -1 });
@@ -158,6 +159,7 @@ try {
   assert.equal(await page.locator('#fm-banks').isHidden(), true);
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
   assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
+  assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont comes from the Hub');
   await page.waitForSelector('#load-progress', { state: 'hidden' });
   await sounding();
   await page.click('#engine .toggle[value=fm]');

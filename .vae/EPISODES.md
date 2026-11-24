@@ -28,3 +28,4 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T02:32:16Z s=5ed957d1 FINDING src/synth.ts:dispose learn=none: A regression test needs a failing AudioWorklet in Chromium; e2e has no failure injection, and a stubbed node would be a mock.
 2026-11-24T02:32:16Z s=5ed957d1 FINDING src/engine.ts:voices doc learn=test: tests/fm.test.ts percussion test asserts the release tail and 0 voices after note off
 2026-11-24T02:34:01Z s=5ed957d1 DONE fp=e8a2020d2713 cov=96.8% paths=ARCH.md,CHANGELOG.md,Makefile,README.md(+12)
+2026-11-24T02:49:28Z s=5ed957d1 DONE fp=2abd95bbdbfd cov=96.8% paths=README.md,THIRD_PARTY.md,docs/ARCH.md,docs/app.js(+2)
