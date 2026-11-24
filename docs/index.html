@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>defuss-midi-synth · General MIDI instrument</title>
+  <link rel="preload" href="fonts/Web437_IBM_VGA_8x14.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="fonts/press-start-2p-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="shadcn/core.min.css">
+  <link rel="stylesheet" href="shadcn/site-header.min.css">
+  <link rel="stylesheet" href="shadcn/navigation-menu.min.css">
+  <link rel="stylesheet" href="shadcn/site-footer.min.css">
+  <link rel="stylesheet" href="shadcn/button.min.css">
+  <link rel="stylesheet" href="shadcn/slider.min.css">
+  <link rel="stylesheet" href="shadcn/select.min.css">
+  <link rel="stylesheet" href="shadcn/toggle.min.css">
+  <link rel="stylesheet" href="shadcn/toggle-group.min.css">
+  <link rel="stylesheet" href="shadcn/audio.min.css">
+  <link rel="stylesheet" href="shadcn/playlist-item.min.css">
+  <link rel="stylesheet" href="shadcn/shaders.min.css">
+  <link rel="stylesheet" href="shadcn/progress.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="player.css">
+</head>
+<body>
+<!-- The page's background: defuss-shadcn's Matrix rain, falling faster while the music is loud (player.js). -->
+<div class="shader page-rain" id="page-rain" data-effect="matrix" data-size="16" data-rain="0.8" data-trail="0.6" data-speed="0.6" data-level="0" data-fps="30" aria-hidden="true"></div>
+<div class="page">
+  <header class="mk-header site-bar">
+    <div class="mk-header-inner">
+      <a class="mk-header-brand" href="#player"><span class="logo" aria-hidden="true"></span><span class="mk-header-name">defuss-midi-synth</span></a>
+      <nav class="mk-header-nav" aria-label="Site">
+        <ul class="nav-menu-list">
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#player">Player</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#crates">Crates</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#synth">Synth</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#your-midi">Your MIDI</a></li>
+        </ul>
+      </nav>
+      <div class="mk-header-actions"><span class="badge">v0.3.0</span><button id="power" class="btn" type="button" data-size="sm">Start audio</button></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- The release: the album's cover on a CRT tube, with Bergium over it while music plays; its title and tracklist beside it. -->
+    <section class="player" id="player" aria-labelledby="album-title">
+      <div class="release">
+        <div class="stage">
+          <div class="shader cover-art" id="cover-art" data-effect="crt" data-curve="0.25" data-scanlines="300" data-glow="0.4" data-fps="30" role="img" aria-label="The album's cover">
+            <img class="player-cover" id="player-cover" alt="" width="480" height="600">
+          </div>
+          <div class="player-visual" id="visual-panel">
+            <!-- Bergium draws #visual at a quarter of the resolution; player.js copies each frame into #visual-blocks as
+                 hard-edged blocks, which the CRT shader shows on its tube. -->
+            <canvas id="visual" aria-label="Music visualizer"></canvas>
+            <div class="shader visual-crt" id="visual-crt" data-effect="crt" data-curve="0.25" data-scanlines="300" data-glow="0.4" data-fps="30" aria-hidden="true"><canvas id="visual-blocks"></canvas></div>
+            <div class="player-visual-bar"><span id="visual-name">Bergium draws the music once it plays.</span><button class="btn" type="button" data-variant="outline" data-size="sm" id="visual-next">Next</button></div>
+          </div>
+        </div>
+        <div class="release-meta">
+          <p class="cat"><span>GAME MUSIC</span> · <span id="library">—</span></p>
+          <h1 id="album-title">Loading the albums…</h1>
+          <p id="album-line" class="artist"></p>
+          <div class="player-options">
+            <div class="toggle-group" role="group" aria-label="Visualizer" data-variant="outline" id="visualizer">
+              <button class="toggle" type="button" aria-pressed="false" value="off">No Visuals</button>
+              <button class="toggle" type="button" aria-pressed="true" value="milkdrop">Bergium</button>
+            </div>
+            <div class="toggle-group" role="group" aria-label="Synthesizer" data-variant="outline" id="engine">
+              <button class="toggle" type="button" aria-pressed="true" value="fm">Gravis Ultrasound</button>
+              <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundBlaster 16</button>
+            </div>
+            <select class="select" data-size="sm" id="fm-banks" aria-label="FM bank"></select>
+            <span id="soundfont-name" class="player-bank" hidden></span>
+          </div>
+          <ol class="mk-playlist tracks" id="tracks" role="radiogroup" aria-label="Tracks"></ol>
+        </div>
+      </div>
+      <div class="audio" id="player-audio" role="group" aria-label="Game music">
+        <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="previous" aria-label="Previous track"><i data-icon="skip-back"></i></button>
+        <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="back" aria-label="Back 10 seconds"><i data-icon="rotate-ccw"></i></button>
+        <button class="btn" type="button" data-variant="ghost" data-size="icon" id="toggle" data-audio-action="toggle" aria-pressed="false" aria-label="Play"><i data-icon="play"></i><i data-icon="pause"></i></button>
+        <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="forward" aria-label="Forward 10 seconds"><i data-icon="rotate-cw"></i></button>
+        <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="next" aria-label="Next track"><i data-icon="skip-forward"></i></button>
+        <div class="audio-body">
+          <span class="audio-title" id="track-title">Choose a track</span>
+          <div class="audio-progress">
+            <output class="audio-time" id="time">0:00</output>
+            <input class="slider" data-size="sm" type="range" min="0" max="1" step="0.1" value="0" id="seek" aria-label="Seek" disabled>
+            <output class="audio-time" id="duration">0:00</output>
+          </div>
+        </div>
+        <select class="select" data-size="sm" id="speed" aria-label="Speed">
+          <option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+        </select>
+        <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="mute" data-audio-action="mute" aria-pressed="false" aria-label="Mute"><i data-icon="volume-2"></i><i data-icon="volume-x"></i></button>
+        <input class="slider" data-size="xs" type="range" min="0" max="1" step="0.05" value="0.6" id="volume" aria-label="Volume">
+      </div>
+    </section>
+
+    <!-- The crates: every album as a sleeve, pinned askew, its year on a sticker. -->
+    <section class="crates" id="crates" aria-labelledby="crates-title">
+      <div class="section-head">
+        <h2 id="crates-title">In the crates</h2>
+        <p>General MIDI from DOS and Windows games, collected by <a href="https://www.karlsitretro.com/game_midi">Karl's Retro</a>; the rights stay with the composers and publishers.</p>
+      </div>
+      <div class="albums" id="albums" role="radiogroup" aria-label="Albums"></div>
+    </section>
+
+    <!-- The instrument: a DOS window with the display, the controls and the keys. -->
+    <section class="instrument window" id="synth" aria-labelledby="synth-title">
+      <div class="window-title"><h2 id="synth-title">General MIDI, in the browser.</h2><span id="led" class="led" aria-hidden="true"></span></div>
+      <p class="window-lead">Two synthesizers in WebAssembly: an emulated OPL3 FM chip and SoundFont samples. Every General MIDI program, on the audio clock.</p>
+      <div class="display">
+        <div class="display-meta"><span id="engine-label">LIBADLMIDI / NUKED OPL3</span><span id="rate">— Hz · STEREO</span></div>
+        <div class="display-main"><div><div class="patch-label">SELECTED PROGRAM</div><div id="patch-name">Piano 1</div><div id="bank-label">Bank 0 · General MIDI</div></div><canvas id="scope" width="520" height="120" aria-label="Live waveform"></canvas></div>
+        <div class="display-bottom"><span id="message" role="status" aria-live="polite">Start audio to play.</span><span id="queue">0 EVENTS</span></div>
+      </div>
+      <fieldset id="controls" disabled>
+        <div class="knobs">
+          <label class="bank-control">BANK<select id="bank"><option value="0">0 · General MIDI</option></select></label>
+          <label>PRESET<select id="program"></select></label>
+          <label>VELOCITY <output id="velocity-value">100</output><input id="velocity" type="range" min="1" max="127" value="100"></label>
+          <label>OUTPUT <output id="gain-value">60%</output><input id="gain" type="range" min="0" max="100" value="60"></label>
+        </div>
+        <div class="transport"><button id="demo" class="accent" type="button">▶ Play demo sequence</button><button id="stop" type="button">■ Stop</button><button id="panic" type="button">Panic</button><span class="tempo">120 BPM · 16 NOTES</span></div>
+        <div class="keyboard" id="keyboard" aria-label="Piano keyboard"></div>
+        <div class="key-hints"><span>PLAY WITH A S D F G H J K · W E T Y U FOR SHARPS</span><span id="midi-in">WEB MIDI: STARTS WITH AUDIO</span><span>C4 — C6</span></div>
+        <div class="your-midi" id="your-midi">
+          <div class="window file-panel"><div><h3>Bring your MIDI.</h3><p>Files stay on your device. A MIDI, RMI or MUS file plays in the player above, on either engine; an SF2 file replaces the SoundFont, a WOPL file the FM bank, either also Brotli-compressed (.br).</p></div><label class="file-button">Open file<input id="file" type="file" accept=".mid,.midi,.rmi,.mus,.sf2,.wopl,.br"></label></div>
+          <div class="window file-panel take-panel"><div><h3>Download your synthesized MIDI.</h3><p>Everything you play on these keys or on a Web MIDI keyboard is recorded. Download renders the recording as a WAV file (48 kHz, stereo, 16-bit) with the engine and instruments selected now; a pause of more than two seconds with no note held shrinks to two seconds. <span id="take-info">Nothing recorded yet.</span></p></div><div class="take-actions"><button id="take-clear" type="button" disabled>Start over</button><button id="take-download" type="button" class="accent" disabled>Download WAV</button></div></div>
+        </div>
+      </fieldset>
+    </section>
+  </main>
+
+  <footer class="mk-footer">
+    <div class="mk-footer-inner">
+      <nav class="mk-footer-nav" aria-label="Footer">
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Engines</h3>
+          <dl class="engines">
+            <dt>Gravis Ultrasound</dt><dd>libADLMIDI on an emulated Yamaha OPL3 (Nuked OPL3), with 79 instrument banks from DOS and Windows games.</dd>
+            <dt>SoundBlaster 16</dt><dd>TinySoundFont playing the OPL-3 FM 128M SoundFont.</dd>
+          </dl>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">On the audio clock</h3>
+          <p>Synthesis in an AudioWorklet: notes and file messages act at their output frame, and a song switches engines without losing its place. No account, upload or remote processing; the instrument runs here.</p>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Sources</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://github.com/Wohlstand/libADLMIDI">libADLMIDI</a> · <a href="https://github.com/nukeykt/Nuked-OPL3">Nuked OPL3</a></li>
+            <li><a href="https://github.com/schellingb/TinySoundFont">TinySoundFont</a> · <a href="https://deb.debian.org/debian/pool/main/t/timgm6mb-soundfont/">TimGM6mb</a></li>
+            <li><a href="https://github.com/Mindwerks/opl3-soundfont/">OPL-3 FM 128M SoundFont</a> (<a href="sf2_sb16/LICENSE">CC BY-SA 4.0</a>)</li>
+            <li><a href="https://github.com/kyr0/bergium">Bergium</a> by Aron Homberg (kyr0), after Butterchurn and MilkDrop (<a href="visualizer/LICENSES.txt">licences</a>)</li>
+            <li><a href="https://shadcn.defuss.org">defuss-shadcn</a> · <a href="fonts/LICENSE.txt">IBM VGA 8x14 by VileR (CC BY-SA 4.0), Press Start 2P</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Music</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://www.karlsitretro.com/game_midi">Karl's Retro</a>: the game MIDI collection</li>
+            <li>MaliceX and Team ChaoS: the Jazz Jackrabbit arrangements</li>
+            <li>Each game plays with the FM bank of its own sound driver where libADLMIDI has it.</li>
+          </ul>
+        </div>
+      </nav>
+      <hr class="separator mk-footer-rule">
+      <div class="mk-footer-bottom">
+        <a class="mk-footer-brand" href="#player"><span class="logo" aria-hidden="true"></span><span class="mk-footer-brand-name">defuss-midi-synth</span></a>
+        <div class="mk-footer-meta"><p class="mk-footer-copy">defuss-midi-synth by <a href="https://github.com/kyr0">Aron Homberg (kyr0)</a> · <a href="LICENSE.txt">Open Source licensed</a></p></div>
+      </div>
+    </div>
+  </footer>
+</div>
+<div class="progress-field load-progress" id="load-progress" hidden>
+  <div class="progress-header"><span class="progress-label" id="load-label">Loading</span><output class="progress-value" for="load-bar"></output></div>
+  <progress class="progress" id="load-bar" max="100" aria-labelledby="load-label"></progress>
+</div>
+<script type="module" src="shadcn/core.min.js"></script>
+<script type="module" src="shadcn/slider.min.js"></script>
+<script type="module" src="shadcn/shaders.min.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

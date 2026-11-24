@@ -1,0 +1,24 @@
+# Third-party provenance
+
+| Component | Pin | License and use |
+| --- | --- | --- |
+| TinySoundFont | v0.9, commit `853a0a171759f1ddba0de1442133a75912bbeffa` | MIT; SoundFont 2 synthesis, `native/tsf.h`, copied unchanged. |
+| TimGM6mb | 1.3, Debian's `timgm6mb-soundfont_1.3.orig.tar.gz` | GPL-2.0; the bundled General MIDI SoundFont, `dist/assets/TimGM6mb.sf2`. |
+| libADLMIDI | 1.6.2, commit `ad001c83551779934bacd642fce801c51a5b7b4c` | GPL-3.0-or-later (synthesizer), LGPL-2.1-or-later (chip interface), MIT (volume models, file readers); the FM engine's General MIDI driver and its 79 embedded banks, `native/adlmidi/`, trimmed and changed as `native/ARCH.md` lists. |
+| Nuked OPL3 fast | 1.8-fast.3, commit `f44bacb1143cd78d36bacf69fbec8c60a125b3c9` | LGPL-2.1-or-later; the OPL3 chip, `native/adlmidi/src/chips/nuked_fast/`, with this project's block renderer beside it. |
+| defuss-brotli | 0.4.0 (npm, exact dev dependency) | MIT; its decoder, bundled into `dist/` and `dist/assets/brotli-decompressor.wasm`, unpacks compressed soundbanks. `src/brotli.ts` calls the same WebAssembly step by step, following the JavaScript wasm-bindgen generated for it, and keeps defuss-brotli's MIT notice at its head. The WebAssembly is compiled from Rust crates under BSD-3-Clause, MIT and Apache-2.0 (`brotli-decompressor` 5.0.0, `alloc-no-stdlib`, `wasm-bindgen`); the build writes defuss-brotli's licence and its list of these notices to `dist/assets/brotli-decompressor.LICENSE.txt`. |
+| OPL-3 FM 128M | SoundFont by Zandro Reveille, 2009, `docs/sf2_sb16/` | CC BY-SA 4.0 (`docs/sf2_sb16/LICENSE`); the demo's SoundFont, credited on the page. Not part of the package. |
+| defuss-shadcn | 0.10.0 (npm, exact dev dependency) | MIT; the demo page's components, copied to `docs/shadcn/` by the build with the licence and notice. Not part of the package. |
+| VT323, Press Start 2P | Google Fonts, Latin subsets | SIL Open Font License 1.1; the demo page's pixel fonts in `docs/fonts/`, unmodified, with both licences in `docs/fonts/OFL.txt`. Not part of the package. |
+| bergium | commit `a8c646f8ce728d7c9d5aa9a4b9946b9237d4fa05` | MIT, by Aron Homberg (kyr0); the demo page's visualizer, `vendor/bergium/src` copied unchanged. Its Milkdrop pipeline derives from Butterchurn (MIT), its Geiss pipeline from Ryan Geiss's Geiss (BSD-3-Clause); the build writes all three licences to `docs/visualizer/LICENSES.txt`. Not part of the package. |
+| butterchurn-presets | 2.4.7 (npm, exact dev dependency) | MIT; 14 Milkdrop presets of its base pack (`demo/bergium-presets.json`), written to `docs/visualizer/presets.json`. Not part of the package. |
+| Lucide | icon outlines in `docs/player.js` | ISC; the player's icons. Not part of the package. |
+| defuss-vae | `dc0f6b5ea4973b2f3224a589d38c19386126e09d` | MIT; development verification tool, `vendor/sources/defuss-vae-source.tgz`. |
+
+TinySoundFont is by Bernhard Schelling, based on SFZero by Steve Folta. Its MIT notice stays at the head of `native/tsf.h`, and the build writes it to `dist/assets/midi-synth.LICENSE.txt` beside the module. TimGM6mb is by Tim Brechbill (2004) and David Bolton (2010). Debian's copyright file and the GPL-2.0 text are kept in `vendor/soundfonts/`, and the build joins them into `dist/assets/TimGM6mb.LICENSE.txt` beside the SoundFont. Debian's archive at https://deb.debian.org/debian/pool/main/t/timgm6mb-soundfont/ keeps the source tarball (SHA-256 `af8f3a00e416dfb262bcaa904a1c84df04a51b72bbc1313aed012bc754bdf99b`). The bundled SoundFont is 5,969,788 bytes with SHA-256 `c5378b62028c920cb11e4803327983fee2f2cdff5dc89c708e39da417e51c854`.
+
+`native/synth.c` and the TypeScript sources are this project's code under GPL-3.0-or-later. The SoundFont is a data file the module loads at run time; it keeps its own GPL-2.0 licence inside the combined distribution. The synthetic sequence, the MIDI, RMI and MUS fixtures and the SoundFont the tests write are authored for this project; the package distributes no game soundtrack or commercial sample set.
+
+libADLMIDI is by Joel Yliluoma (2010-2014) and Vitaly Novichkov (2015-2026); Nuked OPL3 by Nuke.YKT (2013-2020), its fast variant by Tony Gies (2026). The sources keep their headers; the build writes the MIT notices and the LGPL-2.1 and GPL-3.0 texts to `dist/assets/fm-synth.LICENSE.txt` beside the module. The embedded banks are libADLMIDI's (`docs/music/banks.ini` lists them with their sources). `tests/test.wopl` is libADLMIDI's own test bank.
+
+The demo site's `docs/music/` holds game soundtracks in General MIDI from https://www.karlsitretro.com/game_midi, with their covers, and `docs/fm_banks*` holds WOPL bank files. Their rights stay with their authors and publishers; they are not part of the npm package (`package.json` `files`), and publishing the site publishes them.

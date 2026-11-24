@@ -1,0 +1,68 @@
+{
+  "name": "defuss-midi-synth",
+  "version": "0.3.0",
+  "description": "General MIDI synthesizer for the browser and offline rendering: TinySoundFont with a bundled GM SoundFont, and libADLMIDI on an emulated OPL3 FM chip, in WebAssembly and an AudioWorklet",
+  "keywords": [
+    "midi",
+    "general-midi",
+    "soundfont",
+    "sf2",
+    "opl3",
+    "fm-synthesis",
+    "adlib",
+    "synthesizer",
+    "audioworklet",
+    "webassembly",
+    "web-audio"
+  ],
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "author": "Aron Homberg",
+  "packageManager": "bun@1.4.3",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./offline": {
+      "types": "./dist/offline.d.ts",
+      "import": "./dist/offline.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "native",
+    "README.md",
+    "ARCH.md",
+    "CHANGELOG.md",
+    "VALIDATION.md",
+    "LICENSE",
+    "THIRD_PARTY.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs --prepare && pkgroll && node scripts/build.mjs --finish",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/player.js && tsc --noEmit",
+    "test": "node --experimental-transform-types --test tests/*.test.ts",
+    "coverage": "node scripts/coverage.mjs",
+    "e2e": "node scripts/e2e.mjs",
+    "bench": "node --experimental-transform-types --no-warnings scripts/bench.mjs",
+    "dev": "node scripts/serve.mjs",
+    "verify": "make verify",
+    "compress": "node scripts/compress-banks.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "24.10.1",
+    "butterchurn-presets": "2.4.7",
+    "defuss-brotli": "0.4.0",
+    "defuss-shadcn": "0.10.0",
+    "esbuild": "0.25.12",
+    "oxlint": "1.26.0",
+    "pkgroll": "2.29.1",
+    "typescript": "5.9.3"
+  }
+}

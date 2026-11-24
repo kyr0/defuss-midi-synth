@@ -1,0 +1,113 @@
+/* The game music player: the release (the cover dithered by defuss-shadcn's Shader, Bergium over it while music
+ * plays, the title and the tracklist beside it), the audio bar under it, and the crates of album sleeves. Built from
+ * defuss-shadcn's Audio, Playlist Item, Toggle Group, Select, Slider and Shader components in the page's DOS palette
+ * (style.css). */
+.player { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
+.player, .crates { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+.release { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(1.2rem, 3.5vw, 2.4rem); align-items: start; }
+
+/* The stage: the cover in its own colors on a curved, scanlined tube (the crt shader); Bergium fades in over it while music plays */
+.stage { position: relative; aspect-ratio: 4 / 5; border: 2px solid var(--primary); background: #020a04; box-shadow: 6px 6px 0 #000; overflow: hidden; }
+.cover-art { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.cover-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.player-cover:not([src]) { visibility: hidden; }
+.player-visual { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity 0.6s steps(6); }
+.player[data-playing="true"] .player-visual:not([hidden]) { opacity: 1; pointer-events: auto; }
+.player-visual[hidden] { display: none; }
+.player-visual canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.visual-crt { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.player-visual-bar {
+  position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 0.5rem; background: rgb(0 0 0 / 0.75); color: var(--primary);
+}
+.player-visual-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The release's text: the catalogue line, the title, the composer, the options, the tracklist */
+.cat { margin: 0; color: var(--muted-foreground); text-transform: uppercase; }
+.cat #library { color: var(--dos-yellow); }
+.release-meta h1 {
+  margin: 0.8rem 0 0.6rem; font-size: 24px; line-height: 1.35; color: var(--dos-white);
+  text-shadow: 3px 3px 0 #0b3d1a; text-wrap: balance;
+}
+.artist { margin: 0 0 1rem; color: var(--dos-cyan); }
+.player-options { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.player-options .select { width: auto; min-width: 7rem; max-width: 100%; }
+.player-options .select[hidden], .player-bank[hidden] { display: none; }
+.player-bank { color: var(--dos-yellow); }
+.player .toggle-group .toggle { border-radius: 0; }
+.player .toggle-group .toggle[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+
+/* The tracklist: dashed rows, the number in yellow, the length and the WAV button at the end */
+.player .tracks {
+  margin: 1.1rem 0 0; padding: 0; max-height: 30rem; overflow-y: auto; scrollbar-width: thin;
+  scrollbar-color: var(--primary) #000; border-top: 1px dashed var(--border); gap: 0;
+}
+.player .mk-playlist-item label {
+  grid-template-columns: 3.6rem minmax(0, 1fr) auto auto; gap: 0.6rem; padding: 0.35rem 0.3rem;
+  border-radius: 0; border-bottom: 1px dashed var(--border);
+}
+.player .mk-playlist-item label:hover { background: var(--accent); }
+.player .mk-playlist-item:has(input:checked) label { background: #0f3a1d; }
+.player .mk-playlist-item-index { color: var(--dos-yellow); }
+.player .mk-playlist-item-text strong { font-weight: 400; font-size: 1rem; }
+.player .mk-playlist-item-text small { font-size: 1rem; }
+.player .mk-playlist-item-text small { color: var(--muted-foreground); }
+.player .mk-playlist-item-duration { color: var(--muted-foreground); }
+/* Above the label's transparent radio, which covers the whole row. */
+.track-download { position: relative; z-index: 1; gap: 4px; color: var(--muted-foreground); font-size: 1rem; }
+.track-download:hover { color: var(--primary-foreground); background: var(--primary); }
+
+/* The audio bar: a status line of the player */
+.player .audio { margin: 1.4rem 0 0; background: #000; border: 2px solid var(--border); border-radius: 0; }
+.player .audio .select { width: auto; flex: none; }
+.player .audio .audio-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary); }
+.player .audio > .slider[data-size="xs"] { width: 5.5rem; flex: none; }
+
+/* The crates: every album as a sleeve pinned askew, on the same CRT tube as the release's cover (a still frame), the
+   chosen one framed in green; a click plays its first track */
+.crates { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
+.albums { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 2rem 1.4rem; padding: 0.6rem 0.4rem 0; }
+.album { position: relative; display: grid; gap: 0.3rem; align-content: start; cursor: pointer; color: var(--foreground); }
+.album input { position: absolute; opacity: 0; pointer-events: none; }
+.album .shader {
+  --shader-aspect: 3 / 4; border: 2px solid #000; box-shadow: 5px 5px 0 #000; margin-bottom: 0.4rem;
+  transition: rotate 0.2s steps(3), translate 0.2s steps(3);
+}
+.album .shader img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.album:nth-child(4n + 1) .shader { rotate: -3deg; }
+.album:nth-child(4n + 2) .shader { rotate: 2deg; }
+.album:nth-child(4n + 3) .shader { rotate: -1deg; }
+.album:nth-child(4n) .shader { rotate: 3deg; }
+.album:hover .shader { rotate: 0deg; translate: 0 -4px; }
+.album:has(input:checked) .shader { border-color: var(--primary); box-shadow: 5px 5px 0 var(--primary); rotate: 0deg; }
+.album:has(input:focus-visible) .shader { outline: 2px solid var(--ring); outline-offset: 3px; }
+.album strong { font-weight: 400; line-height: 1.15; }
+.album small { color: var(--muted-foreground); font-size: 1rem; }
+.album:has(input:checked) strong { color: var(--primary); }
+.album-year {
+  position: absolute; z-index: 1; top: -0.6rem; right: -0.5rem; padding: 0.35rem 0.35rem; rotate: 10deg;
+  background: var(--dos-yellow); color: #000; font: 8px/1 var(--font-pixel); box-shadow: 2px 2px 0 #000;
+}
+
+/* The page's progress bar: downloads, decompression and WAV rendering (docs/progress.js) */
+.load-progress {
+  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 50; width: min(24rem, calc(100% - 2rem));
+  padding: 0.6rem 0.8rem; border: 2px solid var(--primary); background: #000; box-shadow: var(--pixel-shadow);
+}
+.load-progress[hidden] { display: none; }
+.load-progress .progress-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--primary); }
+.load-progress .progress { border-radius: 0; }
+.take-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.file-button, .take-actions button { white-space: nowrap; }
+
+@media (max-width: 720px) {
+  /* minmax(0, …): the bank list's long names must not widen the column past the screen */
+  .release { grid-template-columns: minmax(0, 1fr); }
+  .player-options .select { width: 100%; }
+  .stage { aspect-ratio: 1; }
+  .player .audio { flex-wrap: wrap; justify-content: space-between; row-gap: 0.3rem; }
+  .player .audio .audio-body { order: -1; flex: 1 0 100%; }
+  .release-meta h1 { font-size: 16px; }
+  .albums { grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 1.4rem 1rem; }
+  .track-download span { display: none; }
+}

@@ -1,0 +1,61 @@
+{
+  "tinySoundFont": {
+    "repository": "https://github.com/schellingb/TinySoundFont",
+    "commit": "853a0a171759f1ddba0de1442133a75912bbeffa",
+    "version": "0.9",
+    "reuse": "tsf.h copied unchanged to native/tsf.h; native/synth.c wraps it."
+  },
+  "timGM6mb": {
+    "source": "https://deb.debian.org/debian/pool/main/t/timgm6mb-soundfont/",
+    "archive": "timgm6mb-soundfont_1.3.orig.tar.gz",
+    "archiveSha256": "af8f3a00e416dfb262bcaa904a1c84df04a51b72bbc1313aed012bc754bdf99b",
+    "sf2Sha256": "c5378b62028c920cb11e4803327983fee2f2cdff5dc89c708e39da417e51c854",
+    "version": "1.3"
+  },
+  "defussVae": {
+    "repository": "https://github.com/kyr0/defuss-vae",
+    "commit": "dc0f6b5ea4973b2f3224a589d38c19386126e09d",
+    "version": "0.9.0"
+  },
+  "emscripten": "7.0.0-git (Homebrew emcc on macOS arm64)",
+  "build": "midi-synth.wasm: emcc -O2 --no-entry -sSTANDALONE_WASM=1 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=16777216 -sFILESYSTEM=0; fm-synth.wasm: the same with -msimd128, -fno-exceptions -fno-rtti and libADLMIDI's sequencer and other chips disabled (scripts/rebuild-wasm.sh)",
+  "libADLMIDI": {
+    "repository": "https://github.com/Wohlstand/libADLMIDI",
+    "commit": "ad001c83551779934bacd642fce801c51a5b7b4c",
+    "version": "1.6.2",
+    "reuse": "native/adlmidi: the real-time synthesizer, the embedded banks and the WOPL reader, without the sequencer and the other chips; changes listed in native/ARCH.md."
+  },
+  "nukedFast": {
+    "repository": "https://github.com/tgies/Nuked-OPL3-fast",
+    "commit": "f44bacb1143cd78d36bacf69fbec8c60a125b3c9",
+    "version": "1.8-fast.3",
+    "reuse": "native/adlmidi/src/chips/nuked_fast, unchanged but for a configuration guard and the included block renderer."
+  },
+  "defussShadcn": {
+    "package": "defuss-shadcn",
+    "version": "0.10.0",
+    "reuse": "Demo page only: runtime and component stylesheets copied to docs/shadcn by scripts/build.mjs."
+  },
+  "bergium": {
+    "repository": "https://github.com/kyr0/bergium",
+    "commit": "a8c646f8ce728d7c9d5aa9a4b9946b9237d4fa05",
+    "reuse": "Demo page only: packages/bergium/src copied unchanged to vendor/bergium/src, bundled by scripts/build.mjs from demo/visualizer.ts."
+  },
+  "butterchurnPresets": {
+    "package": "butterchurn-presets",
+    "version": "2.4.7",
+    "reuse": "Demo page only: the 14 presets of demo/bergium-presets.json, taken from lib/butterchurnPresets.min.js into docs/visualizer/presets.json by scripts/build.mjs."
+  },
+  "defussBrotli": {
+    "package": "defuss-brotli",
+    "version": "0.4.0",
+    "reuse": "The slim decoder bundled into dist/ by pkgroll; dist/assets/brotli-decompressor.wasm is its decompressor.wasm."
+  },
+  "opl3Fm128m": {
+    "file": "docs/sf2_sb16/OPL-3_FM_128M.sf2",
+    "author": "Zandro Reveille",
+    "licence": "CC BY-SA 4.0",
+    "sha256Compressed": "see RELEASE_SHA256.json",
+    "use": "Demo page only."
+  }
+}

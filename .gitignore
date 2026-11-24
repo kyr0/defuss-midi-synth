@@ -1,0 +1,21 @@
+.env
+var/*
+tmp/*
+output/*
+input/*
+.DS_Store
+dist/
+.vae/SWARM_STATUS.yaml
+node_modules/
+coverage/
+.cache/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+# Generated browser package mirrors dist/.
+docs/synth/
+output/# 135 MB raw demo SoundFont; git keeps only its Brotli copy, in LFS.
+docs/sf2_sb16/OPL-3_FM_128M.sf2

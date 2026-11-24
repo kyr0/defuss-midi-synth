@@ -1,0 +1,172 @@
+/* The demo site: a DOS screen over Matrix rain. Text in VileR's IBM VGA 8x14 (CC BY-SA 4.0), headings in Press Start 2P
+ * (OFL), both in fonts/; square
+ * corners, borders of the phosphor green and hard pixel shadows. The layout follows defuss-shadcn's record shop
+ * showcase: a site header, the release as the hero, the crates, a framed booth (the instrument), a footer of columns.
+ * The tokens are defuss-shadcn's, so its components take the palette. */
+@font-face { font-family: 'IBM VGA 8x14'; src: url(fonts/Web437_IBM_VGA_8x14.woff) format('woff'); font-display: swap; }
+@font-face { font-family: 'Press Start 2P'; src: url(fonts/press-start-2p-latin.woff2) format('woff2'); font-display: swap; }
+
+:root {
+  color-scheme: dark;
+  --background: #020a04; --foreground: #c6f2cf;
+  --card: #03100a; --card-foreground: #c6f2cf; --popover: #04140b; --popover-foreground: #c6f2cf;
+  --primary: #26ff6a; --primary-foreground: #021006;
+  --secondary: #0b2a14; --secondary-foreground: #c6f2cf;
+  --muted: #0a2412; --muted-foreground: #74b585;
+  --accent: #0f3a1d; --accent-foreground: #d9ffe4;
+  --border: #1d5a30; --input: #2b7a44; --ring: #ffff55;
+  --chart-1: #26ff6a; --chart-2: #55ffff; --chart-3: #ffff55; --chart-4: #ff55ff; --chart-5: #ff5555;
+  --radius: 0; --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0;
+  /* The VGA text colors and the page's own */
+  --dos-yellow: #ffff55; --dos-cyan: #55ffff; --dos-white: #ffffff; --dos-gray: #aaaaaa;
+  --panel: rgb(2 10 4 / 0.9);
+  --pixel-shadow: 6px 6px 0 #0b3d1a;
+  --font-sans: 'IBM VGA 8x14', ui-monospace, monospace;
+  --font-mono: var(--font-sans);
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
+  /* The VGA font's em is its 14 pixel rows: at 14 px each of its pixels is one CSS pixel, so its edges stay sharp.
+   * Its glyphs are 8 px wide, as in DOS's 80-column text mode. */
+  font-size: 14px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: var(--background); color: var(--foreground);
+  font: 1rem/1.3 var(--font-sans); -webkit-font-smoothing: none; font-smooth: never;
+}
+:where(.btn, .toggle, .select, select, input, button, output, .audio, .mk-playlist-item, .progress-field) { font-family: var(--font-sans); }
+a { color: var(--dos-cyan); text-underline-offset: 3px; }
+a:hover { color: var(--dos-yellow); }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* The background: the rain fills the window behind everything */
+.page-rain { position: fixed; inset: 0; z-index: -1; width: 100vw; height: 100vh; aspect-ratio: auto; }
+.page { max-width: 88rem; margin-inline: auto; padding: 0 clamp(0.8rem, 3vw, 1.6rem) 2rem; }
+main { display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 3.2rem); }
+
+/* A DOS window: an opaque panel, a green frame and a hard shadow */
+.window { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+
+/* The site header: the chip logo and the name with a blinking cursor, the sections, the version and the power button */
+.site-bar { background: none; }
+.site-bar .mk-header-inner { max-width: none; padding: 0.8rem 0; flex-wrap: wrap; gap: 0.6rem 1.2rem; }
+.mk-header-brand, .mk-footer-brand { gap: 0.6rem; color: var(--primary); text-decoration: none; }
+.logo {
+  flex: none; width: 1.4rem; height: 1.4rem; border: 3px solid var(--primary);
+  background: linear-gradient(var(--primary), var(--primary)) center / 40% 40% no-repeat; box-shadow: 3px 3px 0 #0b3d1a;
+}
+.mk-header-name, .mk-footer-brand-name { font: 16px/1 var(--font-pixel); color: var(--primary); letter-spacing: 0; }
+.mk-header-name::after { content: '_'; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.site-bar .mk-header-nav { margin-inline-start: auto; }
+.site-bar .nav-menu-list { display: flex; flex-wrap: wrap; gap: 0.2rem; margin: 0; padding: 0; list-style: none; }
+.site-bar .nav-menu-link {
+  display: block; padding: 0.15rem 0.5rem; color: var(--foreground); text-decoration: none; text-transform: uppercase;
+  font-size: 1rem; border-radius: 0; background: rgb(2 10 4 / 0.75);
+}
+.site-bar .nav-menu-link:is(:hover, :focus-visible) { background: var(--primary); color: var(--primary-foreground); }
+.badge { padding: 0.1rem 0.4rem; border: 1px solid var(--border); color: var(--muted-foreground); background: rgb(2 10 4 / 0.75); }
+#power:disabled { opacity: 1; background: var(--secondary); color: var(--primary); }
+
+/* Buttons that are not defuss-shadcn's: raised DOS keys that press down */
+button:where(:not(.btn, .toggle, .key)), .file-button {
+  border: 2px solid var(--primary); background: var(--secondary); color: var(--primary); border-radius: 0;
+  padding: 0.45rem 0.9rem; font: 1rem/1.1 var(--font-sans); cursor: pointer; box-shadow: 3px 3px 0 #000;
+  text-transform: uppercase;
+}
+button:where(:not(.btn, .toggle, .key)):hover:not(:disabled), .file-button:hover { background: var(--primary); color: var(--primary-foreground); }
+button:where(:not(.btn, .toggle, .key)):active:not(:disabled), .file-button:active { translate: 3px 3px; box-shadow: none; }
+button:disabled { opacity: 0.45; cursor: default; }
+.accent { color: var(--dos-yellow); border-color: var(--dos-yellow); }
+.btn { border-radius: 0; }
+
+/* Headings */
+h1, h2, h3 { font-family: var(--font-pixel); font-weight: 400; letter-spacing: 0; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.4rem 1.6rem; margin-bottom: 1.4rem; }
+.section-head h2 { margin: 0; font-size: 16px; color: var(--dos-white); text-shadow: 3px 3px 0 #0b3d1a; }
+.section-head p { margin: 0; color: var(--muted-foreground); max-width: 48rem; }
+
+/* The instrument: the booth of the record shop, here a DOS window with a title bar */
+.instrument { padding: 0 1.2rem 1.2rem; }
+.window-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 -1.2rem 0.9rem;
+  padding: 0.55rem 1.2rem; background: var(--primary); color: var(--primary-foreground);
+}
+.window-title h2 { margin: 0; font-size: 16px; line-height: 1.4; }
+.window-lead { margin: 0 0 1rem; color: var(--muted-foreground); }
+.led { flex: none; width: 0.6rem; height: 0.6rem; background: #0b3d1a; border: 2px solid var(--primary-foreground); }
+.led.on { background: var(--dos-yellow); box-shadow: 0 0 8px var(--dos-yellow); }
+.display {
+  padding: 0.8rem 1rem; background: #000; border: 2px solid var(--border); color: var(--primary);
+  box-shadow: inset 0 0 0 2px #000, inset 0 0 24px #0b3d1a;
+}
+.display-meta, .display-bottom { display: flex; justify-content: space-between; gap: 1rem; color: #6fd18a; flex-wrap: wrap; }
+.display-main { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; min-height: 8rem; }
+.patch-label { color: #4f9c63; }
+#patch-name { font: 16px/1.4 var(--font-pixel); margin: 0.4rem 0; color: var(--primary); text-shadow: 0 0 8px #26ff6a88; }
+#bank-label { color: #8fd4a0; }
+#scope { width: 44%; height: 6.5rem; image-rendering: pixelated; }
+fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.knobs { display: grid; grid-template-columns: 2fr 1.3fr 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+.knobs label { display: block; color: var(--muted-foreground); }
+.knobs output { float: right; color: var(--dos-yellow); }
+select:where(:not(.select)) {
+  display: block; width: 100%; min-width: 0; margin-top: 0.3rem; padding: 0.35rem 0.4rem; border: 2px solid var(--border);
+  border-radius: 0; background: #000; color: var(--foreground); font: 1rem var(--font-sans);
+}
+input[type=range]:where(:not(.slider)) { width: 100%; margin: 0.9rem 0 0; accent-color: var(--primary); }
+.transport { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1.2rem; }
+.tempo { margin-left: auto; color: var(--muted-foreground); white-space: nowrap; }
+
+/* The keys: square, flat, lit in the phosphor green */
+.keyboard { display: flex; position: relative; height: 10rem; isolation: isolate; border: 2px solid #000; }
+.key {
+  position: relative; flex: 1; min-width: 0; padding: 0; border: 2px solid #000; border-radius: 0;
+  background: var(--dos-gray); color: #222; font: 1rem var(--font-sans); touch-action: none; cursor: pointer;
+  box-shadow: inset -3px -4px 0 #777, inset 3px 0 0 #ddd;
+}
+.key span { position: absolute; bottom: 0.4rem; left: 0; right: 0; }
+.key.black {
+  position: absolute; z-index: 2; width: 4.1%; height: 60%; border: 2px solid #000;
+  background: #111; color: var(--muted-foreground); box-shadow: inset -3px -4px 0 #000, inset 2px 0 0 #333;
+}
+.key:hover { background: #c8c8c8; }
+.key.black:hover { background: #222; }
+.key.active, .key.active:hover { background: var(--primary); box-shadow: inset -3px -4px 0 #0b8a36; }
+.key.black.active { background: #0b8a36; }
+.key-hints { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.3rem 1rem; margin-top: 0.5rem; color: var(--muted-foreground); }
+#midi-in { color: var(--dos-cyan); }
+
+/* Your MIDI: two windows side by side, to open a file and to download what was played */
+.your-midi { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.6rem; scroll-margin-top: 1rem; }
+.file-panel { display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; padding: 1rem; box-shadow: 4px 4px 0 #0b3d1a; }
+.file-panel h3 { margin: 0 0 0.6rem; font-size: 16px; line-height: 1.6; color: var(--dos-yellow); }
+.file-panel p { margin: 0; color: var(--foreground); line-height: 1.25; }
+.file-button { align-self: flex-start; }
+.file-button input { display: none; }
+#take-info { color: var(--dos-cyan); }
+
+/* The footer: four columns on a panel */
+.mk-footer { margin-top: clamp(2rem, 5vw, 3.2rem); background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+.mk-footer-inner { max-width: none; padding: 1.4rem 1.2rem; }
+.mk-footer-heading { font: 8px/1.5 var(--font-pixel); color: var(--dos-yellow); text-transform: uppercase; }
+.mk-footer-col p, .engines { margin: 0; color: var(--foreground); }
+.engines dt { color: var(--primary); }
+.engines dd { margin: 0 0 0.5rem; }
+.mk-footer-list { font-size: 1rem; gap: 0.35rem; }
+.mk-footer-list li { display: block; }
+.mk-footer-list a { display: inline; color: var(--dos-cyan); }
+.mk-footer-rule { border: 0; border-top: 2px dashed var(--border); }
+.mk-footer-copy { color: var(--muted-foreground); }
+
+@media (prefers-reduced-motion: reduce) { .mk-header-name::after { animation: none; } }
+@media (max-width: 720px) {
+  .mk-header-name, .mk-footer-brand-name, .section-head h2, .window-title h2, .file-panel h3 { font-size: 12px; }
+  .key span { display: none; }
+  .knobs { grid-template-columns: 1fr 1fr; }
+  .display-main { min-height: 6.5rem; }
+  #scope { width: 38%; }
+  #patch-name { font-size: 12px; }
+  .tempo, .key-hints span:last-child { display: none; }
+  .keyboard { height: 7rem; }
+  .your-midi { grid-template-columns: 1fr; }
+}
