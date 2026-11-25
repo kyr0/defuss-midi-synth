@@ -56,3 +56,5 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-25T05:09:56Z s=5ed957d1 FINDING docs/profile-files.js:devicesIn add(); docs/packs.json; scripts/packs-catalog.py learn=test: A default pack's name stays fixed while its content follows --activate; binding catalog entries to the file hash is now unit-tested.
 2026-11-25T05:09:56Z s=5ed957d1 FINDING docs/player.js:choose/chooseDevice/playDevice learn=test: Concurrent choices of one profile hit the library's loading guard; the e2e now makes two quick same-profile choices and checks what plays and what is stored.
 2026-11-25T05:09:56Z s=5ed957d1 FINDING src/profile-store.ts:WRITE_CHUNK; tests/profile-store.test.ts learn=none: A stale comment and test name, no behavior; the claim is now labelled by its evidence.
+2026-11-25T05:13:41Z s=5ed957d1 DONE fp=a562fca09167 cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,Makefile(+43)
+2026-11-25T05:21:54Z s=5ed957d1 DONE fp=60d880e5400f cov=98.0% paths=CHANGELOG.md,README.md,VALIDATION.md,docs/ARCH.md(+5)

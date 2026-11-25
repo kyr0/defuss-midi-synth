@@ -10,6 +10,7 @@
 .engine-devices { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; }
 .engine-panel { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; width: 100%; }
 .engine-panel[hidden] { display: none; }
+#engine, #engine-modes { flex-wrap: wrap; height: auto; }
 .engine-panel p { margin: 0; color: var(--muted-foreground); }
 #devices { width: 100%; font-size: 0.9rem; color: var(--foreground); background: var(--background); border: 2px solid var(--primary); padding: 0.2rem; }
 #devices option { padding: 0.3rem 0.4rem; }

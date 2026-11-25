@@ -16,7 +16,7 @@ const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
 const PCI128 = local.includes('pci128.sf2') ? new URL('pci128.sf2', LOCAL) : undefined;
 const SOUNDFONT = PCI128 ?? new URL('https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br');
 let synth, starting, analyser, waveform, customFont, customBank, player;
-const soundFontName = () => customFont ? 'Your SoundFont file' : PCI128 ? 'E-mu 2GMGSMT SoundFont (2 MB)' : 'OPL-3 FM 128M SoundFont (104 MB)';
+const soundFontName = () => customFont ? 'Your SoundFont file' : PCI128 ? 'E-mu 2GMGSMT chip (SoundFont, SF2)' : 'OPL-3 FM 128M SoundFont (104 MB)';
 const progress = createProgress($('load-progress'));
 // Pressed keys by pointer or key code; lit notes by source (a pointer, a key code, a Web MIDI channel); the scope's end.
 const active = new Map(), lit = new Map();

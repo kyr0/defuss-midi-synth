@@ -163,7 +163,7 @@ try {
   await page.click('#engine .toggle[value=soundfont]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / OPL-3 FM 128M', null, { timeout: 120000 });
   assert.equal(await text('#message'), 'SoundFont: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
-  assert.equal(await text('#soundfont-info'), 'Plays OPL-3 FM 128M SoundFont (104 MB).'); assert.equal(await page.locator('#panel-sb16').isHidden(), true);
+  assert.equal(await text('#soundfont-info'), 'OPL-3 FM 128M SoundFont (104 MB)'); assert.equal(await page.locator('#panel-sb16').isHidden(), true);
   assert.equal(await page.locator('#fm-banks').isHidden(), true);
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
   assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
@@ -208,7 +208,7 @@ try {
   await page.click('#engine .toggle[value=sb16]'); await pressed('#engine .toggle[value=sb16]', 'true');
   assert.equal(await page.locator('#panel-sb16').isVisible(), true); assert.equal(await page.locator('#panel-roms').isHidden(), true);
   await page.click('#engine .toggle[value=roms]'); await pressed('#engine .toggle[value=roms]', 'true');
-  assert.equal(await page.locator('#forget-files').isHidden(), true, 'nothing stored yet');
+  assert.equal(await page.locator('#forget-files').isHidden(), true, 'nothing stored yet'); assert.equal(await page.locator('#forget-device').isHidden(), true, 'no device yet');
   const shows = async pattern => page.waitForFunction(source => new RegExp(source).test(document.querySelector('#message').textContent), pattern.source);
   const clear = () => page.evaluate(() => { document.querySelector('#message').textContent = ''; });
   // A drop as the browser makes it: a DragEvent with the files in its DataTransfer, on the list.
@@ -289,6 +289,11 @@ try {
   await second.goto(url); await second.locator('#devices option', { hasText: 'stored in this browser' }).first().waitFor({ state: 'attached' });
   await second.click('#engine .toggle[value=roms]'); await engineOf(second, 'SOUND BLASTER PCI 128');
   await choose('Advanced Gravis UltraSound, stored in this browser (1992)', second); await engineOf(second, 'GRAVIS ULTRASOUND (GF1)');
+  // Forget this device deletes the chosen device's stored files alone; the others stay stored.
+  await second.click('#forget-device');
+  await second.waitForFunction(() => document.querySelector('#message').textContent === 'Advanced Gravis UltraSound, stored in this browser (1992) is off the list, and this browser no longer keeps its files.');
+  assert.equal((await files(second))['gus-gf1.dspack'], undefined); assert.ok((await files(second))['sb-pci128.dspack'] > 0, 'the PCI 128 stays stored');
+  assert.equal(await second.locator('#devices option', { hasText: 'Advanced Gravis UltraSound' }).count(), 0); assert.equal(await second.locator('#forget-files').isVisible(), true);
   await second.evaluate(async bytes => {
     const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
     const writable = await (await dir.getFileHandle('roland-mt32.dspack', { create: true })).createWritable();
@@ -312,7 +317,7 @@ try {
   await page.waitForFunction(shown => document.querySelector('#visual-name').textContent !== shown, shown);
   assert.deepEqual(await page.locator('#visualizer .toggle').allTextContents(), ['No Visuals', 'Bergium']);
   assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16', 'SoundFont', 'ROMs']);
-  assert.deepEqual(await page.locator('#engine-modes .toggle').allTextContents(), ['OPL3', 'CQM']);
+  assert.deepEqual(await page.locator('#engine-modes .toggle').allTextContents(), ['Yamaha YMF262 FM chip (OPL3)', 'Creative OPL3 remake FM chip (CQM)']);
   await page.screenshot({ path: 'output/visualizer.png', clip: await page.locator('#visual-panel').boundingBox() });
   await page.click('#visualizer .toggle[value=off]'); assert.equal(await page.locator('#visual-panel').isHidden(), true);
   // The instrument below the player, on the FM engine.
@@ -473,7 +478,7 @@ try {
       await sb128.click('#engine .toggle[value=soundfont]');
       await sb128.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / 2GMGSMT', null, { timeout: 60000 });
       assert.match(await sb128.locator('#message').textContent(), /^Sound Blaster 128: \d+ presets\.$/);
-      assert.equal(await sb128.locator('#soundfont-info').textContent(), 'Plays E-mu 2GMGSMT SoundFont (2 MB).');
+      assert.equal(await sb128.locator('#soundfont-info').textContent(), 'E-mu 2GMGSMT chip (SoundFont, SF2)');
       const sb128Download = sb128.waitForEvent('download', { timeout: 60000 }); await sb128.click('#tracks li:nth-child(1) .track-download');
       await (await sb128Download).saveAs('output/browser-track-sb128.wav');
       const wav = await wavStats('output/browser-track-sb128.wav');

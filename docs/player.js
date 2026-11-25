@@ -116,7 +116,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     showPanel(engineOf(kind));
     for (const button of $('engine-modes').querySelectorAll('.toggle')) button.setAttribute('aria-pressed', String(button.value === chip));
     if (loadedDevice[kind]) $('devices').value = loadedDevice[kind];
-    $('soundfont-info').textContent = `Plays ${soundFontName()}.`;
+    $('soundfont-info').textContent = soundFontName();
   }
   /** The bank: on an FM engine a list of the synthesizer's banks (only the album's before audio starts), the playing
    *  bank chosen, with the user's WOPL file when one is loaded; on another engine its SoundFont's or its own name. */
@@ -310,8 +310,9 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     for (const device of devices.values()) if (device.needs && modules[device.kind]) { device.sources.wasm = modules[device.kind]; delete device.needs; }
   }
   const store = openProfileStore().catch(() => undefined);
-  // kept: the profiles whose files this browser keeps, for the Forget button.
-  const storedKey = kind => `stored:${kind}`, kept = new Set();
+  // kept: the profiles whose files this browser keeps, for the Forget buttons; saved: the device of the list whose
+  // files the store holds, by profile (one per profile).
+  const storedKey = kind => `stored:${kind}`, kept = new Set(), saved = {};
   /** The ROMs list: the user's devices, the newest release first; the device that plays chosen, else the first. */
   function showDevices() {
     const all = [...devices.values()].sort(byYear), list = $('devices');
@@ -323,6 +324,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     if (!all.length) { const empty = new Option('Drop your files to list their devices', ''); empty.disabled = true; list.append(empty); }
     list.value = (latest && devices.has(latest) ? latest : undefined) ?? loadedDevice[engineKind] ?? all.find(d => !d.needs)?.key ?? '';
     $('forget-files').hidden = !kept.size;
+    $('forget-device').hidden = !devices.has(list.value);
   }
   showDevices(); markEngine(engineKind);
   store.then(s => s?.profiles()).then(kinds => {
@@ -402,7 +404,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     loadedDevice[device.kind] = key; packs[device.kind] = device.sources;
     if (s && !device.stored) {
       await s.save(device.kind, device.sources).then(() => {
-        devices.delete(storedKey(device.kind)); kept.add(device.kind);
+        devices.delete(storedKey(device.kind)); kept.add(device.kind); saved[device.kind] = key;
         message(`${$('message').textContent} This browser keeps your files for later visits.`);
       }, error => message(`${engineName(device.kind)} plays, but this browser did not keep your files: ${error.message}`));
     }
@@ -410,12 +412,26 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   }
   $('devices').onchange = act(choose);
   $('devices').onclick = act(choose);
+  // Forget this device takes the chosen device off the list and, where this browser keeps its files (it was stored, or
+  // it is the device of its profile that was saved), deletes them; the device that plays plays on until another is
+  // chosen. The other devices and their stored files stay.
+  $('forget-device').onclick = act(async () => {
+    const key = $('devices').value, device = devices.get(key);
+    if (!device) return;
+    const keptHere = device.stored || saved[device.kind] === key, s = await store;
+    if (keptHere && s) { await s.remove(device.kind); kept.delete(device.kind); delete saved[device.kind]; }
+    devices.delete(key);
+    if (loadedDevice[device.kind] === key) delete loadedDevice[device.kind];
+    showDevices();
+    message(`${device.name} is off the list${keptHere ? ', and this browser no longer keeps its files' : ''}.`);
+  });
   // Forget asks the store, not this tab's list: another tab of the site may have stored a profile since this one loaded.
   $('forget-files').onclick = act(async () => {
     const s = await store;
     for (const kind of await s?.profiles() ?? []) await s.remove(kind);
     for (const [key, device] of devices) if (device.stored) devices.delete(key);
-    kept.clear(); showDevices(); message('Your files are no longer stored in this browser.');
+    kept.clear(); for (const kind in saved) delete saved[kind];
+    showDevices(); message('Your files are no longer stored in this browser.');
   });
   showAlbum(album);
 
