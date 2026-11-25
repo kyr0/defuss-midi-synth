@@ -5,14 +5,14 @@ import { OfflineSynth, encodeWav } from './synth/offline.js';
 const RATE = 48000;
 
 /**
- * Renders with sound ({ engine, fmBank, soundfont, bank }: the engine, its embedded FM bank, the SoundFont, a WOPL file's
- * bytes) on a new OfflineSynth. prepare(offline) loads or schedules what to play and returns the seconds to render.
+ * Renders with sound ({ engine, fmBank, soundfont, bank, profileSources }: the engine, its embedded FM bank, the SoundFont,
+ * a WOPL file's bytes, the user's pack of a hardware profile) on a new OfflineSynth. prepare(offline) loads or schedules what to play and returns the seconds to render.
  * onProgress hears the synthesizer's downloads and decompression, then { phase: 'render', url: name, loaded, total } in
  * frames. Resolves with a 48 kHz, 16-bit stereo WAV.
  */
 export async function renderWav(name, sound, prepare, onProgress, queueCapacity = 8192) {
   const offline = await OfflineSynth.create({ sampleRate: RATE, baseUrl: new URL('./synth/', import.meta.url), engine: sound.engine,
-    fmBank: sound.fmBank, soundfont: sound.soundfont, onProgress, queueCapacity: Math.min(1048576, Math.max(64, queueCapacity)) });
+    fmBank: sound.fmBank, soundfont: sound.soundfont, profileSources: sound.profileSources, onProgress, queueCapacity: Math.min(1048576, Math.max(64, queueCapacity)) });
   try {
     if (sound.bank) await offline.loadFmBank(sound.bank);
     const frames = Math.ceil(await prepare(offline) * RATE), left = new Float32Array(frames), right = new Float32Array(frames);

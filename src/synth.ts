@@ -1,8 +1,12 @@
+import { moduleKey, nativePart, type EnginePart } from './profile-assets.ts';
+import { isNativeProfile, isSynthProfile, selectEngine, withProfileSources, type SynthProfile, type ProfileSources, type ProfileSourceMap } from './profiles.ts';
 import { bankBytes, FM_WASM_ASSET, readBytes, SOUNDFONT_ASSET, soundFontBytes, WASM_ASSET, type BankSource, type SoundFontSource } from './assets.ts';
 import { MidiStream } from './parser.ts';
 import { engineKind, finite, inputBytes, integer, MAX_SONG_BYTES, normalizeOptions, OPERAND_MAX, packEvent, type EngineKind, type EngineOptions, type MidiLoadOptions, type PlaybackInfo, type ProgressListener, type RenderStats, type SynthEvent, type SynthInfo, type TimedEvent } from './types.ts';
 
 export interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
+  profile?: SynthProfile;
+  profileSources?: ProfileSourceMap;
   context?: AudioContext;
   /** Directory containing worklet.js and assets/. Defaults beside the installed JS. */
   baseUrl?: string | URL;
@@ -16,13 +20,10 @@ export interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
   queueCapacity?: number;
   timeoutMs?: number;
 }
-/** An engine's module, with the SoundFont for the soundfont engine, as the worklet takes it: compiled in the
- *  processor's options, as bytes in a later message. Chrome delivers a WebAssembly.Module in processorOptions but not
- *  through the node's port (the processor never receives that message). */
-interface EnginePart { kind: EngineKind; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer }
 type Pending = { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: ReturnType<typeof setTimeout> };
 /** File transport, scheduler counters and the voices sounding now. */
-export type SynthStatus = PlaybackInfo & RenderStats & { voices: number };
+/** voices as Engine.voices; dropped: MIDI and SysEx the active engine's input could not take (Engine.dropped). */
+export type SynthStatus = PlaybackInfo & RenderStats & { voices: number; dropped: number };
 
 /** Browser facade. Call create/resume from a user gesture to satisfy autoplay policy. */
 export class MidiSynth {
@@ -38,9 +39,14 @@ export class MidiSynth {
   private disposeTask?: Promise<void>;
   /** Engines being fetched and added, so concurrent useEngine calls share one load. */
   private readonly loading = new Map<EngineKind, Promise<void>>();
+  /** The modules the worklet holds or is being sent, by moduleKey: true once it holds one, so an engine on a module
+   *  it holds ('fm' and 'sb16-opl3' share one) goes without its bytes and is not compiled again. */
+  private readonly modules = new Map<string, Promise<boolean>>();
+  /** The native profiles' sources: the profileSources option, and those useProfile adds. */
+  private sources: ProfileSourceMap | undefined;
   private constructor(readonly context: AudioContext, private readonly node: AudioWorkletNode, info: SynthInfo,
     private readonly base: URL, private readonly owned: boolean, private readonly timeout: number, private readonly options: SynthOptions) {
-    this.current = info;
+    this.current = info; this.sources = options.profileSources;
     this.output = context.createGain(); this.output.gain.value = options.gain ?? 1;
     node.connect(this.output); if (options.connect !== false) this.output.connect(context.destination);
     node.port.onmessage = event => {
@@ -59,9 +65,9 @@ export class MidiSynth {
     const context = options.context ?? new AudioContext({ latencyHint: 'interactive' });
     let node: AudioWorkletNode | undefined;
     try {
-      const settings = normalizeOptions({ ...options, sampleRate: context.sampleRate });
+      const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile), sampleRate: context.sampleRate });
       const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress), context.audioWorklet.addModule(new URL('worklet.js', base))]);
+      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress, options.profileSources), context.audioWorklet.addModule(new URL('worklet.js', base))]);
       node = new AudioWorkletNode(context, 'defuss-midi-synth', {
         numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2],
         processorOptions: { part, settings, capacity },
@@ -75,26 +81,40 @@ export class MidiSynth {
           else if (event.data.type === 'fatal') { clearTimeout(timer); reject(new Error(event.data.error)); }
         };
       });
-      return new MidiSynth(context, worklet, info, base, owned, timeout, options);
+      const synth = new MidiSynth(context, worklet, info, base, owned, timeout, options);
+      synth.modules.set(part.key, Promise.resolve(true));
+      return synth;
     } catch (error) {
       if (node) { node.port.postMessage({ id: 0, method: 'dispose', args: [] }); node.disconnect(); node.port.close(); }
       if (owned && context.state !== 'closed') await context.close();
       throw error;
     }
   }
-  /** Fetches kind's module, with the SoundFont for the soundfont engine, and compiles it off the audio thread when
-   *  compile is true. Structured cloning copies the buffers into the audio thread; slices keep a caller's untouched. */
-  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener): Promise<EnginePart> {
-    const [wasm, font] = await Promise.all([readBytes(new URL(kind === 'fm' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress),
+  /** Fetches kind's module (unless withWasm is false: the worklet holds it), with the SoundFont for the soundfont
+   *  engine and the pack for a native profile, and compiles it off the audio thread when compile is true. Structured
+   *  cloning copies the buffers into the audio thread; slices keep a caller's untouched. */
+  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener, sources?: ProfileSourceMap, withWasm = true): Promise<EnginePart> {
+    if (isNativeProfile(kind)) return nativePart(kind, base, sources, compile, timeout, onProgress, withWasm);
+    const [wasm, font] = await Promise.all([withWasm ? readBytes(new URL(kind === 'fm' || kind === 'sb16-opl3' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress) : undefined,
       kind === 'soundfont' ? soundFontBytes(soundfont, base, SOUNDFONT_ASSET, timeout, onProgress) : undefined]);
     const copy = (bytes: Uint8Array) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
-    const part: EnginePart = compile ? { kind, module: await WebAssembly.compile(wasm as Uint8Array<ArrayBuffer>) } : { kind, wasm: copy(wasm) };
+    const part: Extract<EnginePart, { kind: 'soundfont' | 'fm' | 'sb16-opl3' }> = { kind, key: moduleKey(kind) };
+    if (wasm) { if (compile) part.module = await WebAssembly.compile(wasm as Uint8Array<ArrayBuffer>); else part.wasm = copy(wasm); }
     if (font) part.soundfont = copy(font);
     return part;
   }
   /** The active engine, the loaded engines, sample rate, voice limit, the presets selectPreset takes, and the FM
    *  engine's banks once it is loaded. */
   get info(): SynthInfo { return this.current; }
+  /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does: loaded on
+   *  first use, a file keeps its position. A profile that is not available rejects with an Error naming it, and the
+   *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) apply when the
+   *  profile loads; a profile loaded or loading rejects them, as its pack stays. */
+  async useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo> {
+    if (!isSynthProfile(profile)) throw new RangeError('Unknown synth profile');
+    if (sources) this.sources = withProfileSources(this.sources, profile, sources, this.loading.has(profile) || this.current.engines.includes(profile));
+    return this.useEngine(profile);
+  }
   private fail(error: Error): void {
     this.failure = error; this.node.disconnect();
     for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(error); }
@@ -112,10 +132,12 @@ export class MidiSynth {
       catch (error) { clearTimeout(timer); this.pending.delete(id); reject(error); }
     });
   }
-  /** Schedules a batch atomically. Resolve means accepted, not yet played. */
+  /** Schedules a batch atomically. Resolve means accepted, not yet played. A sysex event carries one message F0
+   *  through F7; its bytes travel beside the packed events. */
   schedule(events: readonly TimedEvent[]): Promise<void> {
-    const packed = events.map(event => packEvent(event, this.context.sampleRate));
-    return this.request('schedule', [packed]);
+    const payloads: Uint8Array[] = [];
+    const packed = events.map(event => packEvent(event, this.context.sampleRate, payloads));
+    return this.request('schedule', [packed, payloads]);
   }
   send(event: SynthEvent, time = this.context.currentTime): Promise<void> { return this.schedule([{ ...event, time }]); }
   noteOn(channel: number, note: number, velocity = 100, time?: number): Promise<void> { return this.send({ type: 'noteOn', channel, note, velocity }, time); }
@@ -127,13 +149,13 @@ export class MidiSynth {
   selectPreset(channel: number, bank: number, program: number, time?: number): Promise<void> {
     integer(bank, 0, OPERAND_MAX, 'bank'); integer(program, 0, 127, 'program');
     if (!this.current.presets.some(p => p.bank === bank && p.program === program)) throw new RangeError(`The ${this.current.kind} engine has no preset ${bank}:${program}`);
-    if (this.current.kind === 'fm' && bank === 128 && channel !== 9) throw new RangeError('FM percussion plays on channel 10 (channel index 9)');
+    if (this.current.kind !== 'soundfont' && bank === 128 && channel !== 9) throw new RangeError(`The ${this.current.kind} engine plays bank 128 (percussion) on channel 10 (channel index 9) only`);
     return this.send({ type: 'preset', channel, bank, program }, time);
   }
   /** Returns every channel to its General MIDI state. */
   reset(time?: number): Promise<void> { return this.send({ type: 'reset' }, time); }
-  /** Schedules the messages of a MIDI byte stream (Web MIDI input, an emulated MPU-401) at time; running status
-   *  carries over between calls. */
+  /** Schedules the messages of a MIDI byte stream (Web MIDI input, an emulated MPU-401) at time, system exclusive
+   *  ones included; running status carries over between calls. */
   sendMidi(bytes: ArrayLike<number>, time = this.context.currentTime): Promise<void> { return this.schedule(this.stream.events(bytes, time)); }
   clearScheduled(): Promise<void> { return this.request('clear'); }
   panic(): Promise<void> { return this.request('panic'); }
@@ -155,26 +177,30 @@ export class MidiSynth {
     if (!this.current.engines.includes(kind)) {
       let load = this.loading.get(kind);
       if (!load) {
+        const key = moduleKey(kind), shared = this.modules.get(key);
         load = (async () => {
-          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress);
+          const held = shared ? await shared : false;
+          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, !held);
           this.current = await this.request<SynthInfo>('addEngine', [part]);
         })().finally(() => this.loading.delete(kind));
         this.loading.set(kind, load);
+        // The first load of a module stands for it; a later engine on it waits and then goes without its bytes.
+        if (!shared) this.modules.set(key, load.then(() => true, () => { this.modules.delete(key); return false; }));
       }
       await load;
     }
     this.current = await this.request<SynthInfo>('useEngine', [kind]);
     return this.current;
   }
-  /** Selects the FM engine's embedded bank (0 to 78, numbered as libADLMIDI's banks.ini); a playing file plays on
-   *  with the new instruments. */
+  /** Selects the embedded bank (0 to 78, numbered as libADLMIDI's banks.ini) of every loaded FM engine: fm, sb16-opl3
+   *  and the sb16-cqm profile; a playing file plays on with the new instruments. */
   async setFmBank(bank: number): Promise<SynthInfo> {
     integer(bank, 0, 78, 'FM bank');
     this.current = await this.request<SynthInfo>('setFmBank', [bank]);
     return this.current;
   }
-  /** Replaces the FM engine's instruments with a WOPL bank file (bytes, or a URL relative to baseUrl); a rejected
-   *  file keeps the bank. */
+  /** Replaces the instruments of every loaded FM engine (fm, sb16-opl3, sb16-cqm) with a WOPL bank file (bytes, or a
+   *  URL relative to baseUrl); a rejected file keeps the bank. */
   async loadFmBank(source: BankSource): Promise<SynthInfo> {
     if (this.disposed) throw new Error('Synth is disposed');
     const bytes = await bankBytes(source, this.base, this.timeout, this.options.onProgress);

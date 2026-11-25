@@ -1,0 +1,212 @@
+{
+  "profile": "roland-mt32",
+  "sets": [
+    {
+      "name": "MT-32 control 1.04 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 65536,
+          "sha256": null,
+          "sha1": "5a5cb5a77d7d55ee69657c2f870416daed52dea7",
+          "revision": "1.04",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:59 (CTRL_MT32_V1_04_SHA1) and :89 (CTRL_MT32_V1_04, id ctrl_mt32_1_04, size 65536, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 1.05 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 65536,
+          "sha256": null,
+          "sha1": "e17a3a6d265bf1fa150312061134293d2b58288c",
+          "revision": "1.05",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:62 (CTRL_MT32_V1_05_SHA1) and :92 (CTRL_MT32_V1_05, id ctrl_mt32_1_05, size 65536, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 1.06 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 65536,
+          "sha256": null,
+          "sha1": "a553481f4e2794c10cfe597fef154eef0d8257de",
+          "revision": "1.06",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:65 (CTRL_MT32_V1_06_SHA1) and :95 (CTRL_MT32_V1_06, id ctrl_mt32_1_06, size 65536, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 1.07 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 65536,
+          "sha256": null,
+          "sha1": "b083518fffb7f66b03c23b7eb4f868e62dc5a987",
+          "revision": "1.07",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:68 (CTRL_MT32_V1_07_SHA1) and :98 (CTRL_MT32_V1_07, id ctrl_mt32_1_07, size 65536, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control BlueRidge + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 65536,
+          "sha256": null,
+          "sha1": "7b8c2a5ddb42fd0732e2f22b3340dcf5360edf92",
+          "revision": "BlueRidge",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:71 (CTRL_MT32_BLUER_SHA1) and :101 (CTRL_MT32_BLUER, id ctrl_mt32_bluer, size 65536, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 2.03 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 131072,
+          "sha256": null,
+          "sha1": "5837064c9df4741a55f7c4d8787ac158dff2d3ce",
+          "revision": "2.03",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:73 (CTRL_MT32_V2_03_SHA1) and :103 (CTRL_MT32_V2_03, id ctrl_mt32_2_03, size 131072, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 2.04 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 131072,
+          "sha256": null,
+          "sha1": "2c16432b6c73dd2a3947cba950a0f4c19d6180eb",
+          "revision": "2.04",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:74 (CTRL_MT32_V2_04_SHA1) and :104 (CTRL_MT32_V2_04, id ctrl_mt32_2_04, size 131072, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 2.06 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 131072,
+          "sha256": null,
+          "sha1": "2869cf4c235d671668cfcb62415e2ce8323ad4ed",
+          "revision": "2.06",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:75 (CTRL_MT32_V2_06_SHA1) and :105 (CTRL_MT32_V2_06, id ctrl_mt32_2_06, size 131072, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    },
+    {
+      "name": "MT-32 control 2.07 + PCM",
+      "files": [
+        {
+          "name": "MT32_CONTROL.ROM",
+          "role": 1,
+          "size": 131072,
+          "sha256": null,
+          "sha1": "47b52adefedaec475c925e54340e37673c11707c",
+          "revision": "2.07",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:76 (CTRL_MT32_V2_07_SHA1) and :106 (CTRL_MT32_V2_07, id ctrl_mt32_2_07, size 131072, ROMInfo::Full)"
+        },
+        {
+          "name": "MT32_PCM.ROM",
+          "role": 2,
+          "size": 524288,
+          "sha256": null,
+          "sha1": "f6b1eebc4b2d200ec6d3d21d51325d5b48c60252",
+          "revision": "MT-32 PCM",
+          "source": "munt/munt@f5b968c4faf180c7e687346a4e0ad426eee5f2af mt32emu/src/ROMInfo.cpp:83 (PCM_MT32_SHA1) and :113 (PCM_MT32, id pcm_mt32, size 524288, ROMInfo::Full)"
+        }
+      ]
+    }
+  ]
+}

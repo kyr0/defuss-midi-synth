@@ -1,11 +1,11 @@
+import { type EnginePart } from './profile-assets.ts';
+import { NativeProfileVoices, instantiateProfile } from './profile-voices.ts';
+import type { Voices } from './voices.ts';
 import { Engine, SYNTH_IMPORTS } from './engine.ts';
 import { RenderSession } from './session.ts';
 import { normalizeOptions, type EngineKind, type EngineOptions, type MidiLoadOptions, type PackedEvent } from './types.ts';
 import { FmVoices, SoundFontVoices } from './voices.ts';
 
-/** An engine's module, compiled (the processor's options) or as bytes (a later addEngine message: Chrome does not
- *  deliver a WebAssembly.Module through the port), with the SoundFont for the soundfont engine. */
-interface EnginePart { kind: EngineKind; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer }
 interface ProcessorOptions { processorOptions: { part: EnginePart; settings: EngineOptions; capacity: number } }
 interface Request { id: number; method: string; args: unknown[] }
 
@@ -15,6 +15,9 @@ class MidiProcessor extends AudioWorkletProcessor {
   private session?: RenderSession;
   private settings: Required<EngineOptions>;
   private closed = false;
+  /** The modules compiled so far, by moduleKey: a later engine on one of them comes without bytes. VERIFIED:
+   *  scripts/e2e.mjs plays fm and sb16-opl3 in the browser with one fm-synth.wasm request. */
+  private readonly modules = new Map<string, WebAssembly.Module>();
   constructor(options: ProcessorOptions) {
     super();
     this.port.onmessage = (event: MessageEvent<Request>) => this.command(event.data);
@@ -26,10 +29,17 @@ class MidiProcessor extends AudioWorkletProcessor {
       this.port.postMessage({ type: 'ready', info: engine.info() });
     } catch (error) { this.fail(error); }
   }
-  private voices(part: EnginePart, module = part.module): SoundFontVoices | FmVoices {
+  /** The engine's voices. Native cores boot in profile_init (the Sound Canvas firmware for up to seconds), so voices
+   *  are made only here, in the constructor and in addEngine's message, never in process(): a render quantum never
+   *  holds a boot, though a long boot still delays the quanta after the message. */
+  private voices(part: EnginePart, module = part.module ?? this.modules.get(part.key)): Voices {
     if (!module) throw new Error('The engine part has no module');
+    this.modules.set(part.key, module);
+    // A later FM engine starts on the bank the loaded ones play (Engine.fmBank).
+    const fmBank = this.session?.engine.fmBank() ?? this.settings.fmBank;
+    if ('assets' in part) return new NativeProfileVoices(part.kind, instantiateProfile(module), new Uint8Array(part.assets), this.settings.sampleRate, fmBank);
     const instance = new WebAssembly.Instance(module, SYNTH_IMPORTS);
-    if (part.kind === 'fm') return new FmVoices(instance, this.settings);
+    if (part.kind === 'fm' || part.kind === 'sb16-opl3') return new FmVoices(instance, { ...this.settings, fmBank }, part.kind);
     if (!part.soundfont) throw new Error('The soundfont engine needs a SoundFont');
     return new SoundFontVoices(instance, new Uint8Array(part.soundfont), this.settings);
   }
@@ -48,7 +58,7 @@ class MidiProcessor extends AudioWorkletProcessor {
       const s = this.session, e = s.engine, a = request.args;
       let result: unknown = null;
       switch (request.method) {
-        case 'schedule': s.schedule(a[0] as PackedEvent[]); break;
+        case 'schedule': s.schedule(a[0] as PackedEvent[], (a[1] ?? []) as Uint8Array[]); break;
         case 'clear': s.clear(); break;
         case 'panic': s.clear(); e.panic(); break;
         case 'useEngine': s.clear(); e.use(a[0] as EngineKind); result = e.info(); break;
@@ -61,7 +71,7 @@ class MidiProcessor extends AudioWorkletProcessor {
         case 'stop': s.clear(); e.stop(); break;
         case 'seek': s.clear(); e.seek(a[0] as number); break;
         case 'rate': e.setRate(a[0] as number); break;
-        case 'status': result = { ...s.stats(), ...e.playbackInfo(), voices: e.voices() }; break;
+        case 'status': result = { ...s.stats(), ...e.playbackInfo(), voices: e.voices(), dropped: e.dropped() }; break;
         default: throw new Error(`Unknown command: ${request.method}`);
       }
       this.port.postMessage({ id: request.id, result });
@@ -74,7 +84,7 @@ class MidiProcessor extends AudioWorkletProcessor {
   private async addEngine(request: Request): Promise<void> {
     try {
       const part = request.args[0] as EnginePart;
-      const module = part.module ?? await WebAssembly.compile(part.wasm ?? new ArrayBuffer(0));
+      const module = part.module ?? (part.wasm ? await WebAssembly.compile(part.wasm) : this.modules.get(part.key));
       if (this.closed || !this.session) throw new Error('Processor is not ready');
       const engine = this.session.engine;
       engine.add(this.voices(part, module));

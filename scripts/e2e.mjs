@@ -2,6 +2,7 @@ import { chromium } from '@playwright/test';
 import { serve } from './serve.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { midiFixture, musFixture, rmiFixture, soundfont } from '../tests/fixtures.ts';
+import { gusFixture } from '../tests/vintage-fixtures.ts';
 import assert from 'node:assert/strict';
 import { compress, init as brotli } from 'defuss-brotli/compressor';
 await brotli();
@@ -13,6 +14,7 @@ const errors = []; page.on('pageerror', error => errors.push(error.message));
 page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
 page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
 const hub = []; page.on('request', request => { if (request.url().startsWith('https://huggingface.co/')) hub.push(request.url()); });
+const fmModules = []; page.on('request', request => { if (request.url().endsWith('/fm-synth.wasm')) fmModules.push(request.url()); });
 page.on('response', response => { if (response.status() >= 400) errors.push(`${response.url()}: HTTP ${response.status()}`); });
 const url = `http://127.0.0.1:${server.address().port}`;
 const text = id => page.locator(id).textContent();
@@ -155,16 +157,16 @@ try {
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: 50 * 1024 * 1024, uploadThroughput: -1 });
   await page.click('#engine .toggle[value=soundfont]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / OPL-3 FM 128M', null, { timeout: 120000 });
-  assert.equal(await text('#message'), 'SoundBlaster 16: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
+  assert.equal(await text('#message'), 'SoundFont: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
   assert.equal(await page.locator('#fm-banks').isHidden(), true);
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
   assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
   assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont comes from the Hub');
   await page.waitForSelector('#load-progress', { state: 'hidden' });
   await sounding();
-  await page.click('#engine .toggle[value=fm]');
+  await page.click('#engine .toggle[value=sb16-opl3]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
-  assert.match(await text('#message'), /^Gravis Ultrasound: .*36 voices\.$/);
+  assert.match(await text('#message'), /^Sound Blaster 16 \(OPL3\): .*18 voices\.$/);
   // A track's WAV button renders it on the engine and bank shown without choosing it.
   const trackDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
   const track = await trackDownload; assert.equal(track.suggestedFilename(), 'Doom - 1 Intro.wav');
@@ -172,24 +174,51 @@ try {
   const trackWav = await wavStats('output/browser-track.wav');
   assert.equal(trackWav.riff, 'RIFF'); assert.ok(trackWav.frames >= 8.5 * 48000 && trackWav.frames <= 9 * 48000, `${trackWav.frames} frames`); assert.ok(trackWav.peak > 300, `peak ${trackWav.peak}`);
   assert.equal(await page.locator('#tracks input:checked').inputValue(), '1');
-  // Jazz Jackrabbit 2 and The Settlers II play on the SoundBlaster 16, the engine of their index entries; an engine picked
-  // on an album holds for its next track, and an album without one plays on the FM engine.
+  // Jazz Jackrabbit 2 and The Settlers II play on the Sound Blaster 16 (OPL3), the profile of their index entries: an
+  // engine picked on Doom gives way to it. An engine picked on an album holds for its next track; the next album plays on
+  // its own profile.
   const label = value => page.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
+  await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
   await album('jazz-jackrabbit-2-1998'); await title('Lab Rat · Jazz Jackrabbit 2');
-  await label('TINYSOUNDFONT / OPL-3 FM 128M'); await pressed('#engine .toggle[value=soundfont]', 'true'); await sounding();
-  await page.click('#engine .toggle[value=fm]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 0');
+  await label('LIBADLMIDI / NUKED OPL3 · BANK 0'); await pressed('#engine .toggle[value=sb16-opl3]', 'true'); await sounding();
+  await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
   await page.click('#tracks li:nth-child(2) label'); await title('Carrotus · Jazz Jackrabbit 2');
-  assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · BANK 0');
-  await album('the-settlers-ii-1996'); await title('Track 1 · The Settlers II'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
+  assert.equal(await text('#engine-label'), 'TINYSOUNDFONT / OPL-3 FM 128M');
+  await album('the-settlers-ii-1996'); await title('Track 1 · The Settlers II'); await label('LIBADLMIDI / NUKED OPL3 · BANK 0');
   await album('doom-1993'); await title('Intro · Doom'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
   assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont loads once');
+  // The CQM plays the game's bank too.
+  await page.click('#engine .toggle[value=sb16-cqm]'); await label('LIBADLMIDI / NUKED CQM · BANK 16'); await sounding();
+  assert.match(await text('#message'), /^Sound Blaster 16 \(CQM\): .*18 voices\.$/);
+  // A profile of the hardware list asks for the user's pack and plays with it: a GF1 pack of the tests' own patches on
+  // the real core. A WAV download renders with the same pack; a pack the core rejects leaves the engine that played.
+  assert.deepEqual(await page.locator('#hardware option').allTextContents(), ['Your hardware files…', 'Sound Blaster PCI 128 · your ECW pack',
+    'Gravis UltraSound (GF1) · your patch pack', 'Roland SC-55 · your ROM pack', 'Roland SC-55mkII · your ROM pack', 'Roland MT-32 · your ROM pack',
+    'Sound Blaster AWE32 · local build only', 'Sound Blaster AWE64 · local build only']);
+  assert.deepEqual(await page.locator('#hardware option[disabled]').evaluateAll(o => o.map(x => x.value)), ['awe32', 'awe64']);
+  const pack = async (kind, name, buffer) => {
+    const chooser = page.waitForEvent('filechooser'); await page.selectOption('#hardware', kind);
+    await (await chooser).setFiles({ name, mimeType: 'application/octet-stream', buffer });
+  };
+  await pack('gus-gf1', 'gus.dspack', gusFixture()); await label('GRAVIS ULTRASOUND (GF1)');
+  assert.match(await text('#message'), /^Gravis UltraSound \(GF1\): 129 presets\.$/);
+  for (const kind of ['sb16-opl3', 'sb16-cqm', 'soundfont']) await pressed(`#engine .toggle[value=${kind}]`, 'false');
+  assert.equal(await page.locator('#hardware').inputValue(), 'gus-gf1'); assert.equal(await text('#soundfont-name'), 'Gravis UltraSound (GF1)');
+  const gusDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
+  await (await gusDownload).saveAs('output/browser-track-gf1.wav');
+  assert.ok((await wavStats('output/browser-track-gf1.wav')).frames >= 8.5 * 48000, 'the WAV renders with the GF1 pack');
+  await pack('roland-mt32', 'mt32.dspack', Buffer.from('not a pack'));
+  await page.waitForFunction(() => /roland-mt32/.test(document.querySelector('#message').textContent));
+  assert.equal(await text('#engine-label'), 'GRAVIS ULTRASOUND (GF1)'); assert.equal(await page.locator('#hardware').inputValue(), 'gus-gf1');
+  await page.click('#engine .toggle[value=sb16-opl3]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
+  assert.equal(await page.locator('#hardware').inputValue(), '');
   // Bergium draws, steps to the next preset of the page's list, and stops.
   const frames = Number(await page.getAttribute('#visual', 'data-frames') ?? 0);
   await page.waitForFunction(frames => Number(document.querySelector('#visual').dataset.frames) >= frames + 30, frames, { timeout: 20000 });
   const shown = await text('#visual-name'); await page.click('#visual-next');
   await page.waitForFunction(shown => document.querySelector('#visual-name').textContent !== shown, shown);
   assert.deepEqual(await page.locator('#visualizer .toggle').allTextContents(), ['No Visuals', 'Bergium']);
-  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Gravis Ultrasound', 'SoundBlaster 16']);
+  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16 (OPL3)', 'Sound Blaster 16 (CQM)', 'SoundFont']);
   await page.screenshot({ path: 'output/visualizer.png', clip: await page.locator('#visual-panel').boundingBox() });
   await page.click('#visualizer .toggle[value=off]'); assert.equal(await page.locator('#visual-panel').isHidden(), true);
   // The instrument below the player, on the FM engine.
@@ -222,7 +251,7 @@ try {
   await page.setInputFiles('#file', { name: 'test.wopl.br', mimeType: 'application/octet-stream', buffer: Buffer.from(compress(await readFile('tests/test.wopl'), { quality: 5 })) });
   await page.waitForFunction(() => document.querySelector('#message').textContent === 'FM bank loaded from your WOPL file.');
   assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · WOPL FILE');
-  await pressed('#engine .toggle[value=fm]', 'true');
+  await pressed('#engine .toggle[value=sb16-opl3]', 'true');
   assert.equal(await page.locator('#fm-banks').inputValue(), '-1'); assert.equal(await page.locator('#fm-banks option:checked').textContent(), 'Your WOPL file');
   const fmDownload = page.waitForEvent('download'); await page.click('#take-download');
   await (await fmDownload).saveAs('output/browser-fm-recording.wav');
@@ -246,6 +275,7 @@ try {
   await page.waitForFunction(() => /Invalid SoundFont/.test(document.querySelector('#message').textContent));
   assert.equal(await page.locator('#program option').count(), 2, 'a rejected SoundFont keeps the loaded one');
   // Public API test using a real AudioContext, real WASM, real worklet and analyzer.
+  const fmModulesBefore = fmModules.length;
   const evidence = await page.evaluate(async ({ midiBytes, sineFont }) => {
     const { MidiSynth } = await import('./synth/index.js');
     const context = new AudioContext({ sampleRate: 48000 }); await context.resume();
@@ -287,6 +317,18 @@ try {
     let fmBadBank = false; try { await synth.setFmBank(79); } catch (e) { fmBadBank = e instanceof RangeError; }
     let fmDrumChannel = false; try { await synth.selectPreset(0, 128, 0); } catch (e) { fmDrumChannel = e instanceof RangeError; }
     await synth.setPlaybackRate(1.5); let badRate = false; try { await synth.setPlaybackRate(5); } catch (e) { badRate = e instanceof RangeError; }
+    // SysEx through the public API: GM System On, by send and by sendMidi, ends a held note; a data byte of 80h is a
+    // RangeError. sb16-opl3 runs on the module fm loaded; a profile without its pack rejects naming it, and the engine
+    // that played plays on.
+    const held = async () => (await synth.status()).voices;
+    await synth.noteOn(0, 60, 127); await wait(150); const heldVoices = await held();
+    await synth.send({ type: 'sysex', data: [0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7] }); await wait(150); const afterSend = await held();
+    await synth.noteOn(0, 62, 127); await wait(150);
+    await synth.sendMidi([0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7]); await wait(150); const afterMidi = await held();
+    let badSysex = false; try { await synth.send({ type: 'sysex', data: [0xf0, 0x80, 0xf7] }); } catch (e) { badSysex = e instanceof RangeError; }
+    const opl3 = await synth.useProfile('sb16-opl3');
+    let missing = ''; try { await synth.useProfile('roland-mt32'); } catch (e) { missing = e.message; }
+    const sysex = { heldVoices, afterSend, afterMidi, badSysex, opl3: opl3.kind, opl3Voices: opl3.maxVoices, missing, stillPlaying: synth.info.kind };
     const back = await synth.useEngine('soundfont');
     const engines = { kind: fm.kind, engines: fm.engines, banks: fm.fm.banks.length, bank: synth.info.fm.bank, voices: fm.maxVoices, fmSounding, fmBadBank, fmDrumChannel, badRate, back: back.kind, backPresets: back.presets.length };
     synth.setGain(0.3); await synth.resume();
@@ -296,7 +338,7 @@ try {
     const second = await MidiSynth.create({ context, baseUrl:new URL('./synth/',location.href) }); await second.dispose();
     await context.close();
     const owned = await MidiSynth.create({ baseUrl:new URL('./synth/',location.href) }); await owned.resume(); await owned.dispose();
-    return { info: { engine: info.engine, presets: info.presets.length, first: info.presets[0], maxVoices: info.maxVoices }, sounding, voices, drums, badPreset, overflow,
+    return { sysex, info: { engine: info.engine, presets: info.presets.length, first: info.presets[0], maxVoices: info.maxVoices }, sounding, voices, drums, badPreset, overflow,
       duration:meta.duration, paused, pausedAgain, ended, sinePresets: sines.presets.length, badFont, keptFont, stats, callerContextPreserved, disposedRejected, ownedContextClosed:owned.context.state === 'closed', engines, sourceRms, silenced };
   }, { midiBytes: [...midiFixture()], sineFont: [...soundfont()] });
   assert.equal(evidence.info.engine, 'TinySoundFont 0.9'); assert.equal(evidence.info.presets, 136);
@@ -308,6 +350,12 @@ try {
   assert.deepEqual(evidence.engines, { kind: 'fm', engines: ['soundfont', 'fm'], banks: 79, bank: 16, voices: 36, fmSounding: evidence.engines.fmSounding,
     fmBadBank: true, fmDrumChannel: true, badRate: true, back: 'soundfont', backPresets: 3 });
   assert.ok(evidence.engines.fmSounding > 0.001, 'The FM engine must sound');
+  const { sysex } = evidence;
+  assert.ok(sysex.heldVoices >= 1, 'a held note sounds'); assert.equal(sysex.afterSend, 0, 'GM System On by send ends it');
+  assert.equal(sysex.afterMidi, 0, 'GM System On by sendMidi ends it'); assert.equal(sysex.badSysex, true);
+  assert.equal(sysex.opl3, 'sb16-opl3'); assert.equal(sysex.opl3Voices, 18); assert.match(sysex.missing, /roland-mt32/);
+  assert.equal(sysex.stillPlaying, 'sb16-opl3');
+  assert.equal(fmModules.length - fmModulesBefore, 1, 'fm and sb16-opl3 load fm-synth.wasm once');
   assert.ok(evidence.sourceRms > 0.001 && evidence.silenced < evidence.sourceRms / 10, `source ${evidence.sourceRms} sounds while output at gain 0 gives ${evidence.silenced}`);
   assert.equal(evidence.callerContextPreserved, true); assert.equal(evidence.disposedRejected, true); assert.equal(evidence.ownedContextClosed,true);
   assert.equal(errors.length, 0, errors.join('\n'));

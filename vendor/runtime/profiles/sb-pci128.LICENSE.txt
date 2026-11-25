@@ -1,0 +1,1 @@
+ECW reconstruction: MIT; format references Engelmann specification 1.5 and public-domain ecw2sfz r3. No proprietary bank bundled.

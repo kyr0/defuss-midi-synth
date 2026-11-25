@@ -1,0 +1,19 @@
+{
+  "profile": "awe32",
+  "sets": [
+    {
+      "name": "EMU8000 GM ROM",
+      "files": [
+        {
+          "name": "awe32.raw",
+          "role": 3,
+          "size": 1048576,
+          "sha256": null,
+          "sha1": "6ac3c1317c1acb83902397d7767763cca4de357a",
+          "revision": "E-mu 1MGM wave ROM, header text '2.81MGM ... Nightingale General MIDI Copyright 1993 E-mu Systems', PCem/86Box dump with one leading 0x1234 word",
+          "source": "SHA-1 and MD5 30b76c45ca0712418239d2b15c65881a: TASVideos EmulatorResources/PCem/Windows/Configurations, section ROMs (retrieved 2026-11-25). The same MD5 for this file: AWE32Emu tools/awedump/TEST86BOX.txt at 17b0578fe59909dfaa784b5531d6d1a3a80729ce; header and size: AWE32Emu docs/re-notes/rom_vs_sf2.md at the same commit. 86Box snd_emu8k.c emu8k_init checks only the length (at least 1048574 bytes) and drops the leading word."
+        }
+      ]
+    }
+  ]
+}

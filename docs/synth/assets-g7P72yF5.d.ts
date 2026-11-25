@@ -1,5 +1,39 @@
+/** Stable hardware model identifiers. 'fm' remains a legacy multi-chip OPL3 engine. VERIFIED: tests/profiles.test.ts
+ *  checks the ten unique ids and that prototype keys such as '__proto__' are no profile. */
+declare const SYNTH_PROFILES: readonly ["soundfont", "sb16-opl3", "sb16-cqm", "awe32", "awe64", "sb-pci128", "gus-gf1", "roland-sc55", "roland-sc55mk2", "roland-mt32"];
+type SynthProfile = typeof SYNTH_PROFILES[number];
+type NativeProfile = Exclude<SynthProfile, 'soundfont' | 'sb16-opl3'>;
+/** A native profile's module or pack: a URL (relative to baseUrl) or its bytes. */
+type ProfileSource = string | URL | Uint8Array | ArrayBuffer;
+/** wasm replaces the package's module (a local build, such as AWE's); assets is the DSPK pack
+ *  (native/profiles/profile_pack.h) of the user's own ROMs, wavesets or patches, which the package never ships. */
+interface ProfileSources {
+    wasm?: ProfileSource;
+    assets?: ProfileSource;
+}
+/** The sources of each native profile, as profileSources and useProfile take them. */
+type ProfileSourceMap = Partial<Record<NativeProfile, ProfileSources>>;
+/** Whether the package ships the profile's core: 'bundled' cores are in dist/assets/profiles (or built in), the others
+ *  must be built (scripts/build-native-profiles.py) and supplied as profileSources[id].wasm. */
+type ProfileAvailability = 'bundled' | 'build-required' | 'local-build-required';
+/** What the user supplies as profileSources[id].assets: 'none', an 'optional' bank, or 'required' private assets
+ *  (ROMs, a waveset, a patch set), without which the profile rejects. A profile plays without user assets exactly when
+ *  its core is bundled and userAssets is not 'required'. */
+type ProfileUserAssets = 'none' | 'optional' | 'required';
+interface ProfileDescriptor {
+    readonly id: number;
+    readonly label: string;
+    readonly technology: string;
+    readonly availability: ProfileAvailability;
+    readonly userAssets: ProfileUserAssets;
+    readonly maxVoices: number;
+}
+/** Each profile's model id (profile_model), label, core, whether the package ships its core, and whether it needs the
+ *  user's files: a page offers as playable only what is bundled and needs no 'required' assets. */
+declare const PROFILE_DESCRIPTORS: Readonly<Record<SynthProfile, ProfileDescriptor>>;
+
 /** The two synthesizers: TinySoundFont with a General MIDI SoundFont, or libADLMIDI on emulated OPL3 FM chips. */
-type EngineKind = 'soundfont' | 'fm';
+type EngineKind = SynthProfile | 'fm';
 interface EngineOptions {
     sampleRate?: number;
     /** SoundFont engine: voices preallocated; beyond them a new note steals the voice furthest into its release. */
@@ -53,12 +87,20 @@ type SynthEvent = {
 /** Every channel back to its General MIDI state (the GM, GS and XG reset messages do this too). */
  | {
     type: 'reset';
+}
+/** One system exclusive message, F0 through F7 (at most SYSEX_MAX bytes, data bytes below 80h). Each engine applies
+ *  what it knows and ignores the rest: the GM, GM2, GS and XG resets on every engine, GM Master Volume on the
+ *  SoundFont and FM engines, libADLMIDI's GS and XG messages on the FM engine, the native core's own on a profile. */
+ | {
+    type: 'sysex';
+    data: Uint8Array | readonly number[];
 };
 /** Time is absolute AudioContext time in the browser, seconds from zero offline. */
 type TimedEvent = SynthEvent & {
     time: number;
 };
-/** Fixed-width protocol: output frame, operation, three integer operands. */
+/** Fixed-width protocol: output frame, operation, three integer operands. A sysex event's first operand indexes the
+ *  batch's payloads (packEvent), the other two are 0. */
 type PackedEvent = [number, number, number, number, number];
 /** One preset of the loaded SoundFont: bank 0 holds the General MIDI programs, bank 128 the drum kits. */
 interface Preset {
@@ -77,6 +119,7 @@ interface FmInfo {
 interface SynthInfo {
     engine: string;
     kind: EngineKind;
+    profile?: SynthProfile;
     engines: EngineKind[];
     sampleRate: number;
     maxVoices: number;
@@ -119,4 +162,5 @@ type SoundFontSource = string | URL | ArrayBuffer | Uint8Array;
  *  asset directory. */
 type BankSource = string | URL | ArrayBuffer | Uint8Array;
 
-export type { BankSource as B, EngineOptions as E, FmInfo as F, LoadProgress as L, MidiLoadOptions as M, ProgressListener as P, RenderStats as R, SoundFontSource as S, TimedEvent as T, SynthInfo as a, SynthEvent as b, EngineKind as c, PlaybackInfo as d, Preset as e, PackedEvent as f };
+export { PROFILE_DESCRIPTORS as h, SYNTH_PROFILES as m };
+export type { BankSource as B, EngineOptions as E, FmInfo as F, LoadProgress as L, MidiLoadOptions as M, ProfileSourceMap as P, RenderStats as R, SynthProfile as S, TimedEvent as T, SoundFontSource as a, ProgressListener as b, SynthInfo as c, ProfileSources as d, SynthEvent as e, EngineKind as f, PlaybackInfo as g, Preset as i, ProfileAvailability as j, ProfileDescriptor as k, ProfileUserAssets as l, PackedEvent as n };

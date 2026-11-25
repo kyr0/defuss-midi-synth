@@ -87,14 +87,25 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     showBank();
     listTracks();
   }
-  /** The bank: on the FM engine a list of the synthesizer's banks (only the album's before audio starts), the playing
-   *  bank chosen, with the user's WOPL file when one is loaded; on the SoundFont engine the SoundFont's name. */
+  /** The engines that play the game banks: libADLMIDI on one OPL3, on one CQM, and the legacy multi-chip engine. */
+  const FM = new Set(['sb16-opl3', 'sb16-cqm', 'fm']);
+  /** An engine's name: its button, its entry in the hardware list, or the synthesizer's name for it. */
+  const engineName = (kind, synth) => $('engine').querySelector(`.toggle[value="${kind}"]`)?.textContent
+    ?? $('hardware').querySelector(`option[value="${kind}"]`)?.textContent.split(' · ')[0] ?? synth?.info.engine ?? kind;
+  /** The engine controls show kind: its button pressed, or its entry chosen in the hardware list. */
+  function markEngine(kind) {
+    for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other.value === kind));
+    $('hardware').value = $('engine').querySelector(`.toggle[value="${kind}"]`) ? '' : kind;
+  }
+  /** The bank: on an FM engine a list of the synthesizer's banks (only the album's before audio starts), the playing
+   *  bank chosen, with the user's WOPL file when one is loaded; on another engine its SoundFont's or its own name. */
   let shownSynth, picked = null;
   function showBank(synth = shownSynth) {
     shownSynth = synth;
-    const fm = $('engine').querySelector('[aria-pressed="true"]').value === 'fm', list = $('fm-banks');
+    const kind = synth?.info.kind ?? $('engine').querySelector('[aria-pressed="true"]')?.value ?? 'sb16-opl3';
+    const fm = FM.has(kind), list = $('fm-banks');
     list.hidden = !fm; $('soundfont-name').hidden = fm;
-    if (!fm) { $('soundfont-name').textContent = soundFontName(); return; }
+    if (!fm) { $('soundfont-name').textContent = kind === 'soundfont' ? soundFontName() : engineName(kind, synth); return; }
     const info = synth?.info.fm, bank = info?.bank ?? album.fm.bank;
     const names = info ? info.banks.map((name, i) => [i, name]) : [[album.fm.bank, album.fm.name]];
     list.replaceChildren(...(bank < 0 ? [new Option('Your WOPL file', '-1')] : []),
@@ -108,14 +119,17 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     await synth.setFmBank(Number($('fm-banks').value));
     showBank(synth); await engineChanged(synth.info);
   });
-  /** Switches the synthesizer to engine kind for album a, with a's bank on the FM engine. */
-  async function useEngine(synth, kind, a) {
-    message(kind === 'fm' ? 'Loading the Gravis Ultrasound (OPL3 FM)…' : `Loading the SoundBlaster 16: ${soundFontName()}…`);
-    await synth.useEngine(kind);
-    await gameBank(synth, a);
-    for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other.value === kind));
-    showBank(synth); engineChanged(synth.info);
-    message(kind === 'fm' ? `Gravis Ultrasound: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `SoundBlaster 16: ${synth.info.presets.length} presets.`);
+  /** Switches the synthesizer to engine kind for album a, with a's bank on an FM engine; sources is the user's pack for
+   *  a profile of the hardware list. An engine that fails to load leaves the one that played, and the controls show it. */
+  async function useEngine(synth, kind, a, sources) {
+    const name = engineName(kind, synth);
+    message(`Loading ${name}…`);
+    try {
+      await (sources ? synth.useProfile(kind, sources) : synth.useEngine(kind));
+      await gameBank(synth, a);
+    } finally { markEngine(synth.info.kind); showBank(synth); }
+    engineChanged(synth.info);
+    message(FM.has(kind) ? `${name}: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `${name}: ${synth.info.presets.length} presets.`);
   }
   // An album plays on its engine from the index (the FM engine unless it names the SoundFont engine); an engine the user
   // picks, or loads a file into, holds for the album it was picked on, as a picked bank does.
@@ -123,14 +137,14 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   async function albumEngine(synth, a) {
     if (pickedEngine === a) return;
     pickedEngine = null;
-    const kind = a.engine ?? 'fm';
+    const kind = a.engine ?? 'sb16-opl3';
     if (synth.info.kind !== kind) await useEngine(synth, kind, a);
   }
   /** The game's bank for album on the FM engine, unless the user loaded a WOPL file or picked a bank for it. */
   async function gameBank(synth, a) {
     if (picked === a) return;
     picked = null;
-    if (synth.info.kind === 'fm' && synth.info.fm.bank !== -1 && synth.info.fm.bank !== a.fm.bank) { await synth.setFmBank(a.fm.bank); await engineChanged(synth.info); }
+    if (FM.has(synth.info.kind) && synth.info.fm.bank !== -1 && synth.info.fm.bank !== a.fm.bank) { await synth.setFmBank(a.fm.bank); await engineChanged(synth.info); }
   }
   function listTracks() {
     const playing = current?.album === album ? position(album, current.edition, current.index) : -1;
@@ -257,6 +271,26 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
       await useEngine(synth, button.value, pickedEngine);
     });
   }
+  // A profile of the hardware list plays with a pack of the user's own (a .dspack of their ROMs, wavesets or patches):
+  // the page reads it here and sends it nowhere. Each profile keeps the first pack it loaded, for WAV downloads too.
+  const packs = {};
+  $('hardware').onchange = act(async () => {
+    const kind = $('hardware').value;
+    if (!kind) return;
+    const synth = await start();
+    if (synth.info.engines.includes(kind)) { pickedEngine = current?.album ?? album; return useEngine(synth, kind, pickedEngine); }
+    $('profile-pack').click();
+  });
+  $('profile-pack').oncancel = () => markEngine(shownSynth?.info.kind ?? 'sb16-opl3');
+  $('profile-pack').onchange = act(async () => {
+    const kind = $('hardware').value, file = $('profile-pack').files[0];
+    $('profile-pack').value = '';
+    if (!kind || !file) return;
+    const synth = await start(), assets = new Uint8Array(await file.arrayBuffer());
+    pickedEngine = current?.album ?? album;
+    await useEngine(synth, kind, pickedEngine, { assets });
+    packs[kind] = assets;
+  });
   showAlbum(album);
 
   // The visualizer: Bergium's Butterchurn pipeline, on by default, rotating through the presets of
@@ -350,9 +384,10 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     /** The engine buttons follow the synthesizer, after the user loaded a file into it: that engine holds for the album. */
     engineShown(synth) {
       pickedEngine = current?.album ?? album;
-      for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other.value === synth.info.kind));
-      showBank(synth);
+      markEngine(synth.info.kind); showBank(synth);
     },
+    /** The packs the user loaded, by profile: a WAV download renders with the same one. */
+    get packs() { return packs; },
     get current() { return current; },
     get playing() { return playing; },
   };

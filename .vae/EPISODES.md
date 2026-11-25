@@ -34,3 +34,16 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-24T04:02:30Z s=5ed957d1 FAIL tests.e2e.1
 2026-11-24T04:05:45Z s=5ed957d1 DONE fp=a62e3e10aa55 cov=96.8% paths=README.md,VALIDATION.md,docs/ARCH.md,docs/music/index.json(+5)
 2026-11-25T00:11:47Z s=5ed957d1 DONE fp=b39b4648ff0e cov=96.8% paths=CHANGELOG.md,README.md,THIRD_PARTY.md,VALIDATION.md(+6)
+2026-11-25T00:21:48Z s=5ed957d1 FAIL prose,lint,tests.unit,tests.e2e.1,pages.synth-tracked
+2026-11-25T00:23:36Z s=5ed957d1 FAIL tests.unit,tests.e2e.1
+2026-11-25T01:14:11Z s=5ed957d1 FAIL env.example
+2026-11-25T02:12:43Z s=5ed957d1 FAIL tests.e2e.1
+2026-11-25T02:23:24Z s=5ed957d1 DONE fp=f32b383395fe cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,README.md(+91)
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/engine.ts:changeFmBank learn=test: regression test compares PCM with a same-bank change and with program 0
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/profiles.ts:withProfileSources learn=test: a missing module given at creation must fail the later load
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/offline.ts:EngineLoader.voices learn=test: parity with the worklet, which reads the bank when it adds the engine
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/engine.ts:chase learn=test: the SC-55 onset delay itself needs ROMs; falsifier: seek JazzJackrabbit_MainTheme_XG.mid on roland-sc55 and compare dropped and the next onset with straight pla
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/midifile.ts:MAX_FILE_SYSEX learn=test: bounds parse memory to about 13 MB
+2026-11-25T02:23:24Z s=5ed957d1 FINDING src/engine.ts:info (sb16-cqm) learn=test: drift between the table and the FM module fails the test
+2026-11-25T02:23:24Z s=5ed957d1 FINDING tests/profiles.test.ts learn=none: test hygiene
+2026-11-25T02:25:45Z s=5ed957d1 DONE fp=43e75ffd9185 cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,README.md(+89)

@@ -1,7 +1,7 @@
 {
   "name": "defuss-midi-synth",
-  "version": "0.3.0",
-  "description": "General MIDI synthesizer for the browser and offline rendering: TinySoundFont with a bundled GM SoundFont, and libADLMIDI on an emulated OPL3 FM chip, in WebAssembly and an AudioWorklet",
+  "version": "0.4.0",
+  "description": "General MIDI and optional vintage hardware synthesis profiles for WebAssembly and AudioWorklet",
   "keywords": [
     "midi",
     "general-midi",
@@ -40,7 +40,12 @@
     "CHANGELOG.md",
     "VALIDATION.md",
     "LICENSE",
-    "THIRD_PARTY.md"
+    "THIRD_PARTY.md",
+    "HARDWARE_PROFILES.md",
+    "scripts/build-native-profiles.py",
+    "scripts/build-vintage-wasm.py",
+    "vendor/sources/munt-mt32emu-f5b968c4.tar.gz",
+    "vendor/sources/86box-cqm-141ae59c.tar.gz"
   ],
   "scripts": {
     "build": "node scripts/build.mjs --prepare && pkgroll && node scripts/build.mjs --finish",

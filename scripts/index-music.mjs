@@ -241,9 +241,9 @@ for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'
 const FIRST = ['warcraft-ii-tides-of-darkness-1995', 'age-of-empires-ii-the-age-of-kings-1999', 'age-of-empires-ii-the-conquerors-2000',
   'jazz-jackrabbit-2-1998', 'the-settlers-ii-1996', 'q-pop-evolution-im-weltraum-1993', 'z-1996', 'jazz-jackrabbit-1994',
   'raptor-call-of-the-shadows-1994', 'duke-nuclear-winter-1997', 'tyrian-1995', 'doom-2-1994', 'wolfenstein-3d-1992', 'descent-ii-1996'];
-/** Albums that play on the SoundFont engine ("SoundBlaster 16") rather than the page's FM engine (the human's choice of
- *  2026-11-25); the player switches to an album's engine when one of its tracks starts. */
-const ENGINE = { 'jazz-jackrabbit-1994': 'soundfont', 'jazz-jackrabbit-2-1998': 'soundfont', 'the-settlers-ii-1996': 'soundfont' };
+/** Albums with a profile of their own (the human's choice of 2026-11-25: Sound Blaster 16 with one OPL3); the player
+ *  switches to an album's profile when one of its tracks starts, and albums without one play on the page's default. */
+const ENGINE = { 'jazz-jackrabbit-1994': 'sb16-opl3', 'jazz-jackrabbit-2-1998': 'sb16-opl3', 'the-settlers-ii-1996': 'sb16-opl3' };
 for (const [id, engine] of Object.entries(ENGINE)) {
   const album = albums.find(a => a.id === id);
   if (!album) throw new Error(`ENGINE names ${id}, which is not indexed`);

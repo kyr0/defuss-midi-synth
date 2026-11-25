@@ -19,12 +19,18 @@ enum {
   FM_CHANNELS = 16,
   FM_MAX_CHIPS = 100, /* libADLMIDI's own limit */
   FM_DESCRIBE = 18 * FM_MAX_CHIPS + 1,
+  FM_SYSEX_MAX = 65536, /* the longest system exclusive message, F0 through F7 (profile_pack.h PROFILE_SYSEX_MAX) */
 };
 
 static ADL_MIDIPlayer *player;
 static float fm_out[FM_BLOCK * 2];
 static char fm_describe[FM_DESCRIBE], fm_describe_attr[FM_DESCRIBE];
 static void *fm_bank_data;
+static ADL_UInt8 fm_sysex_data[FM_SYSEX_MAX];
+/* XG System On: libADLMIDI's realTime_SysEx sets its power-on synth mode (Mode_XG, as MIDIplay's constructor and
+ * resetMIDI leave it) and resets the controllers (realTime_ResetState) with it. adl_rt_resetState alone keeps the
+ * mode that a GM System On or a GS reset set, so FFh sends this instead. */
+static const ADL_UInt8 fm_xg_on[] = {0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7};
 /* Float samples, each in its own 4-byte cell, so a render of n frames writes the left block and then the right. */
 static const ADLMIDI_AudioFormat fm_format = {ADLMIDI_SampleType_F32, 4, 4};
 
@@ -68,15 +74,16 @@ FM_EXPORT uint32_t fm_load_bank(const void *data, uint32_t bytes) {
 
 /* Plays one complete MIDI message: note off (8n), note on (9n, velocity 0 is note off), key pressure (An), control
  * change (Bn), program change (Cn), channel pressure (Dn) and pitch bend (En, data1 the low 7 bits). Channel 10 holds
- * the percussion, as in General MIDI. FFh resets every channel to its General MIDI state and silences every voice.
- * Does nothing before fm_init. */
+ * the percussion, as in General MIDI. FFh silences every voice and resets the controllers, the master volume and
+ * libADLMIDI's synth mode to their power-on state; src/voices.ts then selects bank 0, program 1 on every channel,
+ * since libADLMIDI's reset keeps them. Does nothing before fm_init. */
 FM_EXPORT void fm_message(uint32_t status, uint32_t data1, uint32_t data2) {
   ADL_UInt8 channel = (ADL_UInt8)(status & 0x0fu), a = (ADL_UInt8)data1, b = (ADL_UInt8)data2;
   if (!player)
     return;
   if (status == 0xffu) {
     adl_panic(player);
-    adl_rt_resetState(player);
+    adl_rt_systemExclusive(player, fm_xg_on, sizeof fm_xg_on);
     return;
   }
   switch (status & 0xf0u) {
@@ -94,6 +101,24 @@ FM_EXPORT void fm_message(uint32_t status, uint32_t data1, uint32_t data2) {
     case 0xe0: adl_rt_pitchBendML(player, channel, b, a); break;
     default: break;
   }
+}
+
+/* FM_SYSEX_MAX writable bytes, where the engine copies one system exclusive message before fm_sysex. */
+FM_EXPORT ADL_UInt8 *fm_sysex_buffer(void) { return fm_sysex_data; }
+
+/* Plays the system exclusive message of the first bytes of fm_sysex_buffer(), F0 through F7, through libADLMIDI's
+ * realTime_SysEx: GM System On and Off, the GS reset and its rhythm part assignment, XG System On and the Master
+ * Volume of the Universal Real Time messages; libADLMIDI ignores the others. Returns 1 for such a message, applied or
+ * ignored, and 0 for a malformed one (not F0 .. F7, or a data byte of 80h or more), as profile_sysex does. */
+FM_EXPORT uint32_t fm_sysex(uint32_t bytes) {
+  if (bytes < 2 || bytes > FM_SYSEX_MAX || fm_sysex_data[0] != 0xf0u || fm_sysex_data[bytes - 1] != 0xf7u)
+    return 0;
+  for (uint32_t i = 1; i + 1 < bytes; i++)
+    if (fm_sysex_data[i] & 0x80u)
+      return 0;
+  if (player)
+    adl_rt_systemExclusive(player, fm_sysex_data, bytes);
+  return 1;
 }
 
 /* Renders frames (at most FM_BLOCK, an even count) of planar float PCM: the left block at the returned address, the

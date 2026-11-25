@@ -1,7 +1,17 @@
-import { isReset, MIDI_RESET, packMessage, dataBytes } from './parser.ts';
+import { isReset, MIDI_RESET, MidiParser, packMessage, dataBytes } from './parser.ts';
+import { SYSEX_MAX } from './types.ts';
 
-/** A parsed song: each message (packed as packMessage does, or MIDI_RESET) with its time in seconds, in play order. */
-export interface Song { title: string; duration: number; times: Float64Array; messages: Uint32Array }
+/** The status of a song message that stands for the system exclusive message of its index in Song.sysex. */
+export const SYSEX_STATUS = 0xf0;
+/** The most system exclusive messages a file may hold. Each costs an object and a byte array, so a file of nothing but
+ *  tiny ones (16 MiB holds 4 million) took about 1 GB on the audio thread; the music in docs/music holds at most 40, an
+ *  MT-32 game's timbre upload a few hundred. */
+export const MAX_FILE_SYSEX = 65536;
+/** A parsed song: each message (packed as packMessage does, MIDI_RESET, or SYSEX_STATUS) with its time in seconds, in
+ *  play order. sysex holds the system exclusive messages, F0 through F7, by the index of their message: SYSEX_STATUS,
+ *  or MIDI_RESET for the GM, GM2, GS and XG resets, which every engine takes as a reset and a SysEx engine receives as
+ *  they are. */
+export interface Song { title: string; duration: number; times: Float64Array; messages: Uint32Array; sysex: Map<number, Uint8Array> }
 
 class Reader {
   constructor(readonly bytes: Uint8Array, public at: number, readonly end: number, readonly label: string) {}
@@ -45,8 +55,9 @@ function rmiData(bytes: Uint8Array): Uint8Array {
   throw new Error('Malformed RMI file: no data chunk');
 }
 
-/** A track event in tick order: a tempo change (microseconds per quarter note, 0 for a message) or a message. */
-interface Entry { tick: number; track: number; order: number; tempo: number; message: number }
+/** A track event in tick order: a tempo change (microseconds per quarter note, 0 for a message) or a message, with the
+ *  bytes of a system exclusive one. */
+interface Entry { tick: number; track: number; order: number; tempo: number; message: number; data?: Uint8Array }
 
 function parseSmf(bytes: Uint8Array): Song {
   const r = new Reader(bytes, 0, bytes.length, 'MIDI header');
@@ -68,6 +79,7 @@ function parseSmf(bytes: Uint8Array): Song {
   }
   r.at = 8 + headerLength;
   const entries: Entry[] = [];
+  let sysexCount = 0;
   let title = '', endTick = 0, track = 0, order = 0;
   while (track < tracks && r.at + 8 <= bytes.length) {
     const id = r.text(4), length = r.u32be();
@@ -75,6 +87,38 @@ function parseSmf(bytes: Uint8Array): Song {
     const t = new Reader(bytes, r.at, Math.min(bytes.length, r.at + length), 'MIDI track');
     r.at = t.end;
     let tick = 0, status = 0;
+    /* SysEx events as the bytes they transmit (Standard MIDI Files 1.0): F0 <length> <bytes after F0> sends F0 and the
+     * bytes; F7 <length> <bytes> sends the bytes alone, continuing a SysEx that an F0 event left open (a divided SysEx)
+     * or else as an escape, whose bytes a MIDI byte parser reads (a whole or divided SysEx, real-time or channel
+     * messages). Real-time bytes inside a SysEx are messages of their own. An F0 SysEx without F7 that no F7 event
+     * continues ends at the next channel event or the track's end, at its last packet's tick: writers that omit the F7
+     * of each F0 event exist, and the parser before 0.4.0 took every F0 event as a whole message. */
+    const sysex = (at: number, data: Uint8Array) => {
+      if (++sysexCount > MAX_FILE_SYSEX) throw new RangeError(`MIDI file holds more than ${MAX_FILE_SYSEX} system exclusive messages`);
+      entries.push({ tick: at, track, order: order++, tempo: 0, message: isReset(data.subarray(1, data.length - 1)) ? MIDI_RESET : SYSEX_STATUS, data });
+    };
+    const escape = new MidiParser((at, s, d1, d2) => {
+      if (s === 0xff) entries.push({ tick: at, track, order: order++, tempo: 0, message: MIDI_RESET });
+      else if (s < 0xf0) entries.push({ tick: at, track, order: order++, tempo: 0, message: packMessage(s, d1, d2) });
+    }, (at, inner) => { const data = new Uint8Array(inner.length + 2); data[0] = 0xf0; data.set(inner, 1); data[inner.length + 1] = 0xf7; sysex(at, data); });
+    let open: number[] | null = null, openTick = 0, overflow = false;
+    const close = () => {
+      if (open && !overflow) { open.push(0xf7); sysex(openTick, Uint8Array.from(open)); }
+      open = null; overflow = false;
+    };
+    /** The bytes of an F0 event (after F0) or of an F7 event at tick. */
+    const packet = (from: number, end: number, escaped: boolean) => {
+      let i = from;
+      for (; open && i < end; i++) {
+        const b = t.bytes[i]!;
+        if (b >= 0xf8) { if (b === 0xff) entries.push({ tick, track, order: order++, tempo: 0, message: MIDI_RESET }); continue; }
+        if (b === 0xf7) { open.push(0xf7); if (!overflow) sysex(tick, Uint8Array.from(open)); open = null; overflow = false; i++; break; }
+        if (b & 0x80) { open = null; overflow = false; break; } // another status ends it unfinished; the escape reads it
+        if (open.length < SYSEX_MAX - 1) open.push(b); else overflow = true;
+      }
+      if (open) openTick = tick;
+      else if (escaped || i < end) for (; i < end; i++) escape.feed(t.bytes[i]!, tick);
+    };
     while (t.at < t.end) {
       tick += t.vlq();
       let byte = t.u8();
@@ -93,10 +137,9 @@ function parseSmf(bytes: Uint8Array): Song {
       if (byte === 0xf0 || byte === 0xf7) {
         const size = t.vlq();
         t.need(size);
-        let data = t.bytes.subarray(t.at, t.at + size);
+        if (byte === 0xf0) { close(); escape.cancel(); open = [0xf0]; }
+        packet(t.at, t.at + size, !open);
         t.at += size;
-        if (byte === 0xf0 && data[data.length - 1] === 0xf7) data = data.subarray(0, data.length - 1);
-        if (byte === 0xf0 && isReset(data)) entries.push({ tick, track, order: order++, tempo: 0, message: MIDI_RESET });
         continue;
       }
       if (byte & 0x80) {
@@ -104,24 +147,26 @@ function parseSmf(bytes: Uint8Array): Song {
         status = byte;
         byte = t.u8();
       } else if (!status) throw new Error('Malformed MIDI track: data byte without a status');
+      close(); escape.cancel();
       const data2 = dataBytes(status) === 2 ? t.u8() & 0x7f : 0;
       entries.push({ tick, track, order: order++, tempo: 0, message: packMessage(status, byte & 0x7f, data2) });
     }
+    close();
     endTick = Math.max(endTick, tick);
     track++;
   }
   if (!track) throw new Error('Malformed MIDI file: no MTrk chunk');
   entries.sort((a, b) => a.tick - b.tick || a.track - b.track || a.order - b.order);
-  const times: number[] = [], messages: number[] = [];
+  const times: number[] = [], messages: number[] = [], sysex = new Map<number, Uint8Array>();
   let tempo = 500000, lastTick = 0, seconds = 0;
   for (const entry of entries) {
     seconds += (entry.tick - lastTick) * secondsPerTick(tempo);
     lastTick = entry.tick;
     if (entry.tempo) tempo = entry.tempo;
-    else { times.push(seconds); messages.push(entry.message); }
+    else { if (entry.data) sysex.set(messages.length, entry.data); times.push(seconds); messages.push(entry.message); }
   }
   const duration = seconds + Math.max(0, endTick - lastTick) * secondsPerTick(tempo);
-  return { title, duration, times: Float64Array.from(times), messages: Uint32Array.from(messages) };
+  return { title, duration, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
 }
 
 /* MUS controllers 1 to 9 as MIDI controllers (bank select, modulation, volume, pan, expression, reverb, chorus,
@@ -165,5 +210,5 @@ function parseMus(bytes: Uint8Array): Song {
     // over four bytes it is malformed rather than an endless song.
     if (event & 0x80) tick += r.vlq();
   }
-  return { title: '', duration: tick / MUS_RATE, times: Float64Array.from(times), messages: Uint32Array.from(messages) };
+  return { title: '', duration: tick / MUS_RATE, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex: new Map() };
 }

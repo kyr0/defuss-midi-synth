@@ -38,6 +38,8 @@
 .player-options .select[hidden], .player-bank[hidden] { display: none; }
 .player-bank { color: var(--dos-yellow); }
 .player .toggle-group .toggle { border-radius: 0; }
+/* Ten hardware profiles do not fit one row on a phone: the engine buttons wrap. */
+.player #engine { flex-wrap: wrap; }
 .player .toggle-group .toggle[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
 
 /* The tracklist: dashed rows, the number in yellow, the length and the WAV button at the end */

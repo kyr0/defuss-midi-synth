@@ -1,5 +1,5 @@
 import { GM_PROGRAMS } from './gm.ts';
-import { MIDI_RESET } from './parser.ts';
+import { isResetMessage, masterVolume, MIDI_RESET } from './parser.ts';
 import { inputBytes, integer, MAX_BANK_BYTES, MAX_SOUNDFONT_BYTES, type EngineKind, type EngineOptions, type FmInfo, type Preset } from './types.ts';
 
 /** The one import of both modules: the notice that their memory grew, which needs no answer, since a backend makes
@@ -20,6 +20,10 @@ export interface Voices {
   maxVoices(): number;
   /** Plays one channel message, or resets every channel to its General MIDI state for status FFh. */
   message(status: number, data1: number, data2: number): void;
+  /** Applies the system exclusive message of length bytes at offset in bytes (F0 through F7, validated by the caller)
+   *  as the synthesizer understands it: the GM, GM2, GS and XG resets reset it, as FFh does, and what it does not know
+   *  it ignores. Allocates nothing. */
+  sysex(bytes: Uint8Array, offset: number, length: number): void;
   /** Selects bank and program on channel; false when the synthesizer has no such preset there. */
   setPreset(channel: number, bank: number, program: number): boolean;
   /** Writes n (at most RENDER_BLOCK) frames into left and right from at. */
@@ -50,6 +54,18 @@ function text(memory: WebAssembly.Memory, at: number, max: number): string {
   return value;
 }
 
+/** Copies length bytes at offset in bytes into the module's memory at at, without making a view per call. */
+class HeapWriter {
+  private heap: Uint8Array;
+  constructor(private readonly memory: WebAssembly.Memory) { this.heap = new Uint8Array(memory.buffer); }
+  write(at: number, bytes: Uint8Array, offset: number, length: number): void {
+    if (this.heap.buffer !== this.memory.buffer) this.heap = new Uint8Array(this.memory.buffer);
+    if (!at || at + length > this.heap.length) throw new Error('The synthesizer returned an invalid SysEx buffer');
+    const heap = this.heap;
+    for (let i = 0; i < length; i++) heap[at + i] = bytes[offset + i]!;
+  }
+}
+
 /** The exports of midi-synth.wasm (native/synth.c). */
 export interface SoundFontExports {
   memory: WebAssembly.Memory;
@@ -73,6 +89,8 @@ export class SoundFontVoices implements Voices {
   private readonly wasm: SoundFontExports;
   private readonly output: PlanarOutput;
   private list: Preset[] = [];
+  /** The GM Master Volume as an amplitude factor; FFh and the resets return it to 1. */
+  private master = 1;
   constructor(instance: WebAssembly.Instance, soundfont: Uint8Array, private readonly options: Required<EngineOptions>) {
     this.wasm = instance.exports as unknown as SoundFontExports;
     this.wasm._initialize?.();
@@ -94,13 +112,24 @@ export class SoundFontVoices implements Voices {
   }
   presets(): Preset[] { return this.list.map(p => ({ ...p })); }
   maxVoices(): number { return this.options.maxVoices; }
-  message(status: number, data1: number, data2: number): void { this.wasm.synth_message(status, data1, data2); }
+  message(status: number, data1: number, data2: number): void {
+    if (status === MIDI_RESET) this.master = 1;
+    this.wasm.synth_message(status, data1, data2);
+  }
+  /** TinySoundFont has no SysEx: the resets act as FFh, and GM Master Volume (F0 7F <device> 04 01 <lsb> <msb> F7)
+   *  scales the output at once, on the curve that TinySoundFont gives channel volume (tsf.h: the cube of the 14-bit
+   *  level over 16383), so master volume v sounds as channel volume v would. Other messages are ignored. */
+  sysex(bytes: Uint8Array, offset: number, length: number): void {
+    if (isResetMessage(bytes, offset, length)) { this.message(MIDI_RESET, 0, 0); return; }
+    const level = masterVolume(bytes, offset, length);
+    if (level >= 0) this.master = (level / 16383) ** 3;
+  }
   setPreset(channel: number, bank: number, program: number): boolean { return this.wasm.synth_set_preset(channel, bank, program) === 1; }
   render(left: Float32Array, right: Float32Array, at: number, n: number): void {
     // TinySoundFont renders nothing while no voice sounds; zeros are cheaper than the call.
     if (!this.wasm.synth_voices()) { left.fill(0, at, at + n); right.fill(0, at, at + n); return; }
     this.wasm.synth_render(n);
-    this.output.copy(left, right, at, n, 1);
+    this.output.copy(left, right, at, n, this.master);
   }
   voices(): number { return this.wasm.synth_voices(); }
   close(): void { /* the instance is released with the engine */ }
@@ -115,6 +144,8 @@ export interface FmExports {
   fm_buffer(bytes: number): number;
   fm_load_bank(data: number, bytes: number): number;
   fm_message(status: number, data1: number, data2: number): void;
+  fm_sysex_buffer(): number;
+  fm_sysex(bytes: number): number;
   fm_render(frames: number): number;
   fm_voices(): number;
   fm_chips(): number;
@@ -128,19 +159,27 @@ export interface FmExports {
 export const SOUNDFONT_GAIN_DB = -6;
 export const FM_GAIN = 2.5;
 
-/** libADLMIDI on emulated OPL3 chips, with an embedded bank or a loaded WOPL bank file. */
+/** libADLMIDI on emulated OPL3 chips, with an embedded bank or a loaded WOPL bank file: 'fm' on options.chips chips,
+ *  the 'sb16-opl3' profile on the one chip of a Sound Blaster 16 (18 voices). Both play at FM_GAIN, so a song keeps
+ *  its level when it switches between them and the SoundFont engine. */
 export class FmVoices implements Voices {
-  readonly kind = 'fm';
-  readonly name = FM_ENGINE;
+  readonly kind: 'fm' | 'sb16-opl3';
+  readonly name: string;
   private readonly wasm: FmExports;
   private readonly output: PlanarOutput;
+  private readonly heap: HeapWriter;
+  private readonly sysexAt: number;
   private readonly names: string[] = [];
   private current: number;
-  constructor(instance: WebAssembly.Instance, options: Required<EngineOptions>) {
+  constructor(instance: WebAssembly.Instance, options: Required<EngineOptions>, kind: 'fm' | 'sb16-opl3' = 'fm') {
+    this.kind = kind;
+    this.name = kind === 'sb16-opl3' ? 'Sound Blaster 16 (Yamaha OPL3)' : FM_ENGINE;
     this.wasm = instance.exports as unknown as FmExports;
     this.wasm._initialize?.();
-    if (!this.wasm.fm_init(options.sampleRate, options.chips, options.fmBank)) throw new Error('The FM synthesizer rejected its settings');
+    if (!this.wasm.fm_init(options.sampleRate, kind === 'sb16-opl3' ? 1 : options.chips, options.fmBank)) throw new Error('The FM synthesizer rejected its settings');
     this.output = new PlanarOutput(this.wasm.memory, this.wasm.fm_render(0));
+    this.heap = new HeapWriter(this.wasm.memory);
+    this.sysexAt = this.wasm.fm_sysex_buffer() >>> 0;
     for (let i = 0, count = this.wasm.fm_bank_count(); i < count; i++) this.names.push(text(this.wasm.memory, this.wasm.fm_bank_name(i), 120));
     this.current = options.fmBank;
   }
@@ -175,6 +214,14 @@ export class FmVoices implements Voices {
       this.wasm.fm_message(0xb0 | channel, 32, 0);
       this.wasm.fm_message(0xc0 | channel, 0, 0);
     }
+  }
+  /** libADLMIDI's realTime_SysEx receives the message (fm.cpp fm_sysex): GM System On and Off, the GS reset and its
+   *  rhythm part assignment, XG System On, GM Master Volume. A reset first resets as FFh does, since libADLMIDI's own
+   *  keeps the voices sounding and each channel's bank and program. */
+  sysex(bytes: Uint8Array, offset: number, length: number): void {
+    if (isResetMessage(bytes, offset, length)) this.message(MIDI_RESET, 0, 0);
+    this.heap.write(this.sysexAt, bytes, offset, length);
+    if (!this.wasm.fm_sysex(length)) throw new Error('The FM synthesizer rejected a SysEx message');
   }
   /** Bank 128 is the percussion, which plays on channel 10 only; other banks go out as bank select and program. */
   setPreset(channel: number, bank: number, program: number): boolean {

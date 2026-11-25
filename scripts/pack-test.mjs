@@ -29,6 +29,15 @@ fm.schedule([{type:'noteOn',time:0,channel:0,note:60,velocity:100}]);
 assert.ok(fm.render(4800).left.some(x=>x!==0));
 assert.equal((await fm.useEngine('soundfont')).presets.length,136);
 fm.close();
+// SysEx and the hardware profiles from the package's own assets: sb16-opl3 on one chip, a GM System On that ends its
+// note, and a native profile whose module the package holds but whose pack the user supplies.
+const sb=await OfflineSynth.create({profile:'sb16-opl3'});
+assert.equal(sb.info.profile,'sb16-opl3'); assert.equal(sb.info.fm.chips,1); assert.equal(sb.info.maxVoices,18);
+sb.schedule([{type:'noteOn',time:0,channel:0,note:60,velocity:100},{type:'sysex',time:0.05,data:[0xf0,0x7e,0x7f,0x09,0x01,0xf7]}]);
+assert.ok(sb.render(2400).left.some(x=>x!==0)); sb.render(4800); assert.equal(sb.engine.voices(),0);
+await assert.rejects(sb.useProfile('sb-pci128'),/sb-pci128 profile .* unavailable: its asset pack did not load/);
+assert.equal(sb.info.kind,'sb16-opl3');
+sb.close();
 console.log('Packed package imported and rendered real WASM in isolation');
 `);
 await writeFile(`${consumer}/smoke.ts`, `
@@ -36,8 +45,11 @@ import { MidiSynth, type TimedEvent } from 'defuss-midi-synth';
 import { OfflineSynth, encodeWav } from 'defuss-midi-synth/offline';
 const events: TimedEvent[] = [{ type: 'noteOn', time: 0, channel: 0, note: 60, velocity: 100 }];
 const offline = await OfflineSynth.create({ engine: 'fm', chips: 2 }); offline.schedule(events); encodeWav(offline.render(128));
-const kind: 'soundfont' | 'fm' = (await offline.useEngine('soundfont')).kind; offline.setFmBank(16); offline.close(); void kind;
+const kind: import('defuss-midi-synth').EngineKind = (await offline.useEngine('soundfont')).kind; offline.setFmBank(16); offline.close(); void kind;
 const browser = await MidiSynth.create({ engine: 'fm' }); await browser.schedule(events); await browser.setFmBank(2); await browser.setPlaybackRate(1.5); await browser.dispose();
+const reset: TimedEvent = { type: 'sysex', time: 0, data: Uint8Array.of(0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7) };
+const hardware = await MidiSynth.create({ profile: 'gus-gf1', profileSources: { 'gus-gf1': { assets: '/private/gus.dspack' } } });
+const profile: import('defuss-midi-synth').SynthProfile | undefined = (await hardware.useProfile('sb16-opl3')).profile; await hardware.send(reset); await hardware.dispose(); void profile;
 `);
 execFileSync(process.execPath,['node_modules/typescript/bin/tsc','--noEmit','--strict','--skipLibCheck','--target','ES2022','--module','NodeNext','--moduleResolution','NodeNext',`${consumer}/smoke.ts`],{stdio:'inherit'});
 execFileSync(process.execPath,[`${consumer}/smoke.mjs`],{cwd:consumer,stdio:'inherit'});

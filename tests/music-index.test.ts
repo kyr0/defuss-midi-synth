@@ -57,8 +57,8 @@ test('each album names the FM bank of banks.ini by its number', () => {
   // banks.ini's games lines: Doom (16), Doom 2 (14), Wolfenstein (74), Warcraft 2 (18), Descent (2).
   assert.deepEqual([bank('doom-1993'), bank('doom-2-1994'), bank('wolfenstein-3d-1992'), bank('warcraft-ii-tides-of-darkness-1995'), bank('descent-anniversary-edition-1996')], [16, 14, 74, 18, 2]);
 });
-test('the albums the human chose play on the SoundFont engine, the rest on the FM engine', () => {
-  // The human's choice of 2026-11-25: Jazz Jackrabbit, Jazz Jackrabbit 2 and The Settlers II default to the SoundBlaster 16.
+test('the albums the human chose name their profile', () => {
+  // The human's choice of 2026-11-25: Jazz Jackrabbit, Jazz Jackrabbit 2 and The Settlers II play on the Sound Blaster 16 (OPL3).
   assert.deepEqual(index.albums.filter(a => a.engine).map(a => [a.id, a.engine]).sort(),
-    [['jazz-jackrabbit-1994', 'soundfont'], ['jazz-jackrabbit-2-1998', 'soundfont'], ['the-settlers-ii-1996', 'soundfont']]);
+    [['jazz-jackrabbit-1994', 'sb16-opl3'], ['jazz-jackrabbit-2-1998', 'sb16-opl3'], ['the-settlers-ii-1996', 'sb16-opl3']]);
 });

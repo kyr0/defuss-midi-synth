@@ -1,4 +1,10 @@
-import { bankBytes, FM_WASM_ASSET, readBytes, SOUNDFONT_ASSET, soundFontBytes, WASM_ASSET, type BankSource, type SoundFontSource } from './assets.ts';
+import { moduleKey, nativePart } from './profile-assets.ts';
+import { NativeProfileVoices, instantiateProfile } from './profile-voices.ts';
+import { isNativeProfile, isSynthProfile, selectEngine, withProfileSources, type SynthProfile, type ProfileSources, type ProfileSourceMap } from './profiles.ts';
+import type { Voices } from './voices.ts';
+export { SYNTH_PROFILES, PROFILE_DESCRIPTORS } from './profiles.ts';
+export type { SynthProfile, ProfileSourceMap, ProfileSources, ProfileDescriptor, ProfileAvailability, ProfileUserAssets } from './profiles.ts';
+import { bankBytes, readBytes, SOUNDFONT_ASSET, soundFontBytes, type BankSource, type SoundFontSource } from './assets.ts';
 import { Engine, SYNTH_IMPORTS } from './engine.ts';
 import { MidiStream } from './parser.ts';
 import { RenderSession } from './session.ts';
@@ -8,6 +14,8 @@ export type { EngineOptions, EngineKind, FmInfo, LoadProgress, ProgressListener,
 export type { SoundFontSource, BankSource } from './assets.ts';
 export interface StereoPcm { sampleRate: number; left: Float32Array; right: Float32Array }
 export interface OfflineOptions extends EngineOptions {
+  profile?: SynthProfile;
+  profileSources?: ProfileSourceMap;
   /** Directory containing assets/. Defaults beside the installed JS. */
   baseUrl?: string | URL;
   queueCapacity?: number;
@@ -21,32 +29,65 @@ export interface OfflineOptions extends EngineOptions {
 /** The frames a 16-bit stereo WAV file holds: its data size field is 32 bits. */
 const MAX_WAV_FRAMES = Math.floor((0xffffffff - 36) / 4);
 
+/** Loads the engines of one OfflineSynth: each module is read and compiled once (moduleKey: 'fm' and 'sb16-opl3'
+ *  share fm-synth.wasm), the SoundFont and a profile's pack with each engine. */
+class EngineLoader {
+  private readonly modules = new Map<string, Promise<WebAssembly.Module>>();
+  constructor(readonly settings: Required<EngineOptions>, readonly base: URL, readonly soundfont?: SoundFontSource, readonly onProgress?: ProgressListener, public sources?: ProfileSourceMap) {}
+  /** The compiled module of a built-in engine; a failed read or compile is tried again next time. */
+  private module(kind: 'soundfont' | 'fm' | 'sb16-opl3'): Promise<WebAssembly.Module> {
+    const key = moduleKey(kind);
+    let module = this.modules.get(key);
+    if (!module) {
+      module = readBytes(new URL(key, this.base), undefined, this.onProgress).then(bytes => WebAssembly.compile(bytes as Uint8Array<ArrayBuffer>));
+      this.modules.set(key, module);
+      module.catch(() => this.modules.delete(key));
+    }
+    return module;
+  }
+  /** kind's voices; an FM engine (fm, sb16-opl3, sb16-cqm) starts on the embedded bank fmBank gives once it has
+   *  loaded, so a bank selected while it loaded is the one it plays, as in the worklet. */
+  async voices(kind: EngineKind, fmBank = (): number => this.settings.fmBank): Promise<Voices> {
+    const { settings } = this;
+    if (isNativeProfile(kind)) {
+      const part = await nativePart(kind, this.base, this.sources, true, undefined, this.onProgress);
+      return new NativeProfileVoices(kind, instantiateProfile(part.module!), new Uint8Array(part.assets), settings.sampleRate, fmBank());
+    }
+    if (kind === 'fm' || kind === 'sb16-opl3') {
+      const instance = await WebAssembly.instantiate(await this.module(kind), SYNTH_IMPORTS);
+      return new FmVoices(instance, { ...settings, fmBank: fmBank() }, kind);
+    }
+    const [module, font] = await Promise.all([this.module('soundfont'), soundFontBytes(this.soundfont, this.base, SOUNDFONT_ASSET, undefined, this.onProgress)]);
+    return new SoundFontVoices(await WebAssembly.instantiate(module, SYNTH_IMPORTS), font, settings);
+  }
+}
+
 export class OfflineSynth {
   readonly session: RenderSession;
   private readonly stream = new MidiStream();
   /** Engines being loaded, so concurrent useEngine calls share one load. VERIFIED: without it the second call's add
    *  threw 'already loaded'. */
   private readonly loading = new Map<EngineKind, Promise<void>>();
-  private constructor(readonly engine: Engine, capacity: number, private readonly base: URL, private readonly soundfont?: SoundFontSource, private readonly onProgress?: ProgressListener) {
+  private constructor(readonly engine: Engine, capacity: number, private readonly loader: EngineLoader) {
     this.session = new RenderSession(engine, capacity);
   }
   static async create(options: OfflineOptions = {}): Promise<OfflineSynth> {
-    const settings = normalizeOptions(options);
+    const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile) });
     const capacity = integer(options.queueCapacity ?? 8192, 1, 1048576, 'queueCapacity');
     const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-    const voices = await OfflineSynth.voices(settings.engine, settings, base, options.soundfont, options.onProgress);
-    return new OfflineSynth(new Engine(voices, settings), capacity, base, options.soundfont, options.onProgress);
-  }
-  private static async voices(kind: EngineKind, settings: Required<EngineOptions>, base: URL, soundfont?: SoundFontSource, onProgress?: ProgressListener): Promise<SoundFontVoices | FmVoices> {
-    if (kind === 'fm') {
-      const { instance } = await WebAssembly.instantiate(await readBytes(new URL(FM_WASM_ASSET, base), undefined, onProgress) as Uint8Array<ArrayBuffer>, SYNTH_IMPORTS);
-      return new FmVoices(instance, settings);
-    }
-    const [wasm, font] = await Promise.all([readBytes(new URL(WASM_ASSET, base), undefined, onProgress), soundFontBytes(soundfont, base, SOUNDFONT_ASSET, undefined, onProgress)]);
-    const { instance } = await WebAssembly.instantiate(wasm as Uint8Array<ArrayBuffer>, SYNTH_IMPORTS);
-    return new SoundFontVoices(instance, font, settings);
+    const loader = new EngineLoader(settings, base, options.soundfont, options.onProgress, options.profileSources);
+    return new OfflineSynth(new Engine(await loader.voices(settings.engine), settings), capacity, loader);
   }
   get info(): SynthInfo { return this.engine.info(); }
+  /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does. A profile
+   *  that is not available rejects with an Error naming it, and the engine that played plays on. sources (a native
+   *  profile's pack or module, as in profileSources) apply when the profile loads; a profile loaded or loading rejects
+   *  them, as its pack stays. */
+  async useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo> {
+    if (!isSynthProfile(profile)) throw new RangeError('Unknown synth profile');
+    if (sources) this.loader.sources = withProfileSources(this.loader.sources, profile, sources, this.loading.has(profile) || this.engine.has(profile));
+    return this.useEngine(profile);
+  }
   /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,
    *  as in the browser. */
   async useEngine(kind: EngineKind): Promise<SynthInfo> {
@@ -54,8 +95,7 @@ export class OfflineSynth {
     if (!this.engine.has(kind)) {
       let load = this.loading.get(kind);
       if (!load) {
-        load = OfflineSynth.voices(kind, this.engine.options, this.base, this.soundfont, this.onProgress)
-          .then(voices => this.engine.add(voices)).finally(() => this.loading.delete(kind));
+        load = this.loader.voices(kind, () => this.engine.fmBank()).then(voices => this.engine.add(voices)).finally(() => this.loading.delete(kind));
         this.loading.set(kind, load);
       }
       await load;
@@ -68,18 +108,23 @@ export class OfflineSynth {
    *  scheduled events are cleared. Without the SoundFont engine it rejects before reading the file. */
   async loadSoundFont(source: SoundFontSource): Promise<SynthInfo> {
     if (!this.engine.has('soundfont')) throw new Error('The soundfont engine is not loaded');
-    const bytes = await soundFontBytes(source, this.base, SOUNDFONT_ASSET, undefined, this.onProgress);
+    const bytes = await soundFontBytes(source, this.loader.base, SOUNDFONT_ASSET, undefined, this.loader.onProgress);
     this.session.clear();
     this.engine.loadSoundFont(bytes); return this.engine.info();
   }
-  /** Selects the FM engine's embedded bank (0 to 78, numbered as libADLMIDI's banks.ini). */
+  /** Selects the embedded bank (0 to 78, numbered as libADLMIDI's banks.ini) of every loaded FM engine: fm, sb16-opl3
+   *  and sb16-cqm. */
   setFmBank(bank: number): SynthInfo { this.engine.setFmBank(bank); return this.engine.info(); }
-  /** Replaces the FM engine's instruments with a WOPL bank file (bytes, or a URL relative to baseUrl). */
-  async loadFmBank(source: BankSource): Promise<SynthInfo> { this.engine.loadFmBank(await bankBytes(source, this.base, undefined, this.onProgress)); return this.engine.info(); }
+  /** Replaces the instruments of every loaded FM engine (fm, sb16-opl3, sb16-cqm) with a WOPL bank file (bytes, or a
+   *  URL relative to baseUrl). */
+  async loadFmBank(source: BankSource): Promise<SynthInfo> { this.engine.loadFmBank(await bankBytes(source, this.loader.base, undefined, this.loader.onProgress)); return this.engine.info(); }
+  /** Schedules a batch atomically, as in the browser; a sysex event carries one message F0 through F7. */
   schedule(events: readonly TimedEvent[]): void {
-    this.session.schedule(events.map(event => packEvent(event, this.engine.options.sampleRate)));
+    const payloads: Uint8Array[] = [];
+    this.session.schedule(events.map(event => packEvent(event, this.engine.options.sampleRate, payloads)), payloads);
   }
-  /** Schedules the messages of a MIDI byte stream at time (seconds); running status carries over between calls. */
+  /** Schedules the messages of a MIDI byte stream at time (seconds), system exclusive ones included; running status
+   *  carries over between calls. */
   sendMidi(bytes: ArrayLike<number>, time: number): void { this.schedule(this.stream.events(bytes, time)); }
   /** Loads a Standard MIDI, RMI or MUS file for playback from its start; options.tempo scales its clock. Scheduled
    *  events are cleared, as in the browser. */
@@ -96,6 +141,8 @@ export class OfflineSynth {
     this.renderInto(left, right); return { sampleRate: this.engine.options.sampleRate, left, right };
   }
   renderInto(left: Float32Array, right: Float32Array): void { this.session.process(left, right); }
+  /** MIDI and SysEx the active engine's input could not take since it loaded, as MidiSynth's status().dropped. */
+  get dropped(): number { return this.engine.dropped(); }
   close(): void { this.session.clear(); this.engine.close(); }
 }
 

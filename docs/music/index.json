@@ -468,7 +468,7 @@
           ]
         }
       ],
-      "engine": "soundfont"
+      "engine": "sb16-opl3"
     },
     {
       "id": "the-settlers-ii-1996",
@@ -584,7 +584,7 @@
           ]
         }
       ],
-      "engine": "soundfont"
+      "engine": "sb16-opl3"
     },
     {
       "id": "q-pop-evolution-im-weltraum-1993",
@@ -1133,7 +1133,7 @@
           ]
         }
       ],
-      "engine": "soundfont"
+      "engine": "sb16-opl3"
     },
     {
       "id": "raptor-call-of-the-shadows-1994",

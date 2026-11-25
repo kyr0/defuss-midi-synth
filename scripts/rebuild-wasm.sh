@@ -17,7 +17,7 @@ A=native/adlmidi
 FM_DEFINES=(-DNDEBUG -DADLMIDI_DISABLE_MIDI_SEQUENCER -DADLMIDI_DISABLE_DOSBOX_EMULATOR -DADLMIDI_DISABLE_OPAL_EMULATOR
   -DADLMIDI_DISABLE_JAVA_EMULATOR -DADLMIDI_DISABLE_ESFMU_EMULATOR -DADLMIDI_DISABLE_MAME_OPL2_EMULATOR
   -DADLMIDI_DISABLE_YMFM_EMULATOR -I"$A/include" -I"$A/src")
-fm_exports=_fm_init,_fm_set_bank,_fm_buffer,_fm_load_bank,_fm_message,_fm_render,_fm_voices,_fm_chips,_fm_bank_count,_fm_bank_name
+fm_exports=_fm_init,_fm_set_bank,_fm_buffer,_fm_load_bank,_fm_message,_fm_sysex_buffer,_fm_sysex,_fm_render,_fm_voices,_fm_chips,_fm_bank_count,_fm_bank_name
 build_fm() { # output, extra flags...
   local out=$1; shift
   rm -f tmp/fm-build/*.o

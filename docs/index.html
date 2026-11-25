@@ -66,9 +66,22 @@
               <button class="toggle" type="button" aria-pressed="true" value="milkdrop">Bergium</button>
             </div>
             <div class="toggle-group" role="group" aria-label="Synthesizer" data-variant="outline" id="engine">
-              <button class="toggle" type="button" aria-pressed="true" value="fm">Gravis Ultrasound</button>
-              <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundBlaster 16</button>
+              <button class="toggle" type="button" aria-pressed="true" value="sb16-opl3">Sound Blaster 16 (OPL3)</button>
+              <button class="toggle" type="button" aria-pressed="false" value="sb16-cqm">Sound Blaster 16 (CQM)</button>
+              <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundFont</button>
             </div>
+            <!-- Profiles that run original ROMs, wavesets or patches: they play only with a pack of the user's own. -->
+            <select class="select" data-size="sm" id="hardware" aria-label="Hardware with your files">
+              <option value="">Your hardware files…</option>
+              <option value="sb-pci128">Sound Blaster PCI 128 · your ECW pack</option>
+              <option value="gus-gf1">Gravis UltraSound (GF1) · your patch pack</option>
+              <option value="roland-sc55">Roland SC-55 · your ROM pack</option>
+              <option value="roland-sc55mk2">Roland SC-55mkII · your ROM pack</option>
+              <option value="roland-mt32">Roland MT-32 · your ROM pack</option>
+              <option value="awe32" disabled>Sound Blaster AWE32 · local build only</option>
+              <option value="awe64" disabled>Sound Blaster AWE64 · local build only</option>
+            </select>
+            <input id="profile-pack" type="file" accept=".dspack" hidden>
             <select class="select" data-size="sm" id="fm-banks" aria-label="FM bank"></select>
             <span id="soundfont-name" class="player-bank" hidden></span>
           </div>
@@ -139,8 +152,10 @@
         <div class="mk-footer-col">
           <h3 class="mk-footer-heading">Engines</h3>
           <dl class="engines">
-            <dt>Gravis Ultrasound</dt><dd>libADLMIDI on an emulated Yamaha OPL3 (Nuked OPL3), with 79 instrument banks from DOS and Windows games.</dd>
-            <dt>SoundBlaster 16</dt><dd>TinySoundFont playing the OPL-3 FM 128M SoundFont.</dd>
+            <dt>Sound Blaster 16 (OPL3)</dt><dd>One emulated Yamaha YMF262 (Nuked OPL3), driven by libADLMIDI game banks. Not an analog board model.</dd>
+            <dt>Sound Blaster 16 (CQM)</dt><dd>One emulated Creative CQM, the OPL3-compatible chip of later Sound Blaster 16 cards (Nuked CQM), with the same game banks.</dd>
+            <dt>SoundFont</dt><dd>Sample-based TinySoundFont, not hardware emulation.</dd>
+            <dt>Your hardware files</dt><dd>Sound Blaster PCI 128, Gravis UltraSound, Roland SC-55, SC-55mkII and MT-32 run on emulators of their chips and play only with a pack of your own wavesets, patches or ROMs (scripts/fetch-roms.py and scripts/profile-assets.py make one). It stays on your device.</dd>
           </dl>
         </div>
         <div class="mk-footer-col">

@@ -1,5 +1,7 @@
+import { isSynthProfile, type SynthProfile } from './profiles.ts';
+export type { SynthProfile } from './profiles.ts';
 /** The two synthesizers: TinySoundFont with a General MIDI SoundFont, or libADLMIDI on emulated OPL3 FM chips. */
-export type EngineKind = 'soundfont' | 'fm';
+export type EngineKind = SynthProfile | 'fm';
 export interface EngineOptions {
   sampleRate?: number;
   /** SoundFont engine: voices preallocated; beyond them a new note steals the voice furthest into its release. */
@@ -22,10 +24,15 @@ export type SynthEvent =
   /** Any preset of the SoundFont on any channel, also a drum kit of bank 128 outside channel 10. */
   | { type: 'preset'; channel: number; bank: number; program: number }
   /** Every channel back to its General MIDI state (the GM, GS and XG reset messages do this too). */
-  | { type: 'reset' };
+  | { type: 'reset' }
+  /** One system exclusive message, F0 through F7 (at most SYSEX_MAX bytes, data bytes below 80h). Each engine applies
+   *  what it knows and ignores the rest: the GM, GM2, GS and XG resets on every engine, GM Master Volume on the
+   *  SoundFont and FM engines, libADLMIDI's GS and XG messages on the FM engine, the native core's own on a profile. */
+  | { type: 'sysex'; data: Uint8Array | readonly number[] };
 /** Time is absolute AudioContext time in the browser, seconds from zero offline. */
 export type TimedEvent = SynthEvent & { time: number };
-/** Fixed-width protocol: output frame, operation, three integer operands. */
+/** Fixed-width protocol: output frame, operation, three integer operands. A sysex event's first operand indexes the
+ *  batch's payloads (packEvent), the other two are 0. */
 export type PackedEvent = [number, number, number, number, number];
 /** One preset of the loaded SoundFont: bank 0 holds the General MIDI programs, bank 128 the drum kits. */
 export interface Preset { bank: number; program: number; name: string }
@@ -33,7 +40,7 @@ export interface Preset { bank: number; program: number; name: string }
 export interface FmInfo { banks: string[]; bank: number; chips: number }
 /** engine names the active synthesizer; presets are what selectPreset accepts on it. fm is set once the FM engine
  *  is loaded. */
-export interface SynthInfo { engine: string; kind: EngineKind; engines: EngineKind[]; sampleRate: number; maxVoices: number; presets: Preset[]; fm?: FmInfo }
+export interface SynthInfo { engine: string; kind: EngineKind; profile?: SynthProfile; engines: EngineKind[]; sampleRate: number; maxVoices: number; presets: Preset[]; fm?: FmInfo }
 /** rate is the file's playback rate: 2 plays it twice as fast, at the same pitch. */
 /** How a file loads. tempo scales the file's own clock: 0.5 plays it at half the tempo its header and tempo events
  *  state, for files converted at a wrong clock (Raptor's MUS music ran at 70 Hz, and MIDI files converted from it at
@@ -49,8 +56,11 @@ export interface RenderStats { frame: number; queuedEvents: number; lateEvents: 
 
 /** Operation codes of PackedEvent, shared by the queue and the engine. */
 export const OP = { noteOn: 0, noteOff: 1, controlChange: 2, programChange: 3, pitchBend: 4, channelPressure: 5,
-  polyPressure: 6, preset: 7, reset: 8 } as const;
-export const OP_COUNT = 9;
+  polyPressure: 6, preset: 7, reset: 8, sysex: 9 } as const;
+export const OP_COUNT = 10;
+/** The longest system exclusive message, F0 through F7: native/profiles/profile_pack.h PROFILE_SYSEX_MAX. VERIFIED:
+ *  tests/core.test.ts drops a longer message whole and tests/native-profile-abi.test.ts checks the cores' bound. */
+export const SYSEX_MAX = 65536;
 /** The largest operand: a 14-bit pitch bend or bank number. */
 export const OPERAND_MAX = 16383;
 /** The largest MIDI, RMI or MUS file the package accepts. */
@@ -84,12 +94,31 @@ export function normalizeOptions(options: EngineOptions = {}): Required<EngineOp
   };
 }
 export function engineKind(kind: unknown): EngineKind {
-  if (kind !== 'soundfont' && kind !== 'fm') throw new RangeError(`engine must be 'soundfont' or 'fm'`);
+  if (kind !== 'fm' && !isSynthProfile(kind)) throw new RangeError('Unknown synthesizer engine');
   return kind;
 }
-export function packEvent(event: TimedEvent, sampleRate: number): PackedEvent {
+/** Whether length bytes of bytes from offset are one system exclusive message: F0, data bytes below 80h, F7, at most
+ *  SYSEX_MAX bytes (profile_pack.h profile_sysex_valid). */
+export function isSysEx(bytes: ArrayLike<number>, offset = 0, length = bytes.length - offset): boolean {
+  if (!Number.isSafeInteger(length) || length < 2 || length > SYSEX_MAX || bytes[offset] !== 0xf0 || bytes[offset + length - 1] !== 0xf7) return false;
+  for (let i = offset + 1; i < offset + length - 1; i++) { const b = bytes[i]!; if (!Number.isInteger(b) || b < 0 || b > 0x7f) return false; }
+  return true;
+}
+/** A copy of data as one validated system exclusive message; a RangeError names what is wrong. */
+export function sysexBytes(data: Uint8Array | ArrayLike<number>): Uint8Array {
+  if (!(data instanceof Uint8Array) && !Array.isArray(data)) throw new TypeError('SysEx data must be a Uint8Array or an array of bytes');
+  if (!isSysEx(data)) throw new RangeError(`SysEx data must be one message F0 .. F7 of 2 to ${SYSEX_MAX} bytes with data bytes below 80h`);
+  return Uint8Array.from(data);
+}
+/** The packed form of event at sampleRate. A sysex event's message goes to payloads, which the packed event indexes;
+ *  without payloads it is a TypeError. */
+export function packEvent(event: TimedEvent, sampleRate: number, payloads?: Uint8Array[]): PackedEvent {
   const frame = integer(Math.round(finite(event.time, 0, Number.MAX_SAFE_INTEGER / sampleRate, 'event time') * sampleRate), 0, Number.MAX_SAFE_INTEGER, 'frame');
   if (event.type === 'reset') return [frame, OP.reset, 0, 0, 0];
+  if (event.type === 'sysex') {
+    if (!payloads) throw new TypeError('A sysex event needs a payload list');
+    return [frame, OP.sysex, payloads.push(sysexBytes(event.data)) - 1, 0, 0];
+  }
   const ch = integer(event.channel, 0, 15, 'channel');
   switch (event.type) {
     case 'noteOn': return [frame, OP.noteOn, ch, integer(event.note, 0, 127, 'note'), integer(event.velocity, 0, 127, 'velocity')];

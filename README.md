@@ -1,9 +1,10 @@
 # defuss-midi-synth
 
-A General MIDI synthesizer for the browser and for offline rendering, with two engines in standalone WebAssembly modules:
+A General MIDI synthesizer for the browser and for offline rendering, with its engines in standalone WebAssembly modules:
 
 - **SoundFont** (default): TinySoundFont 0.9 plays SoundFont 2 files. The package bundles TimGM6mb, a General MIDI SoundFont with all 128 General MIDI programs and 8 drum kits (6.0 MB, shipped Brotli-compressed as 5.2 MB).
 - **FM**: libADLMIDI 1.6.2 drives emulated Yamaha OPL3 chips (Nuked OPL3), the sound of AdLib and Sound Blaster cards. It embeds 79 instrument banks taken from DOS and Windows games and drivers, and loads WOPL bank files.
+- **Hardware profiles**: ten named engines, nine of them sound cards and modules from the Sound Blaster 16 to the Roland MT-32. Eight run a core of their own, an emulator or a reconstruction; most need ROMs, wavesets or patches that you supply as one pack file ([HARDWARE_PROFILES.md](HARDWARE_PROFILES.md)).
 
 A song switches engines while it plays and keeps its position. Browser synthesis runs in an AudioWorklet. Node.js, Bun and browser offline rendering use the same engines and the same event scheduler.
 
@@ -16,9 +17,15 @@ make setup
 make dev
 ```
 
-Open http://127.0.0.1:8080. The page is a DOS screen over Matrix rain, in pixel fonts. It names its engines after the sound cards whose music it plays: "Gravis Ultrasound" is the FM engine and "SoundBlaster 16" the SoundFont engine. It starts on the FM engine with the Bergium visualizer (its Butterchurn pipeline), which rotates every 30 s through 14 presets (`demo/bergium-presets.json`); its SoundFont engine plays Zandro Reveille's OPL-3 FM 128M SoundFont (CC BY-SA 4.0), 135 MB, loaded as its 104 MB Brotli file from the Hugging Face model repo https://huggingface.co/kyr0/midi-synth when chosen or when an album that plays on it starts. That repo holds this project's soundbanks, the raw 135 MB file included. The page has a music player for the game soundtracks in `docs/music/` (see below), with an engine switch, skip, speed and volume controls, a shader that follows the sound, and the visualizer, which draws every sound the synthesizer plays. Every track has a WAV button: the page renders the file offline on the engine and bank shown and offers it as a download. On the FM engine a list of the 79 banks replaces the bank's name; each album starts on its game's bank, and a bank picked from the list holds for that album. Jazz Jackrabbit, Jazz Jackrabbit 2 and The Settlers II play on the SoundBlaster 16, the other albums on the Gravis Ultrasound; an engine picked during an album holds for that album. An album's list holds the tracks of all its editions, each row naming its own. The page opens on Warcraft II, the first album; the album grid starts with the order the author chose, then the rest by title. A bar at the bottom of the window shows downloads above 1 MB, their decompression and WAV rendering. Below the player are piano keys, bank and preset selectors, SF2 and WOPL loading and a demo sequence. A Web MIDI keyboard plays the synthesizer and lights the keys it plays; the scope shows the keys' sound, not the player's. Everything played on the keys or a Web MIDI keyboard is recorded, and "Download your synthesized MIDI." renders the recording as a WAV file. A MIDI, RMI or MUS file of your own plays in the player. Files are processed locally.
+Open http://127.0.0.1:8080. The page is a DOS screen over Matrix rain, in pixel fonts, with a music player for the game soundtracks in `docs/music/` (see below), a shader that follows the sound, and the Bergium visualizer (its Butterchurn pipeline), which draws every sound the synthesizer plays and rotates every 30 s through 14 presets (`demo/bergium-presets.json`). The player has skip, speed and volume controls, and every track has a WAV button: the page renders the file offline on the engine and bank shown and offers it as a download. The page opens on Warcraft II, the first album; the album grid starts with the order the author chose, then the rest by title. An album's list holds the tracks of all its editions, each row naming its own. A bar at the bottom of the window shows downloads above 1 MB, their decompression and WAV rendering.
 
-`docs/music/` holds 31 game soundtracks as General MIDI files, with covers, from https://www.karlsitretro.com/game_midi (Age of Empires II and The Conquerors without an info file: their fields stand in `scripts/index-music.mjs`, the composer as the files' own text events credit him), the eleven tracks of Q-Pop: Evolution im Weltraum (1993), which the author added (no info file either; the composers K.-L. von Wendt and Lars Hammer as the files credit them), and MaliceX's MIDI arrangements of the Jazz Jackrabbit games (2004 to 2005), indexed as two albums with their covers, GM and XG editions and titles from the files' own track names. `node --experimental-transform-types scripts/index-music.mjs` writes `docs/music/index.json`: each album's title, year, composers, cover and editions (GM, GS, MT-32, AdLib and others), each track's title and length, the FM bank of `docs/music/banks.ini` that the game's sound driver used, the engine for the albums the author set to the SoundBlaster 16, and a tempo for albums whose files state a wrong clock: Raptor's MIDI files carry the 140 Hz clock of Doom's MUS driver, while Raptor's ran at 70 Hz, so the player loads them at tempo 0.5. The rights to this music stay with its composers and publishers; it is part of the demo site, not of the npm package. The index leaves out Wolfenstein 3D's `Horst-Wessel-Lied.mid`, the NSDAP anthem, whose public performance section 86a of the German Criminal Code forbids.
+Three buttons pick the engine: "Sound Blaster 16 (OPL3)" (one OPL3 chip, where the page starts), "Sound Blaster 16 (CQM)" (one Creative CQM chip with the same banks) and "SoundFont". On either FM engine a list of the 79 banks replaces the bank's name; each album starts on its game's bank, and a bank picked from the list holds for that album. Jazz Jackrabbit, Jazz Jackrabbit 2 and The Settlers II name the Sound Blaster 16 (OPL3) as their profile, and the other albums play on the page's default, the same profile; an engine picked during an album holds for that album. The SoundFont engine plays Zandro Reveille's OPL-3 FM 128M SoundFont (CC BY-SA 4.0), 135 MB, loaded as its 104 MB Brotli file from the Hugging Face model repo https://huggingface.co/kyr0/midi-synth when chosen or when an album that plays on it starts. That repo holds this project's soundbanks, the raw 135 MB file included.
+
+The list "Your hardware files" holds the profiles that play only with your own files: Sound Blaster PCI 128 (an ECW pack), Gravis UltraSound (a patch pack), Roland SC-55, SC-55mkII and MT-32 (a ROM pack). Choosing one asks for a `.dspack` file; the page reads it in the browser and sends it nowhere, and the profile keeps that pack for the session, for WAV downloads too. A pack the core rejects leaves the engine that played, and the status line names the profile. The AWE32 and AWE64 entries are disabled, since their core builds only locally. [Make a pack](#make-a-pack) says how.
+
+Below the player are piano keys, bank and preset selectors, SF2 and WOPL loading and a demo sequence. A Web MIDI keyboard plays the synthesizer and lights the keys it plays; the scope shows the keys' sound, not the player's. Everything played on the keys or a Web MIDI keyboard is recorded, and "Download your synthesized MIDI." renders the recording as a WAV file. A MIDI, RMI or MUS file of your own plays in the player. Files are processed locally.
+
+`docs/music/` holds 31 game soundtracks as General MIDI files, with covers, from https://www.karlsitretro.com/game_midi (Age of Empires II and The Conquerors without an info file: their fields stand in `scripts/index-music.mjs`, the composer as the files' own text events credit him), the eleven tracks of Q-Pop: Evolution im Weltraum (1993), which the author added (no info file either; the composers K.-L. von Wendt and Lars Hammer as the files credit them), and MaliceX's MIDI arrangements of the Jazz Jackrabbit games (2004 to 2005), indexed as two albums with their covers, GM and XG editions and titles from the files' own track names. `node --experimental-transform-types scripts/index-music.mjs` writes `docs/music/index.json`: each album's title, year, composers, cover and editions (GM, GS, MT-32, AdLib and others), each track's title and length, the FM bank of `docs/music/banks.ini` that the game's sound driver used, the profile of the albums the author assigned one, and a tempo for albums whose files state a wrong clock: Raptor's MIDI files carry the 140 Hz clock of Doom's MUS driver, while Raptor's ran at 70 Hz, so the player loads them at tempo 0.5. The rights to this music stay with its composers and publishers; it is part of the demo site, not of the npm package. The index leaves out Wolfenstein 3D's `Horst-Wessel-Lied.mid`, the NSDAP anthem, whose public performance section 86a of the German Criminal Code forbids.
 
 `make setup` runs `mise install` when mise is available, installs the locked Bun dependencies and installs Chromium for the tests. `mise.toml` pins Bun 1.4.3 and Node 24.22.1. Python 3 and Make run the service and verification helpers. Normal use does not need Emscripten.
 
@@ -26,7 +33,7 @@ A SoundFont or WOPL file may come Brotli-compressed: bytes that do not start wit
 
 ## Browser API
 
-Install the package tarball with `bun add ./defuss-midi-synth-0.3.0.tgz` (`make pack` writes it to `output/`).
+Install the package tarball with `bun add ./defuss-midi-synth-0.4.0.tgz` (`make pack` writes it to `output/`).
 
 ```ts
 import { MidiSynth } from 'defuss-midi-synth';
@@ -46,53 +53,97 @@ await synth.schedule([
 
 For an unbundled browser import of `dist/index.js`, assets resolve beside the module automatically. Bundlers can move that module, so copy the complete `dist/` directory to a static location and set `baseUrl` to that directory, including its trailing slash. Keep the generated shared JS chunks, `worklet.js` and `assets/` together. Serve `.wasm` as `application/wasm`. The package needs neither SharedArrayBuffer nor cross-origin isolation headers.
 
-`MidiSynth.create` fetches the module of the starting engine (and, for the SoundFont engine, the SoundFont), compiles it and then constructs the worklet. The `onProgress` option hears each download and decompression of the files the synthesizer loads, as `{ phase: 'download' | 'decompress', url, loaded, total }` (`total` 0 while a server sends no length). In a browser downloads report step by step through XMLHttpRequest, and the Brotli decoder reports every 4 MB of input and yields to the event loop between steps, so a page repaints its bar. Options:
+`MidiSynth.create` fetches the module of the starting engine (and, for the SoundFont engine, the SoundFont; for a native profile, its pack), compiles it and then constructs the worklet. The `onProgress` option hears each download and decompression of the files the synthesizer loads, as `{ phase: 'download' | 'decompress', url, loaded, total }` (`total` 0 while a server sends no length). In a browser downloads report step by step through XMLHttpRequest, and the Brotli decoder reports every 4 MB of input and yields to the event loop between steps, so a page repaints its bar. Options:
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `engine` | `'soundfont'` | The engine that plays first: `'soundfont'` or `'fm'`. `useEngine` loads the other one on demand. |
+| `engine` | `'soundfont'` | The engine that plays first: `'soundfont'`, `'fm'` or a profile id. `useEngine` loads another one on demand. |
+| `profile` | none | The profile that plays first, one of `SYNTH_PROFILES`. Given with `engine`, both must name the same one, else a RangeError. |
+| `profileSources` | none | Per native profile `{ wasm?, assets? }`: its module and its pack, as bytes or a URL relative to `baseUrl`. |
 | `soundfont` | `assets/TimGM6mb.sf2.br` | Other SF2 bytes or a URL relative to `baseUrl`, plain or Brotli-compressed. |
 | `maxVoices` | 256 | SoundFont voices to preallocate, up to 4096. |
-| `chips` | 2 | Emulated OPL3 chips of the FM engine, 1 to 8; each sounds 18 two-operator voices. |
-| `fmBank` | 0 | The FM engine's embedded bank, 0 to 78, numbered as libADLMIDI's `banks.ini` (`docs/music/banks.ini`). |
+| `chips` | 2 | Emulated OPL3 chips of the `fm` engine, 1 to 8; each sounds 18 two-operator voices. `sb16-opl3` always has one. |
+| `fmBank` | 0 | The embedded bank an FM engine (`fm`, `sb16-opl3`, `sb16-cqm`) starts on, 0 to 78, numbered as libADLMIDI's `banks.ini` (`docs/music/banks.ini`). |
 
 For the SoundFont engine, `maxVoices` limits the voices. Beyond that limit, a new note takes over the voice furthest into its release, and a note that finds no releasing voice stays silent. Every channel starts in its General MIDI state: program 1, channel volume 100, and the drum kit on channel 10.
 
 | API | Behavior |
 | --- | --- |
-| `info` | The active engine's name and `kind`, the loaded `engines`, sample rate, voice limit and the presets as `{ bank, program, name }`: bank 0 holds the General MIDI programs, bank 128 the drum kits. Once the FM engine is loaded, `info.fm` holds its bank names, its bank (-1 for a loaded WOPL file) and its chips. |
-| `useEngine(kind)` | Make `'soundfont'` or `'fm'` play, fetching and compiling it the first time. A loaded file keeps its position: its programs and controllers up to there are replayed into the new engine and its held notes struck again. Scheduled events are cleared. |
-| `setFmBank(bank)` | Select an embedded FM bank (0 to 78); a playing file plays on with the new instruments. |
-| `loadFmBank(source)` | Replace the FM instruments with a WOPL bank file (bytes or a URL, plain or Brotli-compressed); a rejected file keeps the bank. |
+| `info` | The active engine's name, `kind` and `profile` (for a profile), the loaded `engines`, sample rate, voice limit and the presets as `{ bank, program, name }`: bank 0 holds the General MIDI programs, bank 128 the drum kits. Once an FM engine is loaded, `info.fm` holds its bank names, its bank (-1 for a loaded WOPL file) and its chips. |
+| `useEngine(kind)` | Make `'soundfont'`, `'fm'` or a profile play, fetching and compiling it the first time. A loaded file keeps its position: its state up to there is replayed into the new engine and its held notes struck again. Scheduled events are cleared. |
+| `useProfile(profile, sources?)` | `useEngine` for profiles; `'fm'` is a RangeError. `sources` (`{ wasm?, assets? }`) supplies a native profile's pack after creation, such as files a user picks, merged into that profile's `profileSources` entry, so a module given at creation stays. Once the profile is loaded or loading it keeps its pack, and new sources reject. |
+| `setFmBank(bank)` | Select an embedded bank (0 to 78) on every loaded FM engine: `fm`, `sb16-opl3`, `sb16-cqm`. A playing file plays on with the new instruments. |
+| `loadFmBank(source)` | Replace the instruments of every loaded FM engine with a WOPL bank file (bytes or a URL, plain or Brotli-compressed); a rejected file keeps the bank and the playing file's state. |
 | `setPlaybackRate(rate)` | Play the loaded file at 0.25 to 4 times its tempo, at the same pitch. |
 | `noteOn`, `noteOff`, `programChange`, `controlChange`, `pitchBend` | Send a validated event; the optional last argument is absolute AudioContext time. |
-| `selectPreset(channel, bank, program)` | Select any preset of `info.presets` on any channel. On the SoundFont engine a drum kit also plays outside channel 10; on the FM engine bank 128 (the percussion) is channel 10's alone. A pair the engine lacks throws a RangeError. |
-| `reset()` | Every channel back to its General MIDI state. |
-| `sendMidi(bytes, time)` | Parse a MIDI byte stream (Web MIDI input, an emulated MPU-401) with running status across calls. The GM, GS and XG reset messages and System Reset become resets. |
-| `send(event, time)` | Send any typed event, including channel and poly pressure. |
+| `selectPreset(channel, bank, program)` | Select any preset of `info.presets` on any channel. On the SoundFont engine a drum kit also plays outside channel 10; on every other engine bank 128 (the percussion) is channel 10's alone. A pair the engine lacks throws a RangeError. |
+| `reset()` | Every channel back to its General MIDI state; on a native profile, the core's power-on state. |
+| `sendMidi(bytes, time)` | Parse a MIDI byte stream (Web MIDI input, an emulated MPU-401) with running status across calls. Each complete SysEx becomes a `sysex` event; System Reset becomes a reset. |
+| `send(event, time)` | Send any typed event, including channel and poly pressure and `sysex`. |
 | `schedule(events)` | Atomically enqueue a batch; the promise acknowledges acceptance. |
 | `clearScheduled()` | Remove future events; sounding notes continue. |
 | `panic()` | Clear queued events and end every sound at once. File transport keeps emitting later notes; `stop()` stops it. |
 | `loadSoundFont(source)` | Replace the SoundFont with SF2 bytes or a URL, plain or Brotli-compressed; resolves with the new `info`. Clears queued events and, while the SoundFont engine plays, stops the transport. A rejected file keeps the loaded SoundFont. Before `useEngine('soundfont')` has loaded that engine, it rejects without downloading. |
-| `loadMidi(bytes, { tempo })` | Parse a Standard MIDI File (format 0 or 1), an RMI file or a MUS file. Stops the transport, clears events and returns title and duration. `tempo` (0.25 to 4, default 1) scales the file's own clock for files converted at a wrong one: 0.5 plays a MIDI file converted from Raptor's 70 Hz MUS data at Doom's 140 Hz, or such a MUS file, at its real speed. Positions, seeking and the duration count real seconds. |
+| `loadMidi(bytes, { tempo })` | Parse a Standard MIDI File (format 0 or 1), an RMI file or a MUS file, with at most 65,536 SysEx messages. Stops the transport, clears events and returns title and duration. `tempo` (0.25 to 4, default 1) scales the file's own clock for files converted at a wrong one: 0.5 plays a MIDI file converted from Raptor's 70 Hz MUS data at Doom's 140 Hz, or such a MUS file, at its real speed. Positions, seeking and the duration count real seconds. |
 | `play(loop)`, `pause()`, `stop()`, `seek(seconds)` | Control file playback. `stop()` rewinds and returns to real-time synthesis. |
-| `status()` | Transport position, rate and end state, frame, queue depth, late-event count and sounding voices. |
+| `status()` | Transport position, rate and end state, frame, queue depth, late-event count, sounding voices, and `dropped`: the MIDI and SysEx messages the active engine's input could not take, such as a Sound Canvas core's full 16 KiB MIDI IN (always 0 on the SoundFont and FM engines). |
 | `setGain(value)` | Smooth output gain, from 0 to 4 (default 1). |
 | `output` | GainNode for analyzers, effects or recording destinations. |
 | `source` | The signal before `output`'s gain, for meters and visualizers that should not follow the volume. |
 | `dispose()` | Idempotent cleanup; closes only an internally created AudioContext. |
 
-The FM engine plays the General MIDI programs of its bank with libADLMIDI's driver: volume, expression, pan, sustain, modulation, pitch bend with its RPN range, and the percussion of channel 10. Banks differ in which instruments sound right, because each game tuned its own; `docs/music/index.json` names the bank of each soundtrack's game.
+The FM engines play the General MIDI programs of their bank with libADLMIDI's driver: volume, expression, pan, sustain, modulation, pitch bend with its RPN range, and the percussion of channel 10. Banks differ in which instruments sound right, because each game tuned its own; `docs/music/index.json` names the bank of each soundtrack's game.
 
-Channels and programs use zero-based MIDI numbering. Pitch bend is 0 through 16383, with 8192 centered; the default range is two semitones and RPN 0 changes it. TinySoundFont handles volume, expression, pan, sustain, bank select (controllers 0 and 32), the RPNs for pitch bend range and tuning, and the channel mode messages 120, 121 and 123. Channel and poly pressure are accepted and have no effect, because TinySoundFont has no aftertouch. It also ignores reverb and chorus sends and SoundFont modulators. `pause()` freezes file playback and the synthesizer; use `stop()` before returning to live playing. MIDI files are limited to 16 MiB and SoundFonts to 256 MiB. Decoder failures reject the operation. A WASM trap or processor failure stops that instance and rejects pending requests.
+Channels and programs use zero-based MIDI numbering. Pitch bend is 0 through 16383, with 8192 centered; the default range is two semitones and RPN 0 changes it. TinySoundFont handles volume, expression, pan, sustain, bank select (controllers 0 and 32), the RPNs for pitch bend range and tuning, and the channel mode messages 120, 121 and 123. Channel and poly pressure are accepted and have no effect, because TinySoundFont has no aftertouch. It also ignores reverb and chorus sends and SoundFont modulators. `pause()` freezes file playback and the synthesizer; use `stop()` before returning to live playing. MIDI files are limited to 16 MiB and 65,536 SysEx messages (more is a RangeError), SoundFonts to 256 MiB. Decoder failures reject the operation. A WASM trap or processor failure stops that instance and rejects pending requests.
 
-`MidiParser` and `isReset` are exported for code that needs the byte-stream parser on its own, `GM_PROGRAMS` for the 128 General MIDI program names.
+`MidiParser` (with `cancel()`, which drops a message in progress) and `isReset` (the GM, GM2, GS and XG resets) are exported for code that needs the byte-stream parser on its own, `GM_PROGRAMS` for the 128 General MIDI program names, `SYNTH_PROFILES` and `PROFILE_DESCRIPTORS` for the profiles.
+
+## Hardware profiles
+
+`SYNTH_PROFILES` lists the ten profiles: `soundfont`, `sb16-opl3`, `sb16-cqm`, `awe32`, `awe64`, `sb-pci128`, `gus-gf1`, `roland-sc55`, `roland-sc55mk2` and `roland-mt32`. `PROFILE_DESCRIPTORS[id]` gives each one's `label`, `technology`, `maxVoices`, `availability` (`'bundled'`: the package ships the core; `'local-build-required'`: the AWE cores, which you build and supply as `profileSources[id].wasm`) and `userAssets` (`'none'`, `'optional'` or `'required'`: what you supply as the pack). A profile plays without your files exactly when its core is bundled and `userAssets` is not `'required'`: `soundfont`, `sb16-opl3` and `sb16-cqm`.
+
+```ts
+import { MidiSynth, PROFILE_DESCRIPTORS } from 'defuss-midi-synth';
+
+const synth = await MidiSynth.create({ context, baseUrl: new URL('/synth/', location.href), profile: 'sb16-cqm' });
+// A .dspack the user picked in <input type="file" id="pack">; it stays in this page.
+const file = (document.getElementById('pack') as HTMLInputElement).files![0]!;
+await synth.useProfile('roland-mt32', { assets: new Uint8Array(await file.arrayBuffer()) });
+PROFILE_DESCRIPTORS['roland-mt32'].userAssets; // 'required'
+```
+
+A profile loads on first use and reports through `onProgress`; concurrent calls share one load, and `fm` and `sb16-opl3` share one download and compile of `fm-synth.wasm`. A profile that cannot load rejects with an Error that names the profile, the file and what makes it available, and the engine that played plays on. A required pack or a local-only module that `profileSources` lacks fails without a request. `sb16-opl3` is libADLMIDI on one chip with 18 voices, at the level of `fm`; `sb16-cqm` plays the same banks on a CQM chip, lists their 79 names in `info.fm` also without another FM engine, and follows `fmBank`, `setFmBank` and `loadFmBank`; an FM engine loaded later starts on the current bank. [HARDWARE_PROFILES.md](HARDWARE_PROFILES.md) states each profile's core, licence, test status, cost and fidelity limits.
+
+### Make a pack
+
+A pack (`.dspack`) holds the files of one profile under numbered roles. You supply the ROMs: the scripts name no ROM source, because the dumps are copyrighted firmware. `scripts/fetch-roms.py` reads a URL or a path per file from `profile-assets/rom-sources.json`, keeps a file only when its size and hash match a revision in `scripts/roms/<profile>.json`, and packs a complete Roland set (an AWE pack also needs a bank, which `pack-awe` adds):
+
+```sh
+python3 scripts/fetch-roms.py init          # writes profile-assets/rom-sources.json; fill in your files
+python3 scripts/fetch-roms.py roland-mt32   # writes profile-assets/roland-mt32.dspack
+```
+
+`scripts/profile-assets.py` packs files you have (`pack`, `pack-gus`, `pack-awe`) and fetches the ECW wavesets and the Gravis patches from public driver archives, pinned by SHA-256 (`fetch-ecw`, `fetch-gus`). Everything lands in `profile-assets/`, which git ignores; the package and the demo site ship no pack. [HARDWARE_PROFILES.md](HARDWARE_PROFILES.md#packs) lists the roles of each profile and every command.
+
+## System exclusive messages
+
+A `sysex` event, `{ type: 'sysex', data }`, holds one message from F0 to F7 as a Uint8Array or an array of bytes: 2 to 65,536 bytes, data bytes below 80h, else a RangeError. `schedule` and `send` take it; `sendMidi` makes one of every complete SysEx in a byte stream, keeps real-time bytes inside it as messages of their own, and drops a message longer than 65,536 bytes whole. Each engine receives the message as it was sent and applies what its hardware or driver knows:
+
+| Engine | SysEx it applies |
+| --- | --- |
+| `soundfont` | The GM, GM2, GS and XG resets; GM Master Volume, on TinySoundFont's channel-volume curve. The rest is ignored. |
+| `fm`, `sb16-opl3`, `sb16-cqm` | The four resets, then libADLMIDI's own: GM System On and Off, the GS reset and rhythm part assignment, XG System On, GM Master Volume. |
+| `awe32`, `awe64`, `sb-pci128`, `gus-gf1` | The four resets; the rest is ignored. |
+| `roland-sc55`, `roland-sc55mk2` | Every message goes to the original firmware's MIDI IN, which applies what the unit applies; not yet run with real ROMs. |
+| `roland-mt32` | Munt's MT-32 parameter writes; it ignores the GM, GS and XG resets, as the unit does. |
+
+A file's SysEx events (F0, divided F7 continuations and F7 escapes) play at their frames. A seek, an engine switch or a bank change resets the engine and replays the file's state before the position in file order: every SysEx and reset, every bank select, RPN, NRPN, data entry and channel mode message, and of each channel the last program, pitch bend, channel pressure and value of every other controller. So an MT-32 gets back the timbres a game uploaded, and a Sound Canvas core, whose MIDI IN takes 3,125 bytes per second, does not wait for earlier changes that later ones replace. Scheduled SysEx are not replayed, like scheduled channel messages.
 
 ## Timing
 
 Events use output sample frames, derived by rounding `time * sampleRate`. Equal timestamps keep their submission order. Renders split at event frames and at every multiple of 64 output frames. TinySoundFont updates envelopes, filters and LFOs once per block of up to 64 frames, so render blocks that are multiples of 64 produce the same PCM as one long render. At any block size every event still acts at its own frame. Late arrivals run at the next available frame and increment `lateEvents`; they cannot alter audio already rendered. Immediate note calls can therefore be counted as late. Use a lookahead suited to the application, such as 50 ms, for sequenced events. File messages also act at their own frames.
 
-The default event capacity is 8192. `queueCapacity` sets it at creation. Overflow rejects the whole batch without partial insertion. `clearScheduled`, panic, SoundFont changes, MIDI loading, seek and stop cancel queued events. A request timeout rejects its promise but does not cancel a command already sent to the worklet.
+The default event capacity is 8192. `queueCapacity` sets it at creation. Up to 16 MiB of SysEx bytes wait in the queue at once. Overflow of either rejects the whole batch without partial insertion. `clearScheduled`, panic, SoundFont changes, MIDI loading, seek and stop cancel queued events. A request timeout rejects its promise but does not cancel a command already sent to the worklet.
 
 ## Offline rendering
 
@@ -111,26 +162,28 @@ try {
 }
 ```
 
-`render(frames)` allocates planar Float32 output. `renderInto(left, right)` reuses caller buffers for streaming. Offline time starts at zero and advances with rendering. `schedule(events)` and `sendMidi(bytes, time)` work as in the browser, with time in seconds from zero. `OfflineSynth.create` takes the browser's engine options (`engine`, `chips`, `fmBank`, `soundfont`, `maxVoices`, `onProgress`); `loadMidi(bytes, { tempo })` and `play(loop)` play a file through the following renders; `useEngine(kind)`, `loadSoundFont(source)` and `loadFmBank(source)` (async) and `setFmBank(bank)` work as in the browser, `engine.loadMidi(bytes, { tempo })` as `loadMidi` does. The public `engine` provides `loadSoundFont`, `loadMidi`, `play`, `pause`, `stop`, `seek`, `setRate`, `panic`, `voices`, `info` and `playbackInfo`; unlike the synthesizer's own methods, these leave scheduled events queued, which `session.clear()` removes. `session.stats()` reports timing counters. Under Node.js (22.3 or later) and Bun the package reads its assets from the file system; the `soundfont` option takes other SF2 bytes or a file URL. `encodeWav` writes 16-bit stereo PCM and rejects non-finite samples.
+`render(frames)` allocates planar Float32 output. `renderInto(left, right)` reuses caller buffers for streaming. Offline time starts at zero and advances with rendering. `schedule(events)` and `sendMidi(bytes, time)` work as in the browser, with time in seconds from zero. `OfflineSynth.create` takes the browser's engine options (`engine`, `profile`, `profileSources`, `chips`, `fmBank`, `soundfont`, `maxVoices`, `onProgress`); `loadMidi(bytes, { tempo })` and `play(loop)` play a file through the following renders; `useEngine(kind)`, `useProfile(profile, sources?)`, `loadSoundFont(source)` and `loadFmBank(source)` (async) and `setFmBank(bank)` work as in the browser, `engine.loadMidi(bytes, { tempo })` as `loadMidi` does. The public `engine` provides `loadSoundFont`, `loadMidi`, `play`, `pause`, `stop`, `seek`, `setRate`, `panic`, `voices`, `info` and `playbackInfo`; unlike the synthesizer's own methods, these leave scheduled events queued, which `session.clear()` removes. `session.stats()` reports timing counters, and the `dropped` getter what `status().dropped` reports in the browser. Under Node.js (22.3 or later) and Bun the package reads its assets from the file system; the `soundfont` option and `profileSources` take bytes or a file URL. `encodeWav` writes 16-bit stereo PCM and rejects non-finite samples.
 
 ## Build and verify
 
 | Command | Result |
 | --- | --- |
-| `make build` | ESM, declarations, worklet and static demo assets. |
+| `make build` | ESM, declarations, worklet, the bundled profile cores and static demo assets. |
 | `make verify` | Lint and types, real WASM tests, shared-core coverage, packed consumer and Chromium checks. |
-| `make bench` | SoundFont load time, warmed Node WASM throughput of both engines and, after `make wasm`, the FM block renderer against the per-sample chip, in `output/benchmark.json`. |
+| `make bench` | SoundFont load time, warmed Node WASM throughput of the SoundFont and FM engines and, after `make wasm`, the FM block renderer against the per-sample chip, in `output/benchmark.json`. |
 | `make pack` | npm-compatible tarball in `output/`. |
 | `make release-hashes` | SHA-256 of every release file in `RELEASE_SHA256.json`. |
 | `make start`, `make stop`, `make status`, `make log` | Background demo server and logs. |
 | `make wasm` | Rebuild `vendor/runtime/midi-synth.wasm` and `fm-synth.wasm` from `native/` with the `emcc` on PATH, then check the FM block renderer against the per-sample chip (a register fuzz and game files). |
 | `make wasm-docker` | Rebuild with the `emscripten/emsdk:4.0.10` container. |
 | `make vae` | Run the bundled defuss-vae verification gate in a git working tree. |
+| `python3 scripts/build-native-profiles.py <profile>...` | Rebuild the CQM, Sound Canvas and MT-32 cores from their pinned upstream commits with Emscripten (`emcc`, `em++`, `emar`, Node, Git); `--local-awe awe32 awe64` builds the AWE cores into `profile-assets/local-builds/`. |
+| `python3 scripts/build-vintage-wasm.py` | Rebuild the ECW and GF1 cores with an LLVM clang that targets wasm32, without Emscripten. |
 
-`native/synth.c` and `native/fm.cpp` are the engines' C entries. `native/tsf.h` is TinySoundFont 0.9, copied unchanged; `native/adlmidi/` is libADLMIDI 1.6.2 trimmed to what the FM engine uses, with Nuked OPL3 fast and this project's block renderer ([native/ARCH.md](native/ARCH.md)). The prebuilt module, the SoundFont and the native sources are hashed in [vendor/SHA256SUMS.json](vendor/SHA256SUMS.json). Builds check these hashes before JS packaging, and `make wasm` rewrites them; review those changes before release. The tarball holds `dist/` (module, SoundFont and their licence files), `src/` and `native/`.
+`native/synth.c` and `native/fm.cpp` are the engines' C entries, `native/profiles/` the profile adapters and in-tree cores. `native/tsf.h` is TinySoundFont 0.9, copied unchanged; `native/adlmidi/` is libADLMIDI 1.6.2 trimmed to what the FM engine uses, with Nuked OPL3 fast and this project's block renderer ([native/ARCH.md](native/ARCH.md)). The prebuilt modules, the SoundFont and the native sources are hashed in [vendor/SHA256SUMS.json](vendor/SHA256SUMS.json). Builds check these hashes before JS packaging. `make wasm` rewrites them; after the profile build scripts, `node scripts/integrity.mjs --write` does. Review those changes before release. The tarball holds `dist/` (modules, SoundFont and their licence files), `src/`, `native/`, the two profile build scripts and the Munt and Nuked CQM source archives of `vendor/sources/`.
 
-The test suite checks pitch against SoundFont 2 rules with a SoundFont the tests write, FM pitch, banks, WOPL loading and engine switching, the General MIDI defaults, sample-accurate scheduling, block-size invariance, the MIDI, RMI and MUS parsers, file transport, SoundFont replacement, queue saturation, disposal and WAV encoding. The Chromium test drives every control of the demo, the music player included, and the public API in a real AudioWorklet. [VALIDATION.md](VALIDATION.md) scopes the evidence.
+The test suite checks pitch against SoundFont 2 rules with a SoundFont the tests write, FM pitch, banks, WOPL loading and engine switching, the General MIDI defaults, sample-accurate scheduling, block-size invariance, the MIDI, RMI and MUS parsers, SysEx in files and streams, file transport, SoundFont replacement, queue saturation, disposal and WAV encoding, and each profile core on its real module. The Chromium test drives every control of the demo, the music player and the hardware list included, and the public API in a real AudioWorklet. [VALIDATION.md](VALIDATION.md) scopes the evidence.
 
 ## License
 
-This project's own source code is licensed under the MIT License ([LICENSE](LICENSE)). Copyright in the SoundFonts, FM instrument banks, music files and other third-party components remains with their respective holders; [THIRD_PARTY.md](THIRD_PARTY.md) lists each with its source and licence.
+This project's own source code is licensed under the MIT License ([LICENSE](LICENSE)), except the two CQM adapter files, whose SPDX lines name GPL-3.0-or-later and LGPL-2.1-or-later. The package as a whole is distributed under GPL-3.0-or-later, because its modules link libADLMIDI. Copyright in the SoundFonts, FM instrument banks, music files and other third-party components remains with their respective holders; [THIRD_PARTY.md](THIRD_PARTY.md) lists each with its source and licence. The ROMs, ECW wavesets and Gravis patches that packs hold are neither part of the package nor of the site.
