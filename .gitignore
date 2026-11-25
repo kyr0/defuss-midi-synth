@@ -16,5 +16,15 @@ __pycache__/
 .ruff_cache/
 .coverage
 # docs/synth/, the build's copy of dist/, stays tracked: GitHub Pages serves docs/ from main without a build.
-output/# 135 MB raw demo SoundFont; git keeps only its Brotli copy, in LFS.
+output/
+# 135 MB raw demo SoundFont; git keeps only its Brotli copy, in LFS.
 docs/sf2_sb16/OPL-3_FM_128M.sf2
+defuss-midi-synth-v0.4.0-integration-r2/
+
+# dotenv environment variable files
+.env*
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+!.env.example
