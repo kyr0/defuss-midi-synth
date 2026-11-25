@@ -1,8 +1,12 @@
+import { nativePart, type NativePart } from './profile-assets.ts';
+import { isNativeProfile, selectEngine, type SynthProfile, type ProfileSourceMap } from './profiles.ts';
 import { bankBytes, FM_WASM_ASSET, readBytes, SOUNDFONT_ASSET, soundFontBytes, WASM_ASSET, type BankSource, type SoundFontSource } from './assets.ts';
 import { MidiStream } from './parser.ts';
 import { engineKind, finite, inputBytes, integer, MAX_SONG_BYTES, normalizeOptions, OPERAND_MAX, packEvent, type EngineKind, type EngineOptions, type MidiLoadOptions, type PlaybackInfo, type ProgressListener, type RenderStats, type SynthEvent, type SynthInfo, type TimedEvent } from './types.ts';
 
 export interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
+  profile?: SynthProfile;
+  profileSources?: ProfileSourceMap;
   context?: AudioContext;
   /** Directory containing worklet.js and assets/. Defaults beside the installed JS. */
   baseUrl?: string | URL;
@@ -19,7 +23,7 @@ export interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
 /** An engine's module, with the SoundFont for the soundfont engine, as the worklet takes it: compiled in the
  *  processor's options, as bytes in a later message. Chrome delivers a WebAssembly.Module in processorOptions but not
  *  through the node's port (the processor never receives that message). */
-interface EnginePart { kind: EngineKind; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer }
+type EnginePart = NativePart | { kind: 'soundfont' | 'fm' | 'sb16-opl3'; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer };
 type Pending = { resolve: (value: unknown) => void; reject: (reason: Error) => void; timer: ReturnType<typeof setTimeout> };
 /** File transport, scheduler counters and the voices sounding now. */
 export type SynthStatus = PlaybackInfo & RenderStats & { voices: number };
@@ -59,9 +63,9 @@ export class MidiSynth {
     const context = options.context ?? new AudioContext({ latencyHint: 'interactive' });
     let node: AudioWorkletNode | undefined;
     try {
-      const settings = normalizeOptions({ ...options, sampleRate: context.sampleRate });
+      const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile), sampleRate: context.sampleRate });
       const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress), context.audioWorklet.addModule(new URL('worklet.js', base))]);
+      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress, options.profileSources), context.audioWorklet.addModule(new URL('worklet.js', base))]);
       node = new AudioWorkletNode(context, 'defuss-midi-synth', {
         numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2],
         processorOptions: { part, settings, capacity },
@@ -84,17 +88,19 @@ export class MidiSynth {
   }
   /** Fetches kind's module, with the SoundFont for the soundfont engine, and compiles it off the audio thread when
    *  compile is true. Structured cloning copies the buffers into the audio thread; slices keep a caller's untouched. */
-  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener): Promise<EnginePart> {
-    const [wasm, font] = await Promise.all([readBytes(new URL(kind === 'fm' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress),
+  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener, sources?: ProfileSourceMap): Promise<EnginePart> {
+    if (isNativeProfile(kind)) return nativePart(kind, base, sources, compile, timeout, onProgress);
+    const [wasm, font] = await Promise.all([readBytes(new URL(kind === 'fm' || kind === 'sb16-opl3' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress),
       kind === 'soundfont' ? soundFontBytes(soundfont, base, SOUNDFONT_ASSET, timeout, onProgress) : undefined]);
     const copy = (bytes: Uint8Array) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
-    const part: EnginePart = compile ? { kind, module: await WebAssembly.compile(wasm as Uint8Array<ArrayBuffer>) } : { kind, wasm: copy(wasm) };
+    const part: Extract<EnginePart, { kind: 'soundfont' | 'fm' | 'sb16-opl3' }> = compile ? { kind, module: await WebAssembly.compile(wasm as Uint8Array<ArrayBuffer>) } : { kind, wasm: copy(wasm) };
     if (font) part.soundfont = copy(font);
     return part;
   }
   /** The active engine, the loaded engines, sample rate, voice limit, the presets selectPreset takes, and the FM
    *  engine's banks once it is loaded. */
   get info(): SynthInfo { return this.current; }
+  useProfile(profile: SynthProfile): Promise<SynthInfo> { return this.useEngine(profile); }
   private fail(error: Error): void {
     this.failure = error; this.node.disconnect();
     for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(error); }
@@ -127,7 +133,7 @@ export class MidiSynth {
   selectPreset(channel: number, bank: number, program: number, time?: number): Promise<void> {
     integer(bank, 0, OPERAND_MAX, 'bank'); integer(program, 0, 127, 'program');
     if (!this.current.presets.some(p => p.bank === bank && p.program === program)) throw new RangeError(`The ${this.current.kind} engine has no preset ${bank}:${program}`);
-    if (this.current.kind === 'fm' && bank === 128 && channel !== 9) throw new RangeError('FM percussion plays on channel 10 (channel index 9)');
+    if (this.current.kind !== 'soundfont' && bank === 128 && channel !== 9) throw new RangeError('FM percussion plays on channel 10 (channel index 9)');
     return this.send({ type: 'preset', channel, bank, program }, time);
   }
   /** Returns every channel to its General MIDI state. */
@@ -156,7 +162,7 @@ export class MidiSynth {
       let load = this.loading.get(kind);
       if (!load) {
         load = (async () => {
-          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress);
+          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.options.profileSources);
           this.current = await this.request<SynthInfo>('addEngine', [part]);
         })().finally(() => this.loading.delete(kind));
         this.loading.set(kind, load);

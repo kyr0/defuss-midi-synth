@@ -155,16 +155,16 @@ try {
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: 50 * 1024 * 1024, uploadThroughput: -1 });
   await page.click('#engine .toggle[value=soundfont]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / OPL-3 FM 128M', null, { timeout: 120000 });
-  assert.equal(await text('#message'), 'SoundBlaster 16: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
+  assert.equal(await text('#message'), 'SoundFont: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
   assert.equal(await page.locator('#fm-banks').isHidden(), true);
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
   assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
   assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont comes from the Hub');
   await page.waitForSelector('#load-progress', { state: 'hidden' });
   await sounding();
-  await page.click('#engine .toggle[value=fm]');
+  await page.click('#engine .toggle[value=sb16-opl3]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
-  assert.match(await text('#message'), /^Gravis Ultrasound: .*36 voices\.$/);
+  assert.match(await text('#message'), /^Sound Blaster 16 \(OPL3\): .*18 voices\.$/);
   // A track's WAV button renders it on the engine and bank shown without choosing it.
   const trackDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
   const track = await trackDownload; assert.equal(track.suggestedFilename(), 'Doom - 1 Intro.wav');
@@ -178,7 +178,7 @@ try {
   const shown = await text('#visual-name'); await page.click('#visual-next');
   await page.waitForFunction(shown => document.querySelector('#visual-name').textContent !== shown, shown);
   assert.deepEqual(await page.locator('#visualizer .toggle').allTextContents(), ['No Visuals', 'Bergium']);
-  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Gravis Ultrasound', 'SoundBlaster 16']);
+  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16 (OPL3)', 'SoundFont', 'Sound Blaster 16 (CQM)', 'Sound Blaster AWE32', 'Sound Blaster AWE64 (hardware voices)', 'Sound Blaster PCI 128', 'Gravis UltraSound (GF1)', 'Roland SC-55', 'Roland SC-55mkII', 'Roland MT-32']);
   await page.screenshot({ path: 'output/visualizer.png', clip: await page.locator('#visual-panel').boundingBox() });
   await page.click('#visualizer .toggle[value=off]'); assert.equal(await page.locator('#visual-panel').isHidden(), true);
   // The instrument below the player, on the FM engine.
@@ -211,7 +211,7 @@ try {
   await page.setInputFiles('#file', { name: 'test.wopl.br', mimeType: 'application/octet-stream', buffer: Buffer.from(compress(await readFile('tests/test.wopl'), { quality: 5 })) });
   await page.waitForFunction(() => document.querySelector('#message').textContent === 'FM bank loaded from your WOPL file.');
   assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · WOPL FILE');
-  await pressed('#engine .toggle[value=fm]', 'true');
+  await pressed('#engine .toggle[value=sb16-opl3]', 'true');
   assert.equal(await page.locator('#fm-banks').inputValue(), '-1'); assert.equal(await page.locator('#fm-banks option:checked').textContent(), 'Your WOPL file');
   const fmDownload = page.waitForEvent('download'); await page.click('#take-download');
   await (await fmDownload).saveAs('output/browser-fm-recording.wav');

@@ -17,7 +17,12 @@ export class Engine {
   readonly maxFrames = RENDER_BLOCK;
   private active: Voices | null;
   private soundfont: SoundFontVoices | null = null;
-  private fm: FmVoices | null = null;
+  private readonly loaded = new Map<EngineKind, Voices>();
+  private get fm(): FmVoices | null {
+    if (this.active instanceof FmVoices) return this.active;
+    const v = this.loaded.get('fm') ?? this.loaded.get('sb16-opl3');
+    return v instanceof FmVoices ? v : null;
+  }
   private song: Song | null = null;
   private songFrames = new Float64Array(0);
   private endFrame = 0;
@@ -31,11 +36,11 @@ export class Engine {
   private readonly held = new Uint8Array(CHANNELS * 128);
 
   /** Starts with voices, made from options by SoundFontVoices or FmVoices. */
-  constructor(voices: SoundFontVoices | FmVoices, options: EngineOptions = {}) {
+  constructor(voices: Voices, options: EngineOptions = {}) {
     this.options = normalizeOptions({ ...options, engine: voices.kind });
     this.active = voices;
-    this.attach(voices);
-    this.active.message(MIDI_RESET, 0, 0);
+    try { this.active.message(MIDI_RESET, 0, 0); this.attach(voices); }
+    catch (error) { voices.close(); throw error; }
   }
   /** An engine with TinySoundFont on instance (midi-synth.wasm) and the SoundFont 2 file soundfont. */
   static withSoundFont(instance: WebAssembly.Instance, soundfont: Uint8Array, options: EngineOptions = {}): Engine {
@@ -43,10 +48,11 @@ export class Engine {
   }
   /** An engine with libADLMIDI on instance (fm-synth.wasm), options.chips chips and embedded bank options.fmBank. */
   static withFm(instance: WebAssembly.Instance, options: EngineOptions = {}): Engine {
-    return new Engine(new FmVoices(instance, normalizeOptions(options)), options);
+    return new Engine(new FmVoices(instance, normalizeOptions(options), options.engine === 'sb16-opl3' ? 'sb16-opl3' : 'fm'), options);
   }
-  private attach(voices: SoundFontVoices | FmVoices): void {
-    if (voices instanceof SoundFontVoices) this.soundfont = voices; else this.fm = voices;
+  private attach(voices: Voices): void {
+    this.loaded.set(voices.kind, voices);
+    if (voices instanceof SoundFontVoices) this.soundfont = voices;
   }
   private ensure(): Voices {
     if (!this.active) throw new Error('Synth is disposed');
@@ -54,24 +60,24 @@ export class Engine {
   }
   info(): SynthInfo {
     const v = this.ensure();
-    const engines: EngineKind[] = [];
-    if (this.soundfont) engines.push('soundfont');
-    if (this.fm) engines.push('fm');
-    return { engine: v.name, kind: v.kind, engines, sampleRate: this.options.sampleRate, maxVoices: v.maxVoices(), presets: v.presets(), ...(this.fm ? { fm: this.fm.info() } : {}) };
+    const engines = [...this.loaded.keys()].sort((a, b) => (a === 'soundfont' ? -2 : a === 'fm' ? -1 : 0) - (b === 'soundfont' ? -2 : b === 'fm' ? -1 : 0));
+    return { engine: v.name, kind: v.kind, ...(v.kind === 'fm' ? {} : { profile: v.kind }), engines, sampleRate: this.options.sampleRate, maxVoices: v.maxVoices(), presets: v.presets(), ...(this.fm ? { fm: this.fm.info() } : {}) };
   }
   /** The engines loaded so far. */
-  has(kind: EngineKind): boolean { return kind === 'soundfont' ? !!this.soundfont : !!this.fm; }
+  has(kind: EngineKind): boolean { return this.loaded.has(kind); }
   /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. */
-  add(voices: SoundFontVoices | FmVoices): void {
-    this.ensure();
-    if (this.has(voices.kind)) throw new Error(`The ${voices.kind} engine is already loaded`);
-    this.attach(voices);
-    voices.message(MIDI_RESET, 0, 0);
+  add(voices: Voices): void {
+    try {
+      this.ensure();
+      if (this.has(voices.kind)) throw new Error(`The ${voices.kind} engine is already loaded`);
+      voices.message(MIDI_RESET, 0, 0);
+      this.attach(voices);
+    } catch (error) { voices.close(); throw error; }
   }
   /** Makes kind's engine play. The voices of the other one end; a loaded file keeps its position and plays on, with
    *  its controllers and programs up to the position replayed into the new engine and its held notes struck again. */
   use(kind: EngineKind): void {
-    const current = this.ensure(), next = engineKind(kind) === 'soundfont' ? this.soundfont : this.fm;
+    const current = this.ensure(), next = this.loaded.get(engineKind(kind));
     if (!next) throw new Error(`The ${kind} engine is not loaded`);
     if (next === current) return;
     const held = this.held.slice();
@@ -257,7 +263,8 @@ export class Engine {
     }
   }
   close(): void {
-    this.soundfont?.close(); this.fm?.close();
-    this.active = null; this.soundfont = null; this.fm = null; this.song = null;
+    for (const voice of this.loaded.values()) voice.close();
+    this.loaded.clear();
+    this.active = null; this.soundfont = null; this.song = null;
   }
 }

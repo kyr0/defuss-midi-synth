@@ -1,5 +1,7 @@
+import { isSynthProfile, type SynthProfile } from './profiles.ts';
+export type { SynthProfile } from './profiles.ts';
 /** The two synthesizers: TinySoundFont with a General MIDI SoundFont, or libADLMIDI on emulated OPL3 FM chips. */
-export type EngineKind = 'soundfont' | 'fm';
+export type EngineKind = SynthProfile | 'fm';
 export interface EngineOptions {
   sampleRate?: number;
   /** SoundFont engine: voices preallocated; beyond them a new note steals the voice furthest into its release. */
@@ -33,7 +35,7 @@ export interface Preset { bank: number; program: number; name: string }
 export interface FmInfo { banks: string[]; bank: number; chips: number }
 /** engine names the active synthesizer; presets are what selectPreset accepts on it. fm is set once the FM engine
  *  is loaded. */
-export interface SynthInfo { engine: string; kind: EngineKind; engines: EngineKind[]; sampleRate: number; maxVoices: number; presets: Preset[]; fm?: FmInfo }
+export interface SynthInfo { engine: string; kind: EngineKind; profile?: SynthProfile; engines: EngineKind[]; sampleRate: number; maxVoices: number; presets: Preset[]; fm?: FmInfo }
 /** rate is the file's playback rate: 2 plays it twice as fast, at the same pitch. */
 /** How a file loads. tempo scales the file's own clock: 0.5 plays it at half the tempo its header and tempo events
  *  state, for files converted at a wrong clock (Raptor's MUS music ran at 70 Hz, and MIDI files converted from it at
@@ -84,7 +86,7 @@ export function normalizeOptions(options: EngineOptions = {}): Required<EngineOp
   };
 }
 export function engineKind(kind: unknown): EngineKind {
-  if (kind !== 'soundfont' && kind !== 'fm') throw new RangeError(`engine must be 'soundfont' or 'fm'`);
+  if (kind !== 'fm' && !isSynthProfile(kind)) throw new RangeError('Unknown synthesizer engine');
   return kind;
 }
 export function packEvent(event: TimedEvent, sampleRate: number): PackedEvent {

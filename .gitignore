@@ -18,3 +18,13 @@ __pycache__/
 # docs/synth/, the build's copy of dist/, stays tracked: GitHub Pages serves docs/ from main without a build.
 output/# 135 MB raw demo SoundFont; git keeps only its Brotli copy, in LFS.
 docs/sf2_sb16/OPL-3_FM_128M.sf2
+
+# Proprietary ROMs and private profile packs
+/profile-assets/
+/vendor/runtime/profiles/*
+!/vendor/runtime/profiles/sb-pci128.wasm
+!/vendor/runtime/profiles/gus-gf1.wasm
+!/vendor/runtime/profiles/sb-pci128.LICENSE.txt
+!/vendor/runtime/profiles/gus-gf1.LICENSE.txt
+/dist/assets/profiles/*.dspack
+/docs/synth/assets/profiles/*.dspack

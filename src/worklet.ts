@@ -1,3 +1,6 @@
+import { type NativePart } from './profile-assets.ts';
+import { NativeProfileVoices, instantiateProfile } from './profile-voices.ts';
+import type { Voices } from './voices.ts';
 import { Engine, SYNTH_IMPORTS } from './engine.ts';
 import { RenderSession } from './session.ts';
 import { normalizeOptions, type EngineKind, type EngineOptions, type MidiLoadOptions, type PackedEvent } from './types.ts';
@@ -5,7 +8,7 @@ import { FmVoices, SoundFontVoices } from './voices.ts';
 
 /** An engine's module, compiled (the processor's options) or as bytes (a later addEngine message: Chrome does not
  *  deliver a WebAssembly.Module through the port), with the SoundFont for the soundfont engine. */
-interface EnginePart { kind: EngineKind; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer }
+type EnginePart = NativePart | { kind: 'soundfont' | 'fm' | 'sb16-opl3'; module?: WebAssembly.Module; wasm?: ArrayBuffer; soundfont?: ArrayBuffer };
 interface ProcessorOptions { processorOptions: { part: EnginePart; settings: EngineOptions; capacity: number } }
 interface Request { id: number; method: string; args: unknown[] }
 
@@ -26,10 +29,11 @@ class MidiProcessor extends AudioWorkletProcessor {
       this.port.postMessage({ type: 'ready', info: engine.info() });
     } catch (error) { this.fail(error); }
   }
-  private voices(part: EnginePart, module = part.module): SoundFontVoices | FmVoices {
+  private voices(part: EnginePart, module = part.module): Voices {
     if (!module) throw new Error('The engine part has no module');
+    if ('assets' in part) return new NativeProfileVoices(part.kind, instantiateProfile(module), new Uint8Array(part.assets), this.settings.sampleRate);
     const instance = new WebAssembly.Instance(module, SYNTH_IMPORTS);
-    if (part.kind === 'fm') return new FmVoices(instance, this.settings);
+    if (part.kind === 'fm' || part.kind === 'sb16-opl3') return new FmVoices(instance, this.settings, part.kind);
     if (!part.soundfont) throw new Error('The soundfont engine needs a SoundFont');
     return new SoundFontVoices(instance, new Uint8Array(part.soundfont), this.settings);
   }

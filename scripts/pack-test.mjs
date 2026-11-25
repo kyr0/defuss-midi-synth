@@ -36,7 +36,7 @@ import { MidiSynth, type TimedEvent } from 'defuss-midi-synth';
 import { OfflineSynth, encodeWav } from 'defuss-midi-synth/offline';
 const events: TimedEvent[] = [{ type: 'noteOn', time: 0, channel: 0, note: 60, velocity: 100 }];
 const offline = await OfflineSynth.create({ engine: 'fm', chips: 2 }); offline.schedule(events); encodeWav(offline.render(128));
-const kind: 'soundfont' | 'fm' = (await offline.useEngine('soundfont')).kind; offline.setFmBank(16); offline.close(); void kind;
+const kind: import('defuss-midi-synth').EngineKind = (await offline.useEngine('soundfont')).kind; offline.setFmBank(16); offline.close(); void kind;
 const browser = await MidiSynth.create({ engine: 'fm' }); await browser.schedule(events); await browser.setFmBank(2); await browser.setPlaybackRate(1.5); await browser.dispose();
 `);
 execFileSync(process.execPath,['node_modules/typescript/bin/tsc','--noEmit','--strict','--skipLibCheck','--target','ES2022','--module','NodeNext','--moduleResolution','NodeNext',`${consumer}/smoke.ts`],{stdio:'inherit'});

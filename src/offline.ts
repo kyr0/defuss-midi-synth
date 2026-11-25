@@ -1,3 +1,9 @@
+import { nativePart } from './profile-assets.ts';
+import { NativeProfileVoices, instantiateProfile } from './profile-voices.ts';
+import { isNativeProfile, selectEngine, type SynthProfile, type ProfileSourceMap } from './profiles.ts';
+import type { Voices } from './voices.ts';
+export { SYNTH_PROFILES, PROFILE_DESCRIPTORS } from './profiles.ts';
+export type { SynthProfile, ProfileSourceMap, ProfileSources } from './profiles.ts';
 import { bankBytes, FM_WASM_ASSET, readBytes, SOUNDFONT_ASSET, soundFontBytes, WASM_ASSET, type BankSource, type SoundFontSource } from './assets.ts';
 import { Engine, SYNTH_IMPORTS } from './engine.ts';
 import { MidiStream } from './parser.ts';
@@ -8,6 +14,8 @@ export type { EngineOptions, EngineKind, FmInfo, LoadProgress, ProgressListener,
 export type { SoundFontSource, BankSource } from './assets.ts';
 export interface StereoPcm { sampleRate: number; left: Float32Array; right: Float32Array }
 export interface OfflineOptions extends EngineOptions {
+  profile?: SynthProfile;
+  profileSources?: ProfileSourceMap;
   /** Directory containing assets/. Defaults beside the installed JS. */
   baseUrl?: string | URL;
   queueCapacity?: number;
@@ -27,26 +35,31 @@ export class OfflineSynth {
   /** Engines being loaded, so concurrent useEngine calls share one load. VERIFIED: without it the second call's add
    *  threw 'already loaded'. */
   private readonly loading = new Map<EngineKind, Promise<void>>();
-  private constructor(readonly engine: Engine, capacity: number, private readonly base: URL, private readonly soundfont?: SoundFontSource, private readonly onProgress?: ProgressListener) {
+  private constructor(readonly engine: Engine, capacity: number, private readonly base: URL, private readonly soundfont?: SoundFontSource, private readonly onProgress?: ProgressListener, private readonly profileSources?: ProfileSourceMap) {
     this.session = new RenderSession(engine, capacity);
   }
   static async create(options: OfflineOptions = {}): Promise<OfflineSynth> {
-    const settings = normalizeOptions(options);
+    const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile) });
     const capacity = integer(options.queueCapacity ?? 8192, 1, 1048576, 'queueCapacity');
     const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-    const voices = await OfflineSynth.voices(settings.engine, settings, base, options.soundfont, options.onProgress);
-    return new OfflineSynth(new Engine(voices, settings), capacity, base, options.soundfont, options.onProgress);
+    const voices = await OfflineSynth.voices(settings.engine, settings, base, options.soundfont, options.onProgress, options.profileSources);
+    return new OfflineSynth(new Engine(voices, settings), capacity, base, options.soundfont, options.onProgress, options.profileSources);
   }
-  private static async voices(kind: EngineKind, settings: Required<EngineOptions>, base: URL, soundfont?: SoundFontSource, onProgress?: ProgressListener): Promise<SoundFontVoices | FmVoices> {
-    if (kind === 'fm') {
+  private static async voices(kind: EngineKind, settings: Required<EngineOptions>, base: URL, soundfont?: SoundFontSource, onProgress?: ProgressListener, sources?: ProfileSourceMap): Promise<Voices> {
+    if (isNativeProfile(kind)) {
+      const part = await nativePart(kind, base, sources, true, undefined, onProgress);
+      return new NativeProfileVoices(kind, instantiateProfile(part.module!), new Uint8Array(part.assets), settings.sampleRate);
+    }
+    if (kind === 'fm' || kind === 'sb16-opl3') {
       const { instance } = await WebAssembly.instantiate(await readBytes(new URL(FM_WASM_ASSET, base), undefined, onProgress) as Uint8Array<ArrayBuffer>, SYNTH_IMPORTS);
-      return new FmVoices(instance, settings);
+      return new FmVoices(instance, settings, kind);
     }
     const [wasm, font] = await Promise.all([readBytes(new URL(WASM_ASSET, base), undefined, onProgress), soundFontBytes(soundfont, base, SOUNDFONT_ASSET, undefined, onProgress)]);
     const { instance } = await WebAssembly.instantiate(wasm as Uint8Array<ArrayBuffer>, SYNTH_IMPORTS);
     return new SoundFontVoices(instance, font, settings);
   }
   get info(): SynthInfo { return this.engine.info(); }
+  useProfile(profile: SynthProfile): Promise<SynthInfo> { return this.useEngine(profile); }
   /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,
    *  as in the browser. */
   async useEngine(kind: EngineKind): Promise<SynthInfo> {
@@ -54,7 +67,7 @@ export class OfflineSynth {
     if (!this.engine.has(kind)) {
       let load = this.loading.get(kind);
       if (!load) {
-        load = OfflineSynth.voices(kind, this.engine.options, this.base, this.soundfont, this.onProgress)
+        load = OfflineSynth.voices(kind, this.engine.options, this.base, this.soundfont, this.onProgress, this.profileSources)
           .then(voices => this.engine.add(voices)).finally(() => this.loading.delete(kind));
         this.loading.set(kind, load);
       }

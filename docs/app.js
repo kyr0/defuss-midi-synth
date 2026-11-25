@@ -20,7 +20,7 @@ let take = [], takeStart = 0, takeLast = 0;
 const bankName = bank => bank === 0 ? 'General MIDI' : bank === 128 ? 'Drum kits' : 'Variations';
 const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 // Drum kits sound on channel 10 (index 9), every melodic preset on channel 1.
-const selected = () => { const bank = Number($('bank').value), program = Number($('program').value); return { bank, program, channel: bank >= 128 ? 9 : 0 }; };
+const selected = () => { const bank = Number($('bank').value), program = Number($('program').value); return { bank, program, channel: bank >= 128 ? 9 : synth?.info.kind === 'roland-mt32' ? 1 : 0 }; };
 function message(text) { $('message').textContent = text; }
 function run(fn) { return async () => { try { await fn(); } catch (error) { message(error.message); } }; }
 function listBanks(info, bank = 0, program = 0) {
@@ -35,8 +35,8 @@ function listPrograms(info, program = 0) {
   $('program').value = String(presets.some(p => p.program === program) ? program : presets[0].program);
 }
 function showEngine(info) {
-  $('engine-label').textContent = info.kind === 'fm'
-    ? `LIBADLMIDI / NUKED OPL3 · ${info.fm.bank < 0 ? 'WOPL FILE' : `BANK ${info.fm.bank}`}` : `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : 'OPL-3 FM 128M'}`;
+  $('engine-label').textContent = (info.kind === 'fm' || info.kind === 'sb16-opl3')
+    ? `LIBADLMIDI / NUKED OPL3 · ${info.fm.bank < 0 ? 'WOPL FILE' : `BANK ${info.fm.bank}`}` : info.kind === 'soundfont' ? `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : 'OPL-3 FM 128M'}` : info.engine;
 }
 async function applyPreset() {
   releaseKeys();
@@ -49,7 +49,7 @@ async function applyPreset() {
 /** What a WAV download plays on: the engine shown, album's FM bank (the piano's bank without an album) or the user's
  *  WOPL file, and the SoundFont. */
 function sound(album) {
-  const info = synth.info, own = info.kind === 'fm' && info.fm.bank < 0;
+  const info = synth.info, own = (info.kind === 'fm' || info.kind === 'sb16-opl3') && info.fm.bank < 0;
   return { engine: info.kind, fmBank: own ? 0 : album?.fm.bank ?? Math.max(0, info.fm?.bank ?? 0), bank: own ? customBank : undefined, soundfont: customFont ?? SOUNDFONT };
 }
 /** Starts audio once, from a click: the power button or any player control. Resolves with the synthesizer. */
@@ -61,11 +61,11 @@ function start() {
       await context.resume();
       // The SoundFont is fetched only when the SoundFont engine is chosen; 104 MB may take longer than the default 15 s.
       synth = await MidiSynth.create({ context, baseUrl: new URL('./synth/', import.meta.url), gain: Number($('gain').value) / 100,
-        engine: 'fm', soundfont: SOUNDFONT, timeoutMs: 120000, onProgress: progress });
+        engine: 'sb16-opl3', soundfont: SOUNDFONT, timeoutMs: 120000, onProgress: progress });
       analyser = context.createAnalyser(); analyser.fftSize = 1024; waveform = new Float32Array(1024); synth.output.connect(analyser);
       listBanks(synth.info); showEngine(synth.info); $('controls').disabled = false; $('led').classList.add('on');
       $('rate').textContent = `${context.sampleRate.toLocaleString()} Hz · STEREO`; $('power').textContent = 'Audio enabled';
-      await applyPreset(); message(`Ready: Gravis Ultrasound (OPL3 FM, ${synth.info.fm.banks.length} banks). Play the keys, a game's music or a file.`); draw();
+      await applyPreset(); message(`Ready: Sound Blaster 16 (OPL3 FM, ${synth.info.fm.banks.length} banks). Play the keys, a game's music or a file.`); draw();
       player?.started(synth);
       connectMidi();
       return synth;
@@ -228,7 +228,7 @@ $('file').onchange = run(async () => {
     listBanks(info); showEngine(info); player.engineShown(synth); await applyPreset(); message(`SoundFont loaded: ${info.presets.length} presets.`);
   } else if (name.endsWith('.wopl')) {
     message('Loading FM bank…');
-    if (synth.info.kind !== 'fm') await synth.useEngine('fm');
+    if (synth.info.kind !== 'sb16-opl3') await synth.useEngine('sb16-opl3');
     const info = await synth.loadFmBank(data); customBank = data;
     listBanks(info, Number($('bank').value), Number($('program').value)); showEngine(info); player.engineShown(synth);
     message('FM bank loaded from your WOPL file.');

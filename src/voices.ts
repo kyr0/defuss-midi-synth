@@ -130,16 +130,18 @@ export const FM_GAIN = 2.5;
 
 /** libADLMIDI on emulated OPL3 chips, with an embedded bank or a loaded WOPL bank file. */
 export class FmVoices implements Voices {
-  readonly kind = 'fm';
-  readonly name = FM_ENGINE;
+  readonly kind: 'fm' | 'sb16-opl3';
+  readonly name: string;
   private readonly wasm: FmExports;
   private readonly output: PlanarOutput;
   private readonly names: string[] = [];
   private current: number;
-  constructor(instance: WebAssembly.Instance, options: Required<EngineOptions>) {
+  constructor(instance: WebAssembly.Instance, options: Required<EngineOptions>, kind: 'fm' | 'sb16-opl3' = 'fm') {
+    this.kind = kind;
+    this.name = kind === 'sb16-opl3' ? 'Sound Blaster 16 (Yamaha OPL3)' : FM_ENGINE;
     this.wasm = instance.exports as unknown as FmExports;
     this.wasm._initialize?.();
-    if (!this.wasm.fm_init(options.sampleRate, options.chips, options.fmBank)) throw new Error('The FM synthesizer rejected its settings');
+    if (!this.wasm.fm_init(options.sampleRate, kind === 'sb16-opl3' ? 1 : options.chips, options.fmBank)) throw new Error('The FM synthesizer rejected its settings');
     this.output = new PlanarOutput(this.wasm.memory, this.wasm.fm_render(0));
     for (let i = 0, count = this.wasm.fm_bank_count(); i < count; i++) this.names.push(text(this.wasm.memory, this.wasm.fm_bank_name(i), 120));
     this.current = options.fmBank;
@@ -191,7 +193,7 @@ export class FmVoices implements Voices {
   }
   render(left: Float32Array, right: Float32Array, at: number, n: number): void {
     this.wasm.fm_render(n);
-    this.output.copy(left, right, at, n, FM_GAIN);
+    this.output.copy(left, right, at, n, this.kind === 'sb16-opl3' ? 1 : FM_GAIN);
   }
   voices(): number { return this.wasm.fm_voices(); }
   close(): void { this.wasm.fm_message(MIDI_RESET & 0xff, 0, 0); }

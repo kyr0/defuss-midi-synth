@@ -92,9 +92,10 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   let shownSynth, picked = null;
   function showBank(synth = shownSynth) {
     shownSynth = synth;
-    const fm = $('engine').querySelector('[aria-pressed="true"]').value === 'fm', list = $('fm-banks');
+    const selected = $('engine').querySelector('[aria-pressed="true"]');
+    const fm = selected.value === 'sb16-opl3', list = $('fm-banks');
     list.hidden = !fm; $('soundfont-name').hidden = fm;
-    if (!fm) { $('soundfont-name').textContent = soundFontName(); return; }
+    if (!fm) { $('soundfont-name').textContent = selected.value === 'soundfont' ? soundFontName() : selected.textContent; return; }
     const info = synth?.info.fm, bank = info?.bank ?? album.fm.bank;
     const names = info ? info.banks.map((name, i) => [i, name]) : [[album.fm.bank, album.fm.name]];
     list.replaceChildren(...(bank < 0 ? [new Option('Your WOPL file', '-1')] : []),
@@ -112,7 +113,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   async function gameBank(synth, a) {
     if (picked === a) return;
     picked = null;
-    if (synth.info.kind === 'fm' && synth.info.fm.bank !== -1 && synth.info.fm.bank !== a.fm.bank) { await synth.setFmBank(a.fm.bank); await engineChanged(synth.info); }
+    if (synth.info.kind === 'sb16-opl3' && synth.info.fm.bank !== -1 && synth.info.fm.bank !== a.fm.bank) { await synth.setFmBank(a.fm.bank); await engineChanged(synth.info); }
   }
   function listTracks() {
     const playing = current?.album === album ? position(album, current.edition, current.index) : -1;
@@ -235,12 +236,12 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     button.onclick = act(async () => {
       if (button.getAttribute('aria-pressed') === 'true') return;
       const synth = await start();
-      message(button.value === 'fm' ? 'Loading the Gravis Ultrasound (OPL3 FM)…' : `Loading the SoundBlaster 16: ${soundFontName()}…`);
+      message(`Loading ${button.textContent}…`);
       await synth.useEngine(button.value);
       await gameBank(synth, current?.album ?? album);
       for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other === button));
       showBank(synth); engineChanged(synth.info);
-      message(button.value === 'fm' ? `Gravis Ultrasound: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `SoundBlaster 16: ${synth.info.presets.length} presets.`);
+      message(button.value === 'sb16-opl3' ? `Sound Blaster 16 (OPL3): ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `${button.textContent}: ${synth.info.presets.length} presets.`);
     });
   }
   showAlbum(album);

@@ -14,6 +14,12 @@ if (process.argv.includes('--prepare')) {
   await cp('node_modules/defuss-brotli/dist/decompressor.wasm', 'dist/assets/brotli-decompressor.wasm');
   await writeFile('dist/assets/brotli-decompressor.LICENSE.txt', `brotli-decompressor.wasm is the decoder of defuss-brotli 0.4.0.\n\n${(await readFile('node_modules/defuss-brotli/LICENSE', 'utf8')).trim()}\n\n${await readFile('node_modules/defuss-brotli/THIRD_PARTY_NOTICES.txt', 'utf8')}`);
   await cp('vendor/runtime/fm-synth.wasm', 'dist/assets/fm-synth.wasm');
+  // Only public WASM/notice artifacts are installed. ROM packs are separately user-provided.
+  const { readdir } = await import('node:fs/promises');
+  const profileDir = 'vendor/runtime/profiles';
+  const profiles = await readdir(profileDir).catch(error => { if (error.code === 'ENOENT') return []; throw error; });
+  if (profiles.length) await mkdir('dist/assets/profiles', { recursive: true });
+  for (const file of profiles) if (/^(sb16-cqm|sb-pci128|gus-gf1|roland-sc55|roland-sc55mk2|roland-mt32)\.(wasm|LICENSE\.txt)$/.test(file)) await cp(`${profileDir}/${file}`, `dist/assets/profiles/${file}`);
   // Each served asset keeps its licence beside it, so copying dist/ to a static host carries the notices along.
   const tsf = await readFile('native/tsf.h', 'utf8');
   const notice = tsf.slice(tsf.indexOf('LICENSE (MIT)'), tsf.indexOf('*/'));

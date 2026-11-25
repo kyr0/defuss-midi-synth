@@ -28,3 +28,7 @@
 - Built Nuked-OPL3-fast 1.8-fast.3 with libADLMIDI 1.6.2 and a matching reference core.
 - Added bounded sample-frame scheduling, raw-register events, MIDI transport, WOPL loading and WAV encoding.
 - Added a static browser instrument, source archives, rebuild tooling and verification scripts.
+
+## 0.4.0 integration candidate
+
+Explicit hardware profiles and lazy native-module registry; single-chip SB16, native ECW/GF1 renderers; optional pinned AWE32/AWE64, CQM, SC-55/mkII and MT-32 adapters. See HARDWARE_PROFILES.md for verification and fidelity limits.
