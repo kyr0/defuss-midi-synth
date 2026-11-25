@@ -41,8 +41,8 @@ const wavStats = async path => {
 try {
   await page.goto(url);
   // The player lists docs/music/index.json before audio starts.
-  await page.waitForFunction(() => document.querySelectorAll('#albums input').length === 33);
-  assert.equal(await text('#library'), '33 ALBUMS · 943 TRACKS');
+  await page.waitForFunction(() => document.querySelectorAll('#albums input').length === 34);
+  assert.equal(await text('#library'), '34 ALBUMS · 954 TRACKS');
   // The page has no power state text.
   assert.equal(await page.locator('#state').count(), 0);
   // The page opens on Warcraft II, with its bank alone in the list before audio starts; the test plays Doom.
@@ -64,7 +64,7 @@ try {
   assert.equal(await page.locator('footer a', { hasText: 'API notes' }).count(), 0);
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).fontFamily.includes('IBM VGA 8x14')), true);
   // Every sleeve shows its cover on the release cover's CRT tube.
-  assert.equal(await page.locator('#albums .shader[data-effect="crt"] img').count(), 33);
+  assert.equal(await page.locator('#albums .shader[data-effect="crt"] img').count(), 34);
   // The sleeve's track plays and Bergium draws; the sound reaches the analyser and the rain.
   await page.waitForSelector('#led.on');
   await title('Intro · Doom'); await sounding();
@@ -172,6 +172,17 @@ try {
   const trackWav = await wavStats('output/browser-track.wav');
   assert.equal(trackWav.riff, 'RIFF'); assert.ok(trackWav.frames >= 8.5 * 48000 && trackWav.frames <= 9 * 48000, `${trackWav.frames} frames`); assert.ok(trackWav.peak > 300, `peak ${trackWav.peak}`);
   assert.equal(await page.locator('#tracks input:checked').inputValue(), '1');
+  // Jazz Jackrabbit 2 and The Settlers II play on the SoundBlaster 16, the engine of their index entries; an engine picked
+  // on an album holds for its next track, and an album without one plays on the FM engine.
+  const label = value => page.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
+  await album('jazz-jackrabbit-2-1998'); await title('Lab Rat · Jazz Jackrabbit 2');
+  await label('TINYSOUNDFONT / OPL-3 FM 128M'); await pressed('#engine .toggle[value=soundfont]', 'true'); await sounding();
+  await page.click('#engine .toggle[value=fm]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 0');
+  await page.click('#tracks li:nth-child(2) label'); await title('Carrotus · Jazz Jackrabbit 2');
+  assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · BANK 0');
+  await album('the-settlers-ii-1996'); await title('Track 1 · The Settlers II'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
+  await album('doom-1993'); await title('Intro · Doom'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
+  assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont loads once');
   // Bergium draws, steps to the next preset of the page's list, and stops.
   const frames = Number(await page.getAttribute('#visual', 'data-frames') ?? 0);
   await page.waitForFunction(frames => Number(document.querySelector('#visual').dataset.frames) >= frames + 30, frames, { timeout: 20000 });

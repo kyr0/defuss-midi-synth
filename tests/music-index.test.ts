@@ -7,7 +7,7 @@ import { parseSong } from '../src/midifile.ts';
 
 const root = new URL('../docs/music/', import.meta.url);
 interface Track { number: number; title: string; file: string; duration: number }
-interface Album { id: string; tempo?: number; title: string; year: number; cover: string; thumbnail: string; fm: { bank: number; name: string; match: string }; editions: { name: string; tracks: Track[] }[] }
+interface Album { id: string; tempo?: number; engine?: string; title: string; year: number; cover: string; thumbnail: string; fm: { bank: number; name: string; match: string }; editions: { name: string; tracks: Track[] }[] }
 const index = JSON.parse(readFileSync(new URL('index.json', root), 'utf8')) as { format: number; albums: Album[] };
 const tracks = index.albums.flatMap(a => a.editions.flatMap(e => e.tracks));
 
@@ -24,11 +24,12 @@ test('every MIDI file of the album folders is indexed once, except the excluded 
   const indexed = tracks.map(t => t.file).sort();
   assert.equal(new Set(indexed).size, indexed.length);
   assert.deepEqual(files.filter(f => !indexed.includes(f)), ['Wolfenstein 3D (1992)/01 - Horst-Wessel-Lied.mid']);
-  assert.equal(indexed.length, 943); assert.equal(index.albums.length, 33);
-  // The human's order of 2026-11-24 first, then the rest by title.
-  assert.deepEqual(index.albums.slice(0, 11).map(a => a.title), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors',
-    'Jazz Jackrabbit 2', 'The Settlers II', 'Z', 'Raptor: Call of the Shadows', 'Tyrian', 'Doom 2', 'Wolfenstein 3D', 'Descent II']);
-  const rest = index.albums.slice(11).map(a => a.title);
+  assert.equal(indexed.length, 954); assert.equal(index.albums.length, 34);
+  // The human's order of 2026-11-24 and 2026-11-25 first, then the rest by title.
+  assert.deepEqual(index.albums.slice(0, 14).map(a => a.title), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors',
+    'Jazz Jackrabbit 2', 'The Settlers II', 'Q-Pop: Evolution im Weltraum', 'Z', 'Jazz Jackrabbit', 'Raptor: Call of the Shadows',
+    'Duke: Nuclear Winter', 'Tyrian', 'Doom 2', 'Wolfenstein 3D', 'Descent II']);
+  const rest = index.albums.slice(14).map(a => a.title);
   assert.deepEqual(rest, [...rest].sort((a, b) => a.localeCompare(b, 'en')));
 });
 test('tracks carry titles and their files\' lengths; albums their covers', () => {
@@ -55,4 +56,9 @@ test('each album names the FM bank of banks.ini by its number', () => {
   const bank = (id: string) => index.albums.find(a => a.id === id)!.fm.bank;
   // banks.ini's games lines: Doom (16), Doom 2 (14), Wolfenstein (74), Warcraft 2 (18), Descent (2).
   assert.deepEqual([bank('doom-1993'), bank('doom-2-1994'), bank('wolfenstein-3d-1992'), bank('warcraft-ii-tides-of-darkness-1995'), bank('descent-anniversary-edition-1996')], [16, 14, 74, 18, 2]);
+});
+test('the albums the human chose play on the SoundFont engine, the rest on the FM engine', () => {
+  // The human's choice of 2026-11-25: Jazz Jackrabbit, Jazz Jackrabbit 2 and The Settlers II default to the SoundBlaster 16.
+  assert.deepEqual(index.albums.filter(a => a.engine).map(a => [a.id, a.engine]).sort(),
+    [['jazz-jackrabbit-1994', 'soundfont'], ['jazz-jackrabbit-2-1998', 'soundfont'], ['the-settlers-ii-1996', 'soundfont']]);
 });

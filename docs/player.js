@@ -108,6 +108,24 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     await synth.setFmBank(Number($('fm-banks').value));
     showBank(synth); await engineChanged(synth.info);
   });
+  /** Switches the synthesizer to engine kind for album a, with a's bank on the FM engine. */
+  async function useEngine(synth, kind, a) {
+    message(kind === 'fm' ? 'Loading the Gravis Ultrasound (OPL3 FM)…' : `Loading the SoundBlaster 16: ${soundFontName()}…`);
+    await synth.useEngine(kind);
+    await gameBank(synth, a);
+    for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other.value === kind));
+    showBank(synth); engineChanged(synth.info);
+    message(kind === 'fm' ? `Gravis Ultrasound: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `SoundBlaster 16: ${synth.info.presets.length} presets.`);
+  }
+  // An album plays on its engine from the index (the FM engine unless it names the SoundFont engine); an engine the user
+  // picks, or loads a file into, holds for the album it was picked on, as a picked bank does.
+  let pickedEngine = null;
+  async function albumEngine(synth, a) {
+    if (pickedEngine === a) return;
+    pickedEngine = null;
+    const kind = a.engine ?? 'fm';
+    if (synth.info.kind !== kind) await useEngine(synth, kind, a);
+  }
   /** The game's bank for album on the FM engine, unless the user loaded a WOPL file or picked a bank for it. */
   async function gameBank(synth, a) {
     if (picked === a) return;
@@ -155,7 +173,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     busy = true;
     try {
       await synth.stop();
-      if (entry) await gameBank(synth, entry.album);
+      if (entry) { await albumEngine(synth, entry.album); await gameBank(synth, entry.album); }
       let info;
       // tempo: the album's clock correction from the index (Raptor's files were converted at twice its clock).
       try { info = await synth.loadMidi(data, { tempo: entry?.album.tempo ?? 1 }); }
@@ -235,12 +253,8 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     button.onclick = act(async () => {
       if (button.getAttribute('aria-pressed') === 'true') return;
       const synth = await start();
-      message(button.value === 'fm' ? 'Loading the Gravis Ultrasound (OPL3 FM)…' : `Loading the SoundBlaster 16: ${soundFontName()}…`);
-      await synth.useEngine(button.value);
-      await gameBank(synth, current?.album ?? album);
-      for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other === button));
-      showBank(synth); engineChanged(synth.info);
-      message(button.value === 'fm' ? `Gravis Ultrasound: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `SoundBlaster 16: ${synth.info.presets.length} presets.`);
+      pickedEngine = current?.album ?? album;
+      await useEngine(synth, button.value, pickedEngine);
     });
   }
   showAlbum(album);
@@ -333,8 +347,9 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     started(synth) { showBank(synth); return showVisual(synth).catch(error => message(error.message)); },
     /** The volume slider follows the page's output gain (0 to 1). */
     volumeChanged(value) { volume = value; muted = false; setRange($('volume'), value); $('mute').setAttribute('aria-pressed', 'false'); },
-    /** The engine buttons follow the synthesizer. */
+    /** The engine buttons follow the synthesizer, after the user loaded a file into it: that engine holds for the album. */
     engineShown(synth) {
+      pickedEngine = current?.album ?? album;
       for (const other of $('engine').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other.value === synth.info.kind));
       showBank(synth);
     },

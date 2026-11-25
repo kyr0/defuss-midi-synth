@@ -467,7 +467,8 @@
             }
           ]
         }
-      ]
+      ],
+      "engine": "soundfont"
     },
     {
       "id": "the-settlers-ii-1996",
@@ -582,6 +583,98 @@
             }
           ]
         }
+      ],
+      "engine": "soundfont"
+    },
+    {
+      "id": "q-pop-evolution-im-weltraum-1993",
+      "title": "Q-Pop: Evolution im Weltraum",
+      "year": 1993,
+      "composers": [
+        "K.-L. von Wendt",
+        "Lars Hammer"
+      ],
+      "platform": "Windows",
+      "cover": "Q-Pop - Evolution im Weltraum (1993)/qpop.jpg",
+      "thumbnail": "covers/q-pop-evolution-im-weltraum-1993.jpg",
+      "fm": {
+        "bank": 0,
+        "name": "AIL (The Fat Man 2op set, default AIL)",
+        "file": "fm_banks_new/ail/fatman-2op-ail-default.woplx",
+        "match": "default"
+      },
+      "editions": [
+        {
+          "name": "GM",
+          "tracks": [
+            {
+              "number": 1,
+              "title": "Intro",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-01-Intro.midi",
+              "duration": 341.3
+            },
+            {
+              "number": 2,
+              "title": "Purplus",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-02-Purplus.midi",
+              "duration": 54
+            },
+            {
+              "number": 3,
+              "title": "Kiwiopteryx",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-03-Kiwiopteryx.midi",
+              "duration": 228.6
+            },
+            {
+              "number": 4,
+              "title": "Pesciodyphus",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-04-Pesciodyphus.midi",
+              "duration": 163.1
+            },
+            {
+              "number": 5,
+              "title": "Isnobug",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-05-Isnobug.midi",
+              "duration": 143.9
+            },
+            {
+              "number": 6,
+              "title": "Amorph",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-06-Amorph.midi",
+              "duration": 166.7
+            },
+            {
+              "number": 7,
+              "title": "Chuckberry",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-07-Chuckberry.midi",
+              "duration": 154.2
+            },
+            {
+              "number": 8,
+              "title": "Katastrophe",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-08-Katastrophe.midi",
+              "duration": 116.5
+            },
+            {
+              "number": 9,
+              "title": "Ranking",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-09-Ranking.midi",
+              "duration": 180.5
+            },
+            {
+              "number": 10,
+              "title": "Finale",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-10-Finale.midi",
+              "duration": 184.6
+            },
+            {
+              "number": 11,
+              "title": "Quotes",
+              "file": "Q-Pop - Evolution im Weltraum (1993)/Q-Pop-11-Quotes.midi",
+              "duration": 147.7
+            }
+          ]
+        }
       ]
     },
     {
@@ -663,6 +756,384 @@
           ]
         }
       ]
+    },
+    {
+      "id": "jazz-jackrabbit-1994",
+      "title": "Jazz Jackrabbit",
+      "year": 1994,
+      "composers": [],
+      "platform": "DOS",
+      "notes": "MIDI arrangements of the games' tracker music by MaliceX (James A. Nguyen) with Steven Picken, Steven Blom and Goku7, Team ChaoS MIDIs, 2004 to 2005 (README.txt).",
+      "cover": "JazzJackrabbit/jazz.png",
+      "thumbnail": "covers/jazz-jackrabbit-1994.jpg",
+      "fm": {
+        "bank": 0,
+        "name": "AIL (The Fat Man 2op set, default AIL)",
+        "file": "fm_banks_new/ail/fatman-2op-ail-default.woplx",
+        "match": "default",
+        "note": "The games played tracker modules, not MIDI: no driver bank applies."
+      },
+      "editions": [
+        {
+          "name": "GM",
+          "tracks": [
+            {
+              "number": 1,
+              "title": "Main Theme",
+              "file": "JazzJackrabbit/JazzJackrabbit_MainTheme_GM.mid",
+              "duration": 452.6
+            },
+            {
+              "number": 2,
+              "title": "Diamondus (1-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-1_GMv102.mid",
+              "duration": 501.8
+            },
+            {
+              "number": 3,
+              "title": "Tubelectric (1-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-2_GMv103a.mid",
+              "duration": 435
+            },
+            {
+              "number": 4,
+              "title": "Medivo (1-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-3_GMv203.mid",
+              "duration": 522.2
+            },
+            {
+              "number": 5,
+              "title": "Letni (2-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-1_GM.mid",
+              "duration": 332.3
+            },
+            {
+              "number": 6,
+              "title": "Technoir (2-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-2_GM.mid",
+              "duration": 399.4
+            },
+            {
+              "number": 7,
+              "title": "Orbitus (2-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-3_GM.mid",
+              "duration": 584.6
+            },
+            {
+              "number": 8,
+              "title": "Fanolint (3-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-1_GM.mid",
+              "duration": 356.6
+            },
+            {
+              "number": 9,
+              "title": "Scraparap (3-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-2_GM.mid",
+              "duration": 430
+            },
+            {
+              "number": 10,
+              "title": "Megairbase (3-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-3_GM.mid",
+              "duration": 376.8
+            },
+            {
+              "number": 11,
+              "title": "Turtemple (4-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-1_GM.mid",
+              "duration": 518.4
+            },
+            {
+              "number": 12,
+              "title": "Nippius (4-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-2_GM.mid",
+              "duration": 412.6
+            },
+            {
+              "number": 13,
+              "title": "Jungrock (4-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-3_GM.mid",
+              "duration": 391.8
+            },
+            {
+              "number": 14,
+              "title": "Marbelara (5-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-1_GM.mid",
+              "duration": 338.1
+            },
+            {
+              "number": 15,
+              "title": "Dreempipes (5-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-2_GM.mid",
+              "duration": 323
+            },
+            {
+              "number": 16,
+              "title": "Sluggion (5-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-3_GM.mid",
+              "duration": 476.2
+            },
+            {
+              "number": 17,
+              "title": "Pezrock (6-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-1_GMv2.mid",
+              "duration": 274.3
+            },
+            {
+              "number": 18,
+              "title": "Pezrock (6-1, first version)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-1_GM_altver.mid",
+              "duration": 154.3
+            },
+            {
+              "number": 19,
+              "title": "Chrysilis (6-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-2_GM.mid",
+              "duration": 435.2
+            },
+            {
+              "number": 20,
+              "title": "Battleships (6-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-3_GM.mid",
+              "duration": 522.2
+            },
+            {
+              "number": 21,
+              "title": "Guardian (episode boss)",
+              "file": "JazzJackrabbit/JazzJackrabbit_BossGUARDIAN_GM.mid",
+              "duration": 490.2
+            },
+            {
+              "number": 22,
+              "title": "3D Bonus Stage",
+              "file": "JazzJackrabbit/JazzJackrabbit_3DBonus_GM.mid",
+              "duration": 333.3
+            },
+            {
+              "number": 23,
+              "title": "World Clear",
+              "file": "JazzJackrabbit/JazzJackrabbit_WorldClear_GM.mid",
+              "duration": 6.7
+            },
+            {
+              "number": 24,
+              "title": "Ending Theme",
+              "file": "JazzJackrabbit/JazzJackrabbit_Ending_GM.mid",
+              "duration": 411.4
+            },
+            {
+              "number": 25,
+              "title": "Deckstar (CD version)",
+              "file": "JazzJackrabbit/JazzJackrabbit_CDDeckstar_GM.mid",
+              "duration": 337.9
+            },
+            {
+              "number": 26,
+              "title": "Deserto (CD version, secret level)",
+              "file": "JazzJackrabbit/JazzJackrabbit_CDDesertoSECRET_GM.mid",
+              "duration": 574.7
+            },
+            {
+              "number": 27,
+              "title": "Exoticus (CD version)",
+              "file": "JazzJackrabbit/JazzJackrabbit_CDExoticus_GM.mid",
+              "duration": 326.8
+            },
+            {
+              "number": 28,
+              "title": "Holiday Hare '94: Level One",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level1GM.mid",
+              "duration": 551.5
+            },
+            {
+              "number": 29,
+              "title": "Holiday Hare '94: Level Two (Silent Night)",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level2GM.mid",
+              "duration": 451.2
+            },
+            {
+              "number": 30,
+              "title": "Holiday Hare '95: Level One",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level1GM.mid",
+              "duration": 387.1
+            },
+            {
+              "number": 31,
+              "title": "Holiday Hare '95: Level Two (Little Drummer Boy)",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level2GM.mid",
+              "duration": 304.9
+            }
+          ]
+        },
+        {
+          "name": "XG",
+          "tracks": [
+            {
+              "number": 1,
+              "title": "Main Theme",
+              "file": "JazzJackrabbit/JazzJackrabbit_MainTheme_XG.mid",
+              "duration": 452.6
+            },
+            {
+              "number": 2,
+              "title": "Diamondus (1-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-1_XGv102a.mid",
+              "duration": 501.8
+            },
+            {
+              "number": 3,
+              "title": "Tubelectric (1-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-2_XGv205a.mid",
+              "duration": 435
+            },
+            {
+              "number": 4,
+              "title": "Medivo (1-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_1-3_XGv211a.mid",
+              "duration": 522.2
+            },
+            {
+              "number": 5,
+              "title": "Letni (2-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-1_XG.mid",
+              "duration": 332.3
+            },
+            {
+              "number": 6,
+              "title": "Technoir (2-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-2_XG.mid",
+              "duration": 406.9
+            },
+            {
+              "number": 7,
+              "title": "Orbitus (2-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_2-3_XG.mid",
+              "duration": 584.6
+            },
+            {
+              "number": 8,
+              "title": "Fanolint (3-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-1_XG.mid",
+              "duration": 356.6
+            },
+            {
+              "number": 9,
+              "title": "Scraparap (3-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-2_XG.mid",
+              "duration": 429.1
+            },
+            {
+              "number": 10,
+              "title": "Megairbase (3-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_3-3_XGv100a.mid",
+              "duration": 376.8
+            },
+            {
+              "number": 11,
+              "title": "Turtemple (4-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-1_XG.mid",
+              "duration": 518.4
+            },
+            {
+              "number": 12,
+              "title": "Nippius (4-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-2_XG.mid",
+              "duration": 412.6
+            },
+            {
+              "number": 13,
+              "title": "Jungrock (4-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_4-3_XG.mid",
+              "duration": 391.8
+            },
+            {
+              "number": 14,
+              "title": "Marbelara (5-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-1_XG.mid",
+              "duration": 338.1
+            },
+            {
+              "number": 15,
+              "title": "Dreempipes (5-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-2_XGv100a.mid",
+              "duration": 329.1
+            },
+            {
+              "number": 16,
+              "title": "Sluggion (5-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_5-3_XG.mid",
+              "duration": 476.2
+            },
+            {
+              "number": 17,
+              "title": "Pezrock (6-1)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-1_XGv100a.mid",
+              "duration": 274.3
+            },
+            {
+              "number": 18,
+              "title": "Chrysilis (6-2)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-2_XG.mid",
+              "duration": 435.2
+            },
+            {
+              "number": 19,
+              "title": "Battleships (6-3)",
+              "file": "JazzJackrabbit/JazzJackrabbit_6-3_XG.mid",
+              "duration": 522.2
+            },
+            {
+              "number": 20,
+              "title": "Guardian (episode boss)",
+              "file": "JazzJackrabbit/JazzJackrabbit_BossGUARDIAN_XGv103.mid",
+              "duration": 490.2
+            },
+            {
+              "number": 21,
+              "title": "3D Bonus Stage",
+              "file": "JazzJackrabbit/JazzJackrabbit_3DBonus_XGv100a.mid",
+              "duration": 333.3
+            },
+            {
+              "number": 22,
+              "title": "Ending Theme",
+              "file": "JazzJackrabbit/JazzJackrabbit_Ending_XGv100a.mid",
+              "duration": 411.4
+            },
+            {
+              "number": 23,
+              "title": "Deckstar (CD version)",
+              "file": "JazzJackrabbit/JazzJackrabbit_CDDeckstar_XG.mid",
+              "duration": 337.9
+            },
+            {
+              "number": 24,
+              "title": "Exoticus (CD version)",
+              "file": "JazzJackrabbit/JazzJackrabbit_CDExoticus_XG.mid",
+              "duration": 326.8
+            },
+            {
+              "number": 25,
+              "title": "Holiday Hare '94: Level One",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level1XGv100a.mid",
+              "duration": 551.5
+            },
+            {
+              "number": 26,
+              "title": "Holiday Hare '95: Level One",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level1XG.mid",
+              "duration": 387.1
+            },
+            {
+              "number": 27,
+              "title": "Holiday Hare '95: Level Two (Little Drummer Boy)",
+              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level2XGv103.mid",
+              "duration": 304.9
+            }
+          ]
+        }
+      ],
+      "engine": "soundfont"
     },
     {
       "id": "raptor-call-of-the-shadows-1994",
@@ -781,6 +1252,71 @@
               "title": "Boss 3",
               "file": "Raptor - Call of the Shadows (1994)/16 - Boss 3.mid",
               "duration": 7.3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duke-nuclear-winter-1997",
+      "title": "Duke: Nuclear Winter",
+      "year": 1997,
+      "composers": [],
+      "platform": "DOS",
+      "cover": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/Duke Nukem 3D - Duke- Nuclear Winter (1997).jpg",
+      "thumbnail": "covers/duke-nuclear-winter-1997.jpg",
+      "fm": {
+        "bank": 62,
+        "name": "TMB (Duke Nukem 3D)",
+        "file": "fm_banks_new/apogee/fatman-2op-duke.woplx",
+        "match": "game",
+        "note": "An add-on of Duke Nukem 3D."
+      },
+      "editions": [
+        {
+          "name": "GM",
+          "tracks": [
+            {
+              "number": 1,
+              "title": "Here Comes Santa Claus",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/01 - Here Comes Santa Claus.mid",
+              "duration": 62.1
+            },
+            {
+              "number": 2,
+              "title": "Frosty The Snowman",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/02 - Frosty The Snowman.mid",
+              "duration": 98.8
+            },
+            {
+              "number": 3,
+              "title": "Sleigh Ride",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/03 - Sleigh Ride.mid",
+              "duration": 144.2
+            },
+            {
+              "number": 4,
+              "title": "Jingle Bell Rock",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/04 - Jingle Bell Rock.mid",
+              "duration": 128.1
+            },
+            {
+              "number": 5,
+              "title": "Rudolph the Red-Nosed Reindeer",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/05 - Rudolph the Red-Nosed Reindeer.mid",
+              "duration": 139.5
+            },
+            {
+              "number": 6,
+              "title": "Winter Wonderland",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/06 - Winter Wonderland.mid",
+              "duration": 148.2
+            },
+            {
+              "number": 7,
+              "title": "Here Comes Santa Claus",
+              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/07 - Here Comes Santa Claus.mid",
+              "duration": 132
             }
           ]
         }
@@ -2810,71 +3346,6 @@
       ]
     },
     {
-      "id": "duke-nuclear-winter-1997",
-      "title": "Duke: Nuclear Winter",
-      "year": 1997,
-      "composers": [],
-      "platform": "DOS",
-      "cover": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/Duke Nukem 3D - Duke- Nuclear Winter (1997).jpg",
-      "thumbnail": "covers/duke-nuclear-winter-1997.jpg",
-      "fm": {
-        "bank": 62,
-        "name": "TMB (Duke Nukem 3D)",
-        "file": "fm_banks_new/apogee/fatman-2op-duke.woplx",
-        "match": "game",
-        "note": "An add-on of Duke Nukem 3D."
-      },
-      "editions": [
-        {
-          "name": "GM",
-          "tracks": [
-            {
-              "number": 1,
-              "title": "Here Comes Santa Claus",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/01 - Here Comes Santa Claus.mid",
-              "duration": 62.1
-            },
-            {
-              "number": 2,
-              "title": "Frosty The Snowman",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/02 - Frosty The Snowman.mid",
-              "duration": 98.8
-            },
-            {
-              "number": 3,
-              "title": "Sleigh Ride",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/03 - Sleigh Ride.mid",
-              "duration": 144.2
-            },
-            {
-              "number": 4,
-              "title": "Jingle Bell Rock",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/04 - Jingle Bell Rock.mid",
-              "duration": 128.1
-            },
-            {
-              "number": 5,
-              "title": "Rudolph the Red-Nosed Reindeer",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/05 - Rudolph the Red-Nosed Reindeer.mid",
-              "duration": 139.5
-            },
-            {
-              "number": 6,
-              "title": "Winter Wonderland",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/06 - Winter Wonderland.mid",
-              "duration": 148.2
-            },
-            {
-              "number": 7,
-              "title": "Here Comes Santa Claus",
-              "file": "Duke Nukem 3D - Duke- Nuclear Winter (1997)/07 - Here Comes Santa Claus.mid",
-              "duration": 132
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "dune-1992",
       "title": "Dune",
       "year": 1992,
@@ -3554,383 +4025,6 @@
               "title": "Chess",
               "file": "Hexen - Beyond Heretic (1995)/37 - Chess.mid",
               "duration": 81.5
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "jazz-jackrabbit-1994",
-      "title": "Jazz Jackrabbit",
-      "year": 1994,
-      "composers": [],
-      "platform": "DOS",
-      "notes": "MIDI arrangements of the games' tracker music by MaliceX (James A. Nguyen) with Steven Picken, Steven Blom and Goku7, Team ChaoS MIDIs, 2004 to 2005 (README.txt).",
-      "cover": "JazzJackrabbit/jazz.png",
-      "thumbnail": "covers/jazz-jackrabbit-1994.jpg",
-      "fm": {
-        "bank": 0,
-        "name": "AIL (The Fat Man 2op set, default AIL)",
-        "file": "fm_banks_new/ail/fatman-2op-ail-default.woplx",
-        "match": "default",
-        "note": "The games played tracker modules, not MIDI: no driver bank applies."
-      },
-      "editions": [
-        {
-          "name": "GM",
-          "tracks": [
-            {
-              "number": 1,
-              "title": "Main Theme",
-              "file": "JazzJackrabbit/JazzJackrabbit_MainTheme_GM.mid",
-              "duration": 452.6
-            },
-            {
-              "number": 2,
-              "title": "Diamondus (1-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-1_GMv102.mid",
-              "duration": 501.8
-            },
-            {
-              "number": 3,
-              "title": "Tubelectric (1-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-2_GMv103a.mid",
-              "duration": 435
-            },
-            {
-              "number": 4,
-              "title": "Medivo (1-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-3_GMv203.mid",
-              "duration": 522.2
-            },
-            {
-              "number": 5,
-              "title": "Letni (2-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-1_GM.mid",
-              "duration": 332.3
-            },
-            {
-              "number": 6,
-              "title": "Technoir (2-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-2_GM.mid",
-              "duration": 399.4
-            },
-            {
-              "number": 7,
-              "title": "Orbitus (2-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-3_GM.mid",
-              "duration": 584.6
-            },
-            {
-              "number": 8,
-              "title": "Fanolint (3-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-1_GM.mid",
-              "duration": 356.6
-            },
-            {
-              "number": 9,
-              "title": "Scraparap (3-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-2_GM.mid",
-              "duration": 430
-            },
-            {
-              "number": 10,
-              "title": "Megairbase (3-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-3_GM.mid",
-              "duration": 376.8
-            },
-            {
-              "number": 11,
-              "title": "Turtemple (4-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-1_GM.mid",
-              "duration": 518.4
-            },
-            {
-              "number": 12,
-              "title": "Nippius (4-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-2_GM.mid",
-              "duration": 412.6
-            },
-            {
-              "number": 13,
-              "title": "Jungrock (4-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-3_GM.mid",
-              "duration": 391.8
-            },
-            {
-              "number": 14,
-              "title": "Marbelara (5-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-1_GM.mid",
-              "duration": 338.1
-            },
-            {
-              "number": 15,
-              "title": "Dreempipes (5-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-2_GM.mid",
-              "duration": 323
-            },
-            {
-              "number": 16,
-              "title": "Sluggion (5-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-3_GM.mid",
-              "duration": 476.2
-            },
-            {
-              "number": 17,
-              "title": "Pezrock (6-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-1_GMv2.mid",
-              "duration": 274.3
-            },
-            {
-              "number": 18,
-              "title": "Pezrock (6-1, first version)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-1_GM_altver.mid",
-              "duration": 154.3
-            },
-            {
-              "number": 19,
-              "title": "Chrysilis (6-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-2_GM.mid",
-              "duration": 435.2
-            },
-            {
-              "number": 20,
-              "title": "Battleships (6-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-3_GM.mid",
-              "duration": 522.2
-            },
-            {
-              "number": 21,
-              "title": "Guardian (episode boss)",
-              "file": "JazzJackrabbit/JazzJackrabbit_BossGUARDIAN_GM.mid",
-              "duration": 490.2
-            },
-            {
-              "number": 22,
-              "title": "3D Bonus Stage",
-              "file": "JazzJackrabbit/JazzJackrabbit_3DBonus_GM.mid",
-              "duration": 333.3
-            },
-            {
-              "number": 23,
-              "title": "World Clear",
-              "file": "JazzJackrabbit/JazzJackrabbit_WorldClear_GM.mid",
-              "duration": 6.7
-            },
-            {
-              "number": 24,
-              "title": "Ending Theme",
-              "file": "JazzJackrabbit/JazzJackrabbit_Ending_GM.mid",
-              "duration": 411.4
-            },
-            {
-              "number": 25,
-              "title": "Deckstar (CD version)",
-              "file": "JazzJackrabbit/JazzJackrabbit_CDDeckstar_GM.mid",
-              "duration": 337.9
-            },
-            {
-              "number": 26,
-              "title": "Deserto (CD version, secret level)",
-              "file": "JazzJackrabbit/JazzJackrabbit_CDDesertoSECRET_GM.mid",
-              "duration": 574.7
-            },
-            {
-              "number": 27,
-              "title": "Exoticus (CD version)",
-              "file": "JazzJackrabbit/JazzJackrabbit_CDExoticus_GM.mid",
-              "duration": 326.8
-            },
-            {
-              "number": 28,
-              "title": "Holiday Hare '94: Level One",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level1GM.mid",
-              "duration": 551.5
-            },
-            {
-              "number": 29,
-              "title": "Holiday Hare '94: Level Two (Silent Night)",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level2GM.mid",
-              "duration": 451.2
-            },
-            {
-              "number": 30,
-              "title": "Holiday Hare '95: Level One",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level1GM.mid",
-              "duration": 387.1
-            },
-            {
-              "number": 31,
-              "title": "Holiday Hare '95: Level Two (Little Drummer Boy)",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level2GM.mid",
-              "duration": 304.9
-            }
-          ]
-        },
-        {
-          "name": "XG",
-          "tracks": [
-            {
-              "number": 1,
-              "title": "Main Theme",
-              "file": "JazzJackrabbit/JazzJackrabbit_MainTheme_XG.mid",
-              "duration": 452.6
-            },
-            {
-              "number": 2,
-              "title": "Diamondus (1-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-1_XGv102a.mid",
-              "duration": 501.8
-            },
-            {
-              "number": 3,
-              "title": "Tubelectric (1-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-2_XGv205a.mid",
-              "duration": 435
-            },
-            {
-              "number": 4,
-              "title": "Medivo (1-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_1-3_XGv211a.mid",
-              "duration": 522.2
-            },
-            {
-              "number": 5,
-              "title": "Letni (2-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-1_XG.mid",
-              "duration": 332.3
-            },
-            {
-              "number": 6,
-              "title": "Technoir (2-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-2_XG.mid",
-              "duration": 406.9
-            },
-            {
-              "number": 7,
-              "title": "Orbitus (2-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_2-3_XG.mid",
-              "duration": 584.6
-            },
-            {
-              "number": 8,
-              "title": "Fanolint (3-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-1_XG.mid",
-              "duration": 356.6
-            },
-            {
-              "number": 9,
-              "title": "Scraparap (3-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-2_XG.mid",
-              "duration": 429.1
-            },
-            {
-              "number": 10,
-              "title": "Megairbase (3-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_3-3_XGv100a.mid",
-              "duration": 376.8
-            },
-            {
-              "number": 11,
-              "title": "Turtemple (4-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-1_XG.mid",
-              "duration": 518.4
-            },
-            {
-              "number": 12,
-              "title": "Nippius (4-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-2_XG.mid",
-              "duration": 412.6
-            },
-            {
-              "number": 13,
-              "title": "Jungrock (4-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_4-3_XG.mid",
-              "duration": 391.8
-            },
-            {
-              "number": 14,
-              "title": "Marbelara (5-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-1_XG.mid",
-              "duration": 338.1
-            },
-            {
-              "number": 15,
-              "title": "Dreempipes (5-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-2_XGv100a.mid",
-              "duration": 329.1
-            },
-            {
-              "number": 16,
-              "title": "Sluggion (5-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_5-3_XG.mid",
-              "duration": 476.2
-            },
-            {
-              "number": 17,
-              "title": "Pezrock (6-1)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-1_XGv100a.mid",
-              "duration": 274.3
-            },
-            {
-              "number": 18,
-              "title": "Chrysilis (6-2)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-2_XG.mid",
-              "duration": 435.2
-            },
-            {
-              "number": 19,
-              "title": "Battleships (6-3)",
-              "file": "JazzJackrabbit/JazzJackrabbit_6-3_XG.mid",
-              "duration": 522.2
-            },
-            {
-              "number": 20,
-              "title": "Guardian (episode boss)",
-              "file": "JazzJackrabbit/JazzJackrabbit_BossGUARDIAN_XGv103.mid",
-              "duration": 490.2
-            },
-            {
-              "number": 21,
-              "title": "3D Bonus Stage",
-              "file": "JazzJackrabbit/JazzJackrabbit_3DBonus_XGv100a.mid",
-              "duration": 333.3
-            },
-            {
-              "number": 22,
-              "title": "Ending Theme",
-              "file": "JazzJackrabbit/JazzJackrabbit_Ending_XGv100a.mid",
-              "duration": 411.4
-            },
-            {
-              "number": 23,
-              "title": "Deckstar (CD version)",
-              "file": "JazzJackrabbit/JazzJackrabbit_CDDeckstar_XG.mid",
-              "duration": 337.9
-            },
-            {
-              "number": 24,
-              "title": "Exoticus (CD version)",
-              "file": "JazzJackrabbit/JazzJackrabbit_CDExoticus_XG.mid",
-              "duration": 326.8
-            },
-            {
-              "number": 25,
-              "title": "Holiday Hare '94: Level One",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS94_Level1XGv100a.mid",
-              "duration": 551.5
-            },
-            {
-              "number": 26,
-              "title": "Holiday Hare '95: Level One",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level1XG.mid",
-              "duration": 387.1
-            },
-            {
-              "number": 27,
-              "title": "Holiday Hare '95: Level Two (Little Drummer Boy)",
-              "file": "JazzJackrabbit/JazzJackrabbit_XMAS95_Level2XGv103.mid",
-              "duration": 304.9
             }
           ]
         }

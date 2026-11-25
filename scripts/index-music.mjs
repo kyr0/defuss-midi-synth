@@ -36,6 +36,7 @@ const FM = {
   'Heroes of Might and Magic II - The Succession Wars (1996)': [0, 'default'],
   'Heretic (1994)': [15, 'game', null, 'Heretic'],
   'Hexen - Beyond Heretic (1995)': [15, 'game', null, 'Hexen'],
+  'Q-Pop - Evolution im Weltraum (1993)': [0, 'default'],
   'Raptor - Call of the Shadows (1994)': [64, 'game', null, 'Raptor'],
   'Settlers II (1996)': [0, 'game', null, 'Settlers 2'],
   'SimCity 2000 (1993)': [0, 'default'],
@@ -67,11 +68,12 @@ const PLATFORMS = { 'Age of Empires (1997)': 'Windows', 'Age of Empires - The Ri
 const TEMPO = {
   'Raptor - Call of the Shadows (1994)': [0.5, "Raptor's music driver ran at 70 Hz; these files were converted at the 140 Hz of Doom's."],
 };
-/** Album folders without a .txt: their album fields here. The composer is the one the files' own text events credit
- *  ("Copyright 1999 by Stephen Rippy", "By Stephen Rippy."). */
+/** Album folders without a .txt: their album fields here. The composers are the ones the files' own text events credit
+ *  ("Copyright 1999 by Stephen Rippy", "By Stephen Rippy."; "Q - P O P by K.-L. von Wendt", "by Lars Hammer"). */
 const FIELDS = {
   AgeOfEmpires2: { game: 'Age of Empires II: The Age of Kings', year: 1999, 'composed by': 'Stephen Rippy', platform: 'Windows', cover: 'AoE2.png' },
   AgeOfEmpires2Conquerors: { game: 'Age of Empires II: The Conquerors', year: 2000, 'composed by': 'Stephen Rippy', platform: 'Windows', cover: 'AoE2_Conquerors.png' },
+  'Q-Pop - Evolution im Weltraum (1993)': { game: 'Q-Pop: Evolution im Weltraum', year: 1993, 'composed by': 'K.-L. von Wendt, Lars Hammer', platform: 'Windows', cover: 'qpop.jpg' },
 };
 /** Files left out of the index, with the reason. */
 const EXCLUDE = {
@@ -123,12 +125,12 @@ function info(text) {
   return out;
 }
 const slug = text => text.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-/** "01 - At Doom's Gate (E1M1).mid" -> 1, "At Doom's Gate (E1M1)"; "Track 01.mid" -> 1, "Track 1"; "un21-f.mid" -> 21,
- *  "Unreleased 21 (F)"; an all-capital word is set in title case. */
+/** "01 - At Doom's Gate (E1M1).mid" -> 1, "At Doom's Gate (E1M1)"; "Q-Pop-02-Purplus.midi" -> 2, "Purplus";
+ *  "Track 01.mid" -> 1, "Track 1"; "un21-f.mid" -> 21, "Unreleased 21 (F)"; an all-capital word is set in title case. */
 function trackName(file, position) {
   const base = file.replace(/\.(mid|midi|rmi|mus)$/i, '');
   let m = base.match(/^(\d+)\s*-\s*(.+)$/);
-  if (m) return [Number(m[1]), tidy(m[2])];
+  if (m || (m = base.match(/^[A-Za-z-]+-(\d+)-(.+)$/))) return [Number(m[1]), tidy(m[2])];
   if ((m = base.match(/^Track\s*(\d+)$/i))) return [Number(m[1]), `Track ${Number(m[1])}`];
   if ((m = base.match(/^un(\d+)(?:-(\w+))?$/i))) return [Number(m[1]), `Unreleased ${Number(m[1])}${m[2] ? ` (${m[2].toUpperCase()})` : ''}`];
   return [position, tidy(base)];
@@ -234,10 +236,19 @@ for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'
     editions,
   });
 }
-/** The albums the human put first (2026-11-24; Warcraft II moved to the front the same day), in this order; the rest
- *  follow by title. */
+/** The albums the human put first (2026-11-24; Warcraft II moved to the front the same day; on 2026-11-25 Q-Pop after
+ *  The Settlers II, Jazz Jackrabbit before Raptor and Duke before Tyrian), in this order; the rest follow by title. */
 const FIRST = ['warcraft-ii-tides-of-darkness-1995', 'age-of-empires-ii-the-age-of-kings-1999', 'age-of-empires-ii-the-conquerors-2000',
-  'jazz-jackrabbit-2-1998', 'the-settlers-ii-1996', 'z-1996', 'raptor-call-of-the-shadows-1994', 'tyrian-1995', 'doom-2-1994', 'wolfenstein-3d-1992', 'descent-ii-1996'];
+  'jazz-jackrabbit-2-1998', 'the-settlers-ii-1996', 'q-pop-evolution-im-weltraum-1993', 'z-1996', 'jazz-jackrabbit-1994',
+  'raptor-call-of-the-shadows-1994', 'duke-nuclear-winter-1997', 'tyrian-1995', 'doom-2-1994', 'wolfenstein-3d-1992', 'descent-ii-1996'];
+/** Albums that play on the SoundFont engine ("SoundBlaster 16") rather than the page's FM engine (the human's choice of
+ *  2026-11-25); the player switches to an album's engine when one of its tracks starts. */
+const ENGINE = { 'jazz-jackrabbit-1994': 'soundfont', 'jazz-jackrabbit-2-1998': 'soundfont', 'the-settlers-ii-1996': 'soundfont' };
+for (const [id, engine] of Object.entries(ENGINE)) {
+  const album = albums.find(a => a.id === id);
+  if (!album) throw new Error(`ENGINE names ${id}, which is not indexed`);
+  album.engine = engine;
+}
 const rank = album => { const at = FIRST.indexOf(album.id); return at < 0 ? FIRST.length : at; };
 for (const id of FIRST) if (!albums.some(a => a.id === id)) throw new Error(`FIRST names ${id}, which is not indexed`);
 albums.sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title, 'en'));
