@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the installed real DSPK packer with all known revision sizes.
-
-Every set of the public tables (scripts/roms/*.json) gets synthetic payloads of its sizes; the expected packs, counts
-and default sets follow from those tables, so a revision added there is checked without editing this file. The run
-uses an isolated temporary repository and no network.
-"""
+"""Verify the AWE ROM manifests and cached bytes with isolated synthetic files."""
 from pathlib import Path
 import tempfile
 import shutil
@@ -12,8 +7,6 @@ import json
 import hashlib
 import subprocess
 import sys
-import struct
-import re
 
 SRC = Path(__file__).resolve().parents[1]
 
@@ -64,29 +57,12 @@ def main():
         result = subprocess.run([sys.executable, str(root / 'scripts/fetch-roms.py')], cwd=root, capture_output=True, text=True)
         if result.returncode:
             raise RuntimeError(result.stdout + '\n' + result.stderr)
-        expected_ids = {'roland-mt32': 9, 'roland-sc55': 7, 'roland-sc55mk2': 8}
-        for (p, n), records in data_by_set.items():
-            slug = re.sub(r'[^a-z0-9]+', '-', n.lower()).strip('-')
-            pack = root / 'profile-assets' / f'{p}--{slug}.dspack'
-            if p.startswith('awe'):
-                assert not pack.exists()
-                continue
-            data = pack.read_bytes()
-            assert struct.unpack_from('<4sIII', data) == (b'DSPK', 1, expected_ids[p], len(records))
-            at = 16
-            for role, b in sorted(records.items()):
-                assert struct.unpack_from('<II', data, at) == (role, len(b))
-                at += 8
-                assert data[at:at + len(b)] == b
-                at += len(b)
-            assert at == len(data)
-            if n == sources[p]['default']:
-                assert (root / 'profile-assets' / f'{p}.dspack').read_bytes() == data
-        roland = [p for p in meta if not p.startswith('awe')]
-        packs = sum(len(meta[p]['sets']) for p in roland)
-        assert len(list((root / 'profile-assets').glob('*.dspack'))) == packs + len(roland)
-        awe = sum(len(meta[p]['sets']) for p in meta if p.startswith('awe'))
-        print(f'PASS: {packs} Roland revision packs + {len(roland)} default aliases byte-exact; {awe} AWE ROM-only sets; {len(blobs)} unique synthetic ROMs.')
+        for profile, spec in meta.items():
+            for file in spec['sets'][-1]['files']:
+                cached = root / 'profile-assets/roms' / profile / file['name']
+                assert cached.read_bytes() == data_by_set[profile, spec['sets'][-1]['name']][file['role']]
+        assert not list((root / 'profile-assets').glob('*.dspack'))
+        print(f'PASS: verified ROM bytes for {len(meta)} AWE profiles.')
 
 
 if __name__ == '__main__':

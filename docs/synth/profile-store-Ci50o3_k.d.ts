@@ -1,12 +1,11 @@
 /** Stable hardware model identifiers. 'fm' remains a legacy multi-chip OPL3 engine. VERIFIED: tests/profiles.test.ts
- *  checks the ten unique ids and that prototype keys such as '__proto__' are no profile. */
-declare const SYNTH_PROFILES: readonly ["soundfont", "sb16-opl3", "sb16-cqm", "awe32", "awe64", "sb-pci128", "gus-gf1", "roland-sc55", "roland-sc55mk2", "roland-mt32"];
+ *  checks the unique ids and that prototype keys such as '__proto__' are no profile. */
+declare const SYNTH_PROFILES: readonly ["soundfont", "sb16-opl3", "sb16-cqm", "awe32", "awe64", "sb-pci128", "gus-gf1"];
 type SynthProfile = typeof SYNTH_PROFILES[number];
 type NativeProfile = Exclude<SynthProfile, 'soundfont' | 'sb16-opl3'>;
 /** A native profile's module or pack: a URL (relative to baseUrl) or its bytes. */
 type ProfileSource = string | URL | Uint8Array | ArrayBuffer;
-/** wasm replaces the package's module (a local build, such as AWE's); assets is the DSPK pack
- *  (native/profiles/profile_pack.h) of the user's own ROMs, wavesets or patches, which the package never ships. */
+/** Override a native profile's module or its DSPK instrument pack (native/profiles/profile_pack.h). */
 interface ProfileSources {
     wasm?: ProfileSource;
     assets?: ProfileSource;

@@ -84,7 +84,7 @@ class RomTests(unittest.TestCase):
         self.known = self.root / 'scripts/roms'
         self.known.mkdir()
         self.assets.mkdir()
-        self.profile = 'roland-mt32'
+        self.profile = 'gus-gf1'
         self.a, self.b, self.pcm = b'control-v1', b'control-v2', b'pcm-shared'
         self.paths = {}
         for name, data in [('a', self.a), ('b', self.b), ('pcm', self.pcm)]:
@@ -92,8 +92,8 @@ class RomTests(unittest.TestCase):
             path.write_bytes(data)
             self.paths[name] = str(path)
         self.spec = {'profile': self.profile, 'sets': [
-            {'name': 'MT-32 1.04', 'files': [file_spec('CONTROL.ROM', 1, self.a), file_spec('PCM.ROM', 2, self.pcm)]},
-            {'name': 'MT-32 1.07', 'files': [file_spec('CONTROL.ROM', 1, self.b), file_spec('PCM.ROM', 2, self.pcm)]},
+            {'name': 'Patch set A', 'files': [file_spec('CONTROL.ROM', 32, self.a), file_spec('PCM.ROM', 33, self.pcm)]},
+            {'name': 'Patch set B', 'files': [file_spec('CONTROL.ROM', 32, self.b), file_spec('PCM.ROM', 33, self.pcm)]},
         ]}
         self.manifest = self.known / f'{self.profile}.json'
         self.manifest.write_text(json.dumps(self.spec))
@@ -108,9 +108,9 @@ class RomTests(unittest.TestCase):
         self.quiet.enter_context(contextlib.redirect_stderr(io.StringIO()))
 
     def config(self):
-        return {'default': 'MT-32 1.07', 'shared': {'PCM.ROM': self.paths['pcm']}, 'sets': {
-            'MT-32 1.04': {'CONTROL.ROM': self.paths['a']},
-            'MT-32 1.07': {'CONTROL.ROM': self.paths['b']}}}
+        return {'default': 'Patch set B', 'shared': {'PCM.ROM': self.paths['pcm']}, 'sets': {
+            'Patch set A': {'CONTROL.ROM': self.paths['a']},
+            'Patch set B': {'CONTROL.ROM': self.paths['b']}}}
 
     def write_config(self, config):
         self.sources.write_text(json.dumps(config))
@@ -139,38 +139,38 @@ class RomTests(unittest.TestCase):
         run = self.cli(config)
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
         self.assertEqual(self.server.hits[pcm[len(self.url):]], 1)
-        self.assertIn(self.a, self.version_pack('MT-32 1.04').read_bytes())
-        self.assertIn(self.b, self.version_pack('MT-32 1.07').read_bytes())
-        self.assertEqual(self.alias().read_bytes(), self.version_pack('MT-32 1.07').read_bytes())
+        self.assertIn(self.a, self.version_pack('Patch set A').read_bytes())
+        self.assertIn(self.b, self.version_pack('Patch set B').read_bytes())
+        self.assertEqual(self.alias().read_bytes(), self.version_pack('Patch set B').read_bytes())
         self.assertEqual(self.alias().read_bytes()[:4], b'DSPK', 'the real packer wrote it')
         self.assertEqual((self.assets / 'roms' / self.profile / 'CONTROL.ROM').read_bytes(), self.b)
-        self.assertEqual((self.assets / 'roms' / self.profile / 'mt-32-1-04' / 'CONTROL.ROM').read_bytes(), self.a)
+        self.assertEqual((self.assets / 'roms' / self.profile / 'patch-set-a' / 'CONTROL.ROM').read_bytes(), self.a)
 
     def test_select_and_activate(self):
-        self.assertTrue(self.rom.fetch(self.profile, self.spec, self.config(), selected='MT-32 1.04'))
+        self.assertTrue(self.rom.fetch(self.profile, self.spec, self.config(), selected='Patch set A'))
         self.assertFalse(self.alias().exists())
-        self.assertFalse(self.version_pack('MT-32 1.07').exists())
-        self.assertTrue(self.rom.fetch(self.profile, self.spec, self.config(), selected='MT-32 1.04', activate=True))
-        self.assertEqual(self.alias().read_bytes(), self.version_pack('MT-32 1.04').read_bytes())
+        self.assertFalse(self.version_pack('Patch set B').exists())
+        self.assertTrue(self.rom.fetch(self.profile, self.spec, self.config(), selected='Patch set A', activate=True))
+        self.assertEqual(self.alias().read_bytes(), self.version_pack('Patch set A').read_bytes())
 
     def test_flat_config_legacy_paths(self):
         flat = {'CONTROL.ROM': self.paths['a'], 'PCM.ROM': self.paths['pcm']}
         self.assertTrue(self.rom.fetch(self.profile, self.spec, flat))
         self.assertEqual((self.assets / 'roms' / self.profile / 'CONTROL.ROM').read_bytes(), self.a)
-        self.assertEqual(self.alias().read_bytes(), self.version_pack('MT-32 1.04').read_bytes())
-        self.assertFalse(self.version_pack('MT-32 1.07').exists())
+        self.assertEqual(self.alias().read_bytes(), self.version_pack('Patch set A').read_bytes())
+        self.assertFalse(self.version_pack('Patch set B').exists())
 
     def test_wrong_revision_rejected_without_overwriting(self):
         config = self.config()
         self.assertTrue(self.rom.fetch(self.profile, self.spec, config))
         old = self.alias().read_bytes()
-        config['sets']['MT-32 1.07']['CONTROL.ROM'] = self.paths['a']
+        config['sets']['Patch set B']['CONTROL.ROM'] = self.paths['a']
         self.assertFalse(self.rom.fetch(self.profile, self.spec, config))
         self.assertEqual(self.alias().read_bytes(), old)
-        self.assertEqual((self.assets / 'roms' / self.profile / 'mt-32-1-07' / 'CONTROL.ROM').read_bytes(), self.b)
+        self.assertEqual((self.assets / 'roms' / self.profile / 'patch-set-b' / 'CONTROL.ROM').read_bytes(), self.b)
 
     def test_both_hashes_are_required(self):
-        file = file_spec('CONTROL.ROM', 1, self.a)
+        file = file_spec('CONTROL.ROM', 32, self.a)
         self.assertTrue(self.rom.matches(self.a, file))
         self.assertFalse(self.rom.matches(self.a, {**file, 'sha256': '0' * 64}))
         self.assertFalse(self.rom.matches(self.a, {**file, 'sha1': '0' * 40}))
@@ -182,9 +182,9 @@ class RomTests(unittest.TestCase):
     def test_failed_packer_leaves_existing_alias_intact(self):
         self.assertTrue(self.rom.fetch(self.profile, self.spec, self.config()))
         old = self.alias().read_bytes()
-        # The real packer refuses an MT-32 set whose control ROM is not role 1.
+        # The real packer refuses a GF1 set whose bank is not role 32.
         self.spec['sets'][0]['files'][0]['role'] = 3
-        self.assertFalse(self.rom.fetch(self.profile, self.spec, self.config(), selected='MT-32 1.04', activate=True))
+        self.assertFalse(self.rom.fetch(self.profile, self.spec, self.config(), selected='Patch set A', activate=True))
         self.assertEqual(self.alias().read_bytes(), old)
         self.assertEqual((self.assets / 'roms' / self.profile / 'CONTROL.ROM').read_bytes(), self.b)
         self.assertEqual(list(self.assets.glob('.rom-stage-*')), [])
@@ -210,7 +210,7 @@ class RomTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unknown set'):
             self.rom.plan(self.profile, self.spec, self.config(), 'not a set')
         config = self.config()
-        config['sets']['MT-32 1.07']['../bad.rom'] = self.paths['b']
+        config['sets']['Patch set B']['../bad.rom'] = self.paths['b']
         with self.assertRaisesRegex(ValueError, 'unknown filenames'):
             self.rom.plan(self.profile, self.spec, config)
         self.write_config({'wrong-profile': {'x': self.paths['a']}})
@@ -218,9 +218,9 @@ class RomTests(unittest.TestCase):
 
     def test_shared_override_and_blank(self):
         config = self.config()
-        config['sets']['MT-32 1.04']['PCM.ROM'] = ''
+        config['sets']['Patch set A']['PCM.ROM'] = ''
         self.assertTrue(self.rom.fetch(self.profile, self.spec, config))
-        config['sets']['MT-32 1.04']['PCM.ROM'] = self.paths['a']
+        config['sets']['Patch set A']['PCM.ROM'] = self.paths['a']
         self.assertFalse(self.rom.fetch(self.profile, self.spec, config))
 
     def test_zip_member_local_and_size_cap(self):
@@ -277,7 +277,7 @@ class RomTests(unittest.TestCase):
         self.rom.init({self.profile: self.spec})
         cfg = json.loads(self.sources.read_text())[self.profile]
         self.assertEqual(cfg['shared'], {'PCM.ROM': ''})
-        self.assertEqual(cfg['sets']['MT-32 1.04'], {'CONTROL.ROM': ''})
+        self.assertEqual(cfg['sets']['Patch set A'], {'CONTROL.ROM': ''})
         with self.assertRaisesRegex(ValueError, 'exists'):
             self.rom.init({self.profile: self.spec})
 
@@ -318,16 +318,16 @@ class RomTests(unittest.TestCase):
     def test_cli_fetch_set_and_activate(self):
         self.write_config({self.profile: self.config()})
         self.assertEqual(self.rom.main([]), 0)
-        self.assertEqual(self.rom.main([self.profile, '--set', 'MT-32 1.04', '--activate']), 0)
+        self.assertEqual(self.rom.main([self.profile, '--set', 'Patch set A', '--activate']), 0)
         self.assertIn(self.a, self.alias().read_bytes())
-        self.assertEqual(self.rom.main([self.profile, '--set', 'MT-32 1.07']), 0)
+        self.assertEqual(self.rom.main([self.profile, '--set', 'Patch set B']), 0)
         self.assertIn(self.b, self.alias().read_bytes())
 
     def test_cli_as_a_process(self):
         # The command as a user runs it, in the throwaway repository: sources from the HTTPS server, both sets packed.
         control = self.serve(f'control-{id(self)}.bin', self.b)
-        run = self.cli({'shared': {'PCM.ROM': self.paths['pcm']}, 'default': 'MT-32 1.07',
-                        'sets': {'MT-32 1.04': {'CONTROL.ROM': self.paths['a']}, 'MT-32 1.07': {'CONTROL.ROM': control}}})
+        run = self.cli({'shared': {'PCM.ROM': self.paths['pcm']}, 'default': 'Patch set B',
+                        'sets': {'Patch set A': {'CONTROL.ROM': self.paths['a']}, 'Patch set B': {'CONTROL.ROM': control}}})
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
         self.assertIn(self.b, self.alias().read_bytes())
 

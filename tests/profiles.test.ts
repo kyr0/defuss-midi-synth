@@ -16,8 +16,8 @@ import { dspack, ecwFixture, gusFixture } from './vintage-fixtures.ts';
 function wasm(file: string) { return new WebAssembly.Instance(new WebAssembly.Module(readFileSync(new URL(`../vendor/runtime/${file}`, import.meta.url))), SYNTH_IMPORTS); }
 function fm(engine: 'fm' | 'sb16-opl3') { return Engine.withFm(wasm('fm-synth.wasm'), { engine, chips: 2 }); }
 test('exact profile IDs and prototype-safe validation', () => {
-  assert.equal(SYNTH_PROFILES.length, 10); assert.equal(new Set(SYNTH_PROFILES).size, 10);
-  assert.equal(new Set(SYNTH_PROFILES.map(p => PROFILE_DESCRIPTORS[p].id)).size, 10);
+  assert.equal(SYNTH_PROFILES.length, 7); assert.equal(new Set(SYNTH_PROFILES).size, 7);
+  assert.equal(new Set(SYNTH_PROFILES.map(p => PROFILE_DESCRIPTORS[p].id)).size, 7);
   for (const id of SYNTH_PROFILES) assert.equal(isSynthProfile(id), true);
   for (const id of ['__proto__', 'constructor', 'toString', 'fm', 1, undefined]) assert.equal(isSynthProfile(id), false);
   assert.throws(() => selectEngine('fm', 'sb16-opl3'), /disagree/);
@@ -25,8 +25,7 @@ test('exact profile IDs and prototype-safe validation', () => {
 });
 test('descriptors separate the shipped core from the assets a user supplies', () => {
   const plays = SYNTH_PROFILES.filter(id => PROFILE_DESCRIPTORS[id].availability === 'bundled' && PROFILE_DESCRIPTORS[id].userAssets !== 'required');
-  assert.deepEqual(plays, ['soundfont', 'sb16-opl3', 'sb16-cqm'], 'what plays without user assets');
-  for (const id of ['roland-sc55', 'roland-sc55mk2', 'roland-mt32', 'awe32', 'awe64'] as const) assert.equal(PROFILE_DESCRIPTORS[id].userAssets, 'required', `${id} needs ROMs`);
+  assert.deepEqual(plays, ['soundfont', 'sb16-opl3', 'sb16-cqm', 'sb-pci128', 'gus-gf1'], 'what plays without user assets');
 });
 test('actual Yamaha engine: single chip vs legacy two chips, audible output', () => {
   for (const kind of ['fm', 'sb16-opl3'] as const) {
@@ -127,16 +126,14 @@ test('a pack in a pooled Node Buffer reaches the core as its own bytes', async (
   try { assert.equal(s.info.kind, 'gus-gf1'); } finally { s.close(); }
 });
 test('an unavailable profile rejects with an error naming it and what it needs; the engine that played plays on', async () => {
-  // Without its ROMs (and in a checkout without its module) a Roland profile rejects; AWE32Emu builds only locally.
-  await assert.rejects(OfflineSynth.create({ baseUrl: assets, profile: 'roland-mt32' }), /The roland-mt32 profile \(Roland MT-32\) is unavailable: its (module|asset pack) did not load: /);
-  await assert.rejects(OfflineSynth.create({ baseUrl: assets, profile: 'awe32' }), /awe32 profile .* unavailable: its module did not load: .*--local-awe/);
+  await assert.rejects(OfflineSynth.create({ baseUrl: assets, profile: 'awe32' }), /awe32 profile .* unavailable: its module did not load/);
   await assert.rejects(OfflineSynth.create({ baseUrl: assets, profile: 'fm' as never }), /Unknown synth profile/);
   await assert.rejects(OfflineSynth.create({ baseUrl: assets, engine: 'fm', profile: 'sb16-opl3' }), /disagree/);
   const s = await OfflineSynth.create({ baseUrl: assets, engine: 'fm' });
   try {
     s.loadMidi(midiFixture()); s.play(); s.render(4800);
     await assert.rejects(s.useProfile('awe64'), /The awe64 profile .* is unavailable: its module did not load/);
-    await assert.rejects(s.useProfile('sb-pci128'), /The sb-pci128 profile .* is unavailable: its asset pack did not load: .*profileSources\['sb-pci128'\]\.assets/);
+    await assert.rejects(s.useProfile('sb-pci128', { assets: 'missing.dspack' }), /The sb-pci128 profile .* is unavailable: its asset pack did not load: .*profileSources\['sb-pci128'\]\.assets/);
     await assert.rejects(s.useProfile('fm' as never), RangeError, "useProfile takes profiles; 'fm' is the legacy engine");
     assert.equal(s.info.kind, 'fm'); assert.deepEqual(s.info.engines, ['fm']); assert.equal(s.engine.playbackInfo().position, 0.1);
     assert.ok(energy(s.render(4800).left) > 0, 'no silent fallback: the FM engine plays on');
@@ -207,10 +204,9 @@ test('sb16-cqm follows the FM bank: the fmBank option, setFmBank, loadFmBank, an
 test('useProfile with sources: a pack given later loads the profile; a new pack for a loaded one takes its place', async () => {
   const s = await OfflineSynth.create({ baseUrl: assets });
   try {
-    await assert.rejects(s.useProfile('gus-gf1'), /gus-gf1/, 'without a pack the profile is not available');
-    assert.equal(s.info.kind, 'soundfont', 'the engine that played plays on');
+    assert.equal((await s.useProfile('gus-gf1')).maxVoices, 32);
     assert.equal((await s.useProfile('gus-gf1', { assets: gusFixture() })).maxVoices, 32);
-    // The demo switches between variants of one device (GUS memory sizes, MT-32 revisions) this way.
+    // The demo switches between variants of one device (GUS memory sizes) this way.
     s.loadMidi(midiFixture()); s.play(); s.render(12000);
     const at = s.engine.playbackInfo().position;
     assert.equal((await s.useProfile('gus-gf1', { assets: gusFixture(14) })).maxVoices, 14, 'the new pack plays');

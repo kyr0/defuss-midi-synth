@@ -56,8 +56,6 @@
   "native/profiles/gus.c": "f971171e4738e24ac9a1618ce599055198314559b1db77c2e32bb031ea945535",
   "native/profiles/pci128.c": "29f81c10d3e9ad78e2a4617e50eaf0dd5225ad4a9f7bce430660e234391f2b76",
   "native/profiles/profile_pack.h": "59081a678f8561143c1baa0538c03441edb1167c6ea9839d0d81231ef9130da4",
-  "native/profiles/roland_mt32.cpp": "9fa1efda10e447c6ecb2807c456c1a64a9cb2d0d4da054bab70408c9685488b6",
-  "native/profiles/roland_sc.c": "49236930eb1bbda63b94394289eead14f5e8a477f7fd7026ffb0a9cc8aa8d056",
   "native/profiles/vintage_math.h": "8832302d2d5212fb984eadf38f7ad69d4d9537b4590b5d545f0de4ea2ae16e98",
   "native/synth.c": "5c1179f1ec905d5ffc5b972566b61578e76b55bc25e564d756c1ef1634f7c085",
   "native/tsf.h": "70d55963c98f60ebb81518eaa1f25d46888d5180eb5f5289fd6b74ffc177d197",
@@ -66,12 +64,6 @@
   "vendor/runtime/midi-synth.wasm": "d4a6816f29dad280d2c7d15fa71936dfe029497cb89074ca59718aa613cd6263",
   "vendor/runtime/profiles/gus-gf1.LICENSE.txt": "ae4f438005eba0e9189b43c16176ef8da1f76be09a4f19f8df8b70409566afb6",
   "vendor/runtime/profiles/gus-gf1.wasm": "052677b0a6cfa344cfc970fdd03e2971eb05261caedb8dbda7d33c407f2642d8",
-  "vendor/runtime/profiles/roland-mt32.LICENSE.txt": "831639c47844d36bbee5bce69302633de81b8d8fb098f2924deee47f92c8c2b8",
-  "vendor/runtime/profiles/roland-mt32.wasm": "33d8aed7a7d924806e65393ac3ef446668f0f6014e8724aa0a3c7c3352a8a41c",
-  "vendor/runtime/profiles/roland-sc55.LICENSE.txt": "dfef75611853556e31aa2c0cff7b4422b525da62d7bec1da3171023cbc20e688",
-  "vendor/runtime/profiles/roland-sc55.wasm": "6d37aa5919e94d0c800808c30a47df9f8f24e9cef2e5404e000c2cefb83b3a84",
-  "vendor/runtime/profiles/roland-sc55mk2.LICENSE.txt": "dfef75611853556e31aa2c0cff7b4422b525da62d7bec1da3171023cbc20e688",
-  "vendor/runtime/profiles/roland-sc55mk2.wasm": "b6d1dfbf98a66dff803492e88aa7444d0a93ce68225f82e58963052d752dfc0a",
   "vendor/runtime/profiles/sb-pci128.LICENSE.txt": "ea4ed8d35ef2e2985c83e54157e9effcc2dcce8648bf96de68df25088adaf589",
   "vendor/runtime/profiles/sb-pci128.wasm": "2b89c8ca0c0979772d81c60c1e9a2abcfc2b30e64fac8931bc8e02dec1e35159",
   "vendor/runtime/profiles/sb16-cqm.LICENSE.txt": "4d3377c3ffa19ae61eaaf78e82893b3a30267219e5821e835badfc96f6e2fb41",
@@ -81,6 +73,5 @@
   "vendor/soundfonts/TimGM6mb.sf2": "c5378b62028c920cb11e4803327983fee2f2cdff5dc89c708e39da417e51c854",
   "vendor/soundfonts/TimGM6mb.sf2.br": "4aed195dfc52d618bda280a0a776b753768c29d9bc9dccfea5b750a8823705f8",
   "vendor/sources/86box-cqm-141ae59c.tar.gz": "b31a327408b6249147e60d31e883d6c5d61948b11da124c5a30defe5bf27f7a6",
-  "vendor/sources/defuss-vae-source.tgz": "2f7d18bd65e76f76bc060cf9a36cd92295d37f233f1a5423644736bf22e24a08",
-  "vendor/sources/munt-mt32emu-f5b968c4.tar.gz": "e4e2eb536e7aeb7dd13f3d0e30b98b88a55bf5fcc3292ec005a7be79a77828be"
+  "vendor/sources/defuss-vae-source.tgz": "2f7d18bd65e76f76bc060cf9a36cd92295d37f233f1a5423644736bf22e24a08"
 }

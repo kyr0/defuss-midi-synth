@@ -561,7 +561,7 @@ try {
     await synth.sendMidi([0xf0, 0x7e, 0x7f, 0x09, 0x01, 0xf7]); await wait(150); const afterMidi = await held();
     let badSysex = false; try { await synth.send({ type: 'sysex', data: [0xf0, 0x80, 0xf7] }); } catch (e) { badSysex = e instanceof RangeError; }
     const opl3 = await synth.useProfile('sb16-opl3');
-    let missing = ''; try { await synth.useProfile('roland-mt32'); } catch (e) { missing = e.message; }
+    let missing = ''; try { await synth.useProfile('awe32'); } catch (e) { missing = e.message; }
     const stillPlaying = synth.info.kind;
     // A module the loaded profile's core refuses (another profile's) leaves the GF1 playing, and a pack given later loads
     // on the GF1's own module, not on the one refused.
@@ -594,7 +594,7 @@ try {
   const { sysex } = evidence;
   assert.ok(sysex.heldVoices >= 1, 'a held note sounds'); assert.equal(sysex.afterSend, 0, 'GM System On by send ends it');
   assert.equal(sysex.afterMidi, 0, 'GM System On by sendMidi ends it'); assert.equal(sysex.badSysex, true);
-  assert.equal(sysex.opl3, 'sb16-opl3'); assert.equal(sysex.opl3Voices, 18); assert.match(sysex.missing, /roland-mt32/);
+  assert.equal(sysex.opl3, 'sb16-opl3'); assert.equal(sysex.opl3Voices, 18); assert.match(sysex.missing, /awe32/);
   assert.equal(sysex.stillPlaying, 'sb16-opl3');
   assert.match(sysex.refused, /gus-gf1/); assert.equal(sysex.gusAfter, 14, 'a later pack loads on the GF1 module, not the refused one');
   assert.equal(fmModules.length - fmModulesBefore, 1, 'fm and sb16-opl3 load fm-synth.wasm once');

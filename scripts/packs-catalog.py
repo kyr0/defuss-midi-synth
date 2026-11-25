@@ -32,16 +32,6 @@ def records(pack):
     return roles
 
 
-def rom_set(profile, pack):
-    """The ROM set of scripts/roms/<profile>.json whose files a Roland pack holds, by role, size and SHA-1."""
-    roles = records(pack)
-    for s in json.loads((ROOT / f'scripts/roms/{profile}.json').read_text())['sets']:
-        if len(s['files']) == len(roles) and all(f['role'] in roles and len(roles[f['role']]) == f['size']
-                                                  and hashlib.sha1(roles[f['role']]).hexdigest() == f['sha1'] for f in s['files']):
-            return s['name']
-    return None
-
-
 def bank_name(pack):
     """The INAM of an AWE pack's bank (role 32), and whether the pack carries the wave ROM (role 3)."""
     roles = records(pack)
@@ -73,12 +63,7 @@ def entry(path):
         return {'manufacturer': '', 'year': '', 'model': ''}
     manufacturer, model, year = DEVICES[profile]
     variant = stem[len(profile):].lstrip('-')
-    if profile.startswith('roland'):
-        # The revision its ROMs are, whatever the file is called (fetch-roms.py's alias <profile>.dspack names none).
-        chosen = rom_set(profile, path.read_bytes())
-        if chosen:
-            variant = re.sub(rf'^{re.escape(model)}\s*', '', chosen) or chosen
-    elif profile == 'gus-gf1':
+    if profile == 'gus-gf1':
         m = re.fullmatch(r'(\d+)k((?:-[a-z0-9]+)*)', variant)
         if m:
             variant = f'{m[1]} KiB' + ''.join(f', {x}' for x in m[2].split('-')[1:]).replace('16bit', '16-bit')
@@ -96,6 +81,8 @@ def main():
     for directory in dirs:
         for path in sorted(directory.rglob('*')):
             if not path.is_file() or (path.suffix.lower() not in ('.dspack', '.ecw') and path.name.lower() != 'pci128.sf2'):
+                continue
+            if path.suffix.lower() == '.dspack' and not any(path.stem == p or path.stem.startswith(p + '-') for p in DEVICES):
                 continue
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             if catalog.get(path.name, {}).get('sha256') != digest:

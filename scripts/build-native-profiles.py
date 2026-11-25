@@ -6,8 +6,6 @@ ROOT=Path(__file__).resolve().parents[1]
 LOCK={
  'awe32emu':('https://github.com/turican0/AWE32Emu.git','17b0578fe59909dfaa784b5531d6d1a3a80729ce'),
  '86box':('https://github.com/86Box/86Box.git','141ae59ca07f63267384ea12024bc51e2371b49b'),
- 'sound-carcass':('https://github.com/superctr/sound-carcass.git','6adfa172ccf59bd14fcd581601d3c64669cb0935'),
- 'munt':('https://github.com/munt/munt.git','f5b968c4faf180c7e687346a4e0ad426eee5f2af'),
 }
 EXPORTS=['profile_abi','profile_model','profile_buffer','profile_init','profile_rate','profile_message','profile_sysex_buffer','profile_sysex','profile_render','profile_voices','profile_close']
 FLAGS=['-O3','-sSTANDALONE_WASM=1','--no-entry','-sFILESYSTEM=0','-sALLOW_MEMORY_GROWTH=1','-sINITIAL_MEMORY=33554432','-sMAXIMUM_MEMORY=536870912','-sSTACK_SIZE=1048576','-sEXPORTED_FUNCTIONS='+json.dumps(['_'+x for x in EXPORTS],separators=(',',':'))]
@@ -28,31 +26,6 @@ def checkout(name,cache):
     if head!=rev: raise RuntimeError(f'{path}: expected {rev}, got {head}')
     if subprocess.check_output(['git','-C',path,'status','--porcelain','--untracked-files=no'],text=True).strip(): raise RuntimeError(f'{path} has modifications')
     return path
-
-def source_list(cmake,target):
-    m=re.search(r'add_library\('+target+r' STATIC\s+(.*?)\n\)',cmake,re.S)
-    if not m: raise RuntimeError(f'Cannot extract pinned source list {target}')
-    names=m.group(1).split()
-    if any(not re.fullmatch(r'src/[\w/]+\.c',x) for x in names): raise RuntimeError('Unexpected source list')
-    return names
-
-# The SC-55 and SC-55mkII boards and the parts they are made of, from the pinned library's own source lists.
-SC_SOURCES=['src/board/sc55.c','src/board/sc55mk2.c','src/board/wave.c','src/board/matrix.c','src/cpu/h8500.c','src/dsp/gp.c','src/periph/sc55_hle.c','src/periph/lcd.c','src/periph/i8251.c','src/core/midi_queue.c','src/core/bus.c','src/core/state.c']
-def sc(cache,tmp,model,out):
-    src=checkout('sound-carcass',cache)
-    cmake=(src/'CMakeLists.txt').read_text()
-    if not set(SC_SOURCES)<=set(source_list(cmake,'scemu_core')+source_list(cmake,'scemu')): raise RuntimeError('Unexpected SoundCarcass source lists')
-    # Not scemu.c: its model table links every board, and the XV, SH-2 and DSP cores need SLJIT code generators, which
-    # have no wasm32 backend (SLJIT_CONFIG_UNSUPPORTED does not even compile at the pinned submodule). roland_sc.c takes
-    # its place for one board. The H8/532 runs on the interpreter (SCEMU_H8500_JIT undefined), so core/jit.h needs SLJIT's
-    # type names only and no SLJIT code is built or linked. Fixed memory: zero imports.
-    shim=tmp/'sljit'; shim.mkdir()
-    (shim/'sljitLir.h').write_text('/* core/jit.h type names only; no SLJIT code is built */\ntypedef int sljit_s32;\ntypedef int sljit_sw;\nstruct sljit_compiler;\n')
-    flags=[f for f in FLAGS if not f.startswith(('-sALLOW_MEMORY_GROWTH','-sMAXIMUM_MEMORY'))]+['-sALLOW_MEMORY_GROWTH=0']
-    run('emcc',*flags,'-std=c11',f'-DMODEL_ID={model}','-I'+str(src/'src'),'-I'+str(shim),ROOT/'native/profiles/roland_sc.c',*[src/f for f in SC_SOURCES],'-lm','-o',out)
-    return ('SoundCarcass (scemu) by Ian Karlsson, BSD-3-Clause: the SC-55/SC-55mkII boards, H8/500 core, GP sound chip and '
-            'peripherals listed in scripts/build-native-profiles.py SC_SOURCES. Adapter native/profiles/roland_sc.c, MIT.\n'
-            'No Roland ROM, firmware or sample data is included; the user supplies the ROM images.\n\n'+(src/'LICENSE').read_text())
 
 def cqm(cache,tmp,out):
     src=checkout('86box',cache)
@@ -90,34 +63,6 @@ def cqm(cache,tmp,out):
         '','== GNU Lesser General Public License 2.1 ==',text('LICENSE.LGPL-2.1.txt'),
         '','== GNU General Public License 3.0 ==',text('LICENSE.GPL-3.txt'),''])
 
-def mt32(cache,tmp,out):
-    from concurrent.futures import ThreadPoolExecutor
-    src=checkout('munt',cache)/'mt32emu'; cmake=(src/'CMakeLists.txt').read_text()
-    # Upstream's default static libmt32emu: its pinned source lists (core, C interface, internal resampler) and the
-    # config.h its configure_file writes for a static build exporting every API type without version tagging.
-    def listed(name):
-        m=re.search(r'set\('+name+r'\s+(.*?)\n\)',cmake,re.S); files=m.group(1).split() if m else []
-        if not files or any(not re.fullmatch(r'src/[\w/]+\.cpp',x) for x in files): raise RuntimeError(f'Unexpected Munt source list {name}')
-        return files
-    files=[x for name in ('CPP_SOURCES','C_SOURCES','INTERNAL_RESAMPLER_SOURCES') for x in listed('libmt32emu_'+name)]
-    v=dict(re.findall(r'set\(libmt32emu_VERSION_(MAJOR|MINOR|PATCH) (\d+)\)',(src/'cmake/project_data.cmake').read_text()))
-    if sorted(v)!=['MAJOR','MINOR','PATCH']: raise RuntimeError('Unexpected Munt version data')
-    values={'libmt32emu_VERSION':'.'.join(v[k] for k in ('MAJOR','MINOR','PATCH')),**{'libmt32emu_VERSION_'+k:v[k] for k in v},
-        'libmt32emu_EXPORTS_TYPE':'3','libmt32emu_SHARED_DEFINITION':'#undef MT32EMU_SHARED','libmt32emu_RUNTIME_VERSION_CHECK':'0'}
-    inc=tmp/'mt32emu-config'; inc.mkdir()
-    (inc/'config.h').write_text(re.sub(r'@(\w+)@',lambda m:values[m.group(1)],(src/'src/config.h.in').read_text()))
-    # Upstream's CMake defaults: ANSI C++ (-ansi), internal resampler, "Fast" float math; Emscripten's libc has snprintf and exp2f.
-    cxx=['-O3','-std=c++98','-DNDEBUG','-DMT32EMU_WITH_INTERNAL_RESAMPLER','-DMT32EMU_FASTER_MATH=1','-DMT32EMU_WITH_SNPRINTF','-DMT32EMU_WITH_EXP2F','-I'+str(inc),'-I'+str(src/'src')]
-    objects=[tmp/(f.replace('/','_')+'.o') for f in files]
-    with ThreadPoolExecutor(os.cpu_count()) as pool: list(pool.map(lambda f,o:run('em++',*cxx,'-c',src/f,'-o',o),files,objects))
-    lib=tmp/'libmt32emu.a'; run('emar','rcs',lib,*objects)
-    run('em++',*FLAGS,*cxx,ROOT/'native/profiles/roland_mt32.cpp',lib,'-o',out)
-    sha1=(src/'src/sha1/sha1.cpp').read_text(); sha1=sha1[:sha1.index('*/')+2]
-    return (f'libmt32emu {values["libmt32emu_VERSION"]} (Munt) by Dean Beeler, Jerome Fisher, Sergey V. Mikayev and contributors, '
-        'LGPL-2.1-or-later, statically linked. Adapter native/profiles/roland_mt32.cpp: MIT. To relink with a modified libmt32emu, '
-        'run scripts/build-native-profiles.py roland-mt32 against your source tree.\n\nlibmt32emu src/sha1 (BSD-3-Clause):\n'
-        +sha1+'\n\n'+(src/'COPYING.LESSER.txt').read_text()+'\n'+(src/'COPYING.txt').read_text())
-
 def awe(cache,tmp,model,out):
     # Local evaluation only: AWE32Emu's driver layer has no licence yet (README "Credits and license"), and a build
     # with the 86Box EMU8000 core is GPL-2.0-or-later. The pinned files compile unmodified; awe.cpp supplies fopen().
@@ -149,7 +94,7 @@ for(const x of JSON.parse(process.argv[2])) if(!e.includes(x)) throw Error('Miss
 console.log('Static ABI check passed',process.argv[1]);''',wasm,json.dumps(['memory']+EXPORTS))
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__); p.add_argument('profiles',nargs='+',choices=['sb16-cqm','awe32','awe64','sb-pci128','gus-gf1','roland-sc55','roland-sc55mk2','roland-mt32']); p.add_argument('--cache',type=Path,default=ROOT/'profile-assets/sources'); p.add_argument('--local-awe',action='store_true',help='Allow local build of AWE32Emu (driver redistribution license undecided)'); a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__); p.add_argument('profiles',nargs='+',choices=['sb16-cqm','awe32','awe64','sb-pci128','gus-gf1']); p.add_argument('--cache',type=Path,default=ROOT/'profile-assets/sources'); p.add_argument('--local-awe',action='store_true',help='Allow local build of AWE32Emu (driver redistribution license undecided)'); a=p.parse_args()
     if any(x in a.profiles for x in ('awe32','awe64')) and not a.local_awe: raise SystemExit('AWE32Emu driver is not licensed for redistribution; --local-awe builds only for local evaluation')
     for cmd in ['emcc','em++','emar','node','git']:
         if not shutil.which(cmd): raise SystemExit(f'Missing {cmd}; activate a pinned Emscripten SDK first (upstream uses 4.0.10)')
@@ -157,13 +102,13 @@ def main():
     a.cache=a.cache.resolve(); a.cache.mkdir(parents=True,exist_ok=True)
     for profile in dict.fromkeys(a.profiles):
         with tempfile.TemporaryDirectory() as td:
-            tmp=Path(td); wasm=tmp/(profile+'.wasm'); model={'sb16-cqm':2,'awe32':3,'awe64':4,'sb-pci128':5,'gus-gf1':6,'roland-sc55':7,'roland-sc55mk2':8,'roland-mt32':9}[profile]
-            notice=cqm(a.cache,tmp,wasm) if model==2 else awe(a.cache,tmp,model,wasm) if model in (3,4) else standalone(model,wasm) if model in (5,6) else mt32(a.cache,tmp,wasm) if model==9 else sc(a.cache,tmp,model,wasm)
+            tmp=Path(td); wasm=tmp/(profile+'.wasm'); model={'sb16-cqm':2,'awe32':3,'awe64':4,'sb-pci128':5,'gus-gf1':6}[profile]
+            notice=cqm(a.cache,tmp,wasm) if model==2 else awe(a.cache,tmp,model,wasm) if model in (3,4) else standalone(model,wasm)
             check(wasm,model)
             # Local builds only. Before distributing, include complete corresponding source for GPL/LGPL cores as applicable.
             target=dest if model not in (3,4) else ROOT/'profile-assets/local-builds'
             target.mkdir(parents=True,exist_ok=True)
             shutil.copy2(wasm,target/wasm.name)
-            (target/(profile+'.LICENSE.txt')).write_text('Pinned source: '+str(LOCK['86box' if model==2 else 'awe32emu' if model in (3,4) else 'munt' if model==9 else 'sound-carcass'] if model not in (5,6) else 'in-tree source')+'\n\n'+notice)
+            (target/(profile+'.LICENSE.txt')).write_text('Pinned source: '+str(LOCK['86box' if model==2 else 'awe32emu'] if model not in (5,6) else 'in-tree source')+'\n\n'+notice)
             print(profile,hashlib.sha256(wasm.read_bytes()).hexdigest())
 if __name__=='__main__': main()

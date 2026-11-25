@@ -55,17 +55,3 @@ test('lifecycle: voices, SysEx bounds, the reset SysEx, close once, nothing afte
     assert.throws(() => v.message(0x90, 60, 100), /closed/); assert.throws(() => v.sysex(Uint8Array.of(0xf0, 0xf7)), /closed/); assert.throws(() => v.render(l, r, 0, 128), /closed/);
   }
 });
-
-test('Sound Canvas presets: the GS tones of SoundCarcass\'s maps on their variation banks and ten drum sets on bank 128', async () => {
-  const { soundCanvasPresets } = await import('../src/profile-presets.ts');
-  const drums = [[0, 'STANDARD'], [8, 'ROOM'], [16, 'POWER'], [24, 'ELECTRONIC'], [25, 'TR-808'], [32, 'JAZZ'], [40, 'BRUSH'], [48, 'ORCHESTRA'], [56, 'SFX'], [127, 'CM-64/32L']];
-  for (const [model, tones, banks] of [['roland-sc55', 381, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 126, 127]], ['roland-sc55mk2', 418, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 24, 32, 126, 127]]] as const) {
-    const presets = soundCanvasPresets(model);
-    assert.equal(presets.filter(p => p.bank < 128).length, tones);
-    assert.deepEqual([...new Set(presets.filter(p => p.bank < 128).map(p => p.bank))], banks);
-    assert.deepEqual(presets.filter(p => p.bank === 128).map(p => [p.program, p.name]), drums);
-    assert.equal(presets.filter(p => p.bank === 0).length, 128, 'every capital tone');
-    assert.equal(new Set(presets.map(p => `${p.bank}:${p.program}`)).size, presets.length, 'no pair twice');
-  }
-  assert.deepEqual(soundCanvasPresets('roland-sc55')[0], { bank: 0, program: 0, name: 'Piano 1' });
-});

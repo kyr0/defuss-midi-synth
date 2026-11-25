@@ -1,10 +1,9 @@
-/* The host of every native profile: one class drives ten cores through one ABI (native/profiles/profile_pack.h), each
+/* The host of every native profile: one class drives the cores through one ABI (native/profiles/profile_pack.h), each
  * core a WebAssembly reactor of its own with no imports beyond a diagnostics sink. The plausible alternative, each
- * emulator's own Emscripten JavaScript glue, would put ten loaders, file systems and memory models in the worklet;
+ * emulator's own Emscripten JavaScript glue, would put separate loaders, file systems and memory models in the worklet;
  * this ABI keeps the worklet one renderer and lets a core touch nothing but its memory and the bytes it is given. */
 import { GM_PROGRAMS } from './gm.ts';
 import { NativeClock } from './profile-clock.ts';
-import { soundCanvasPresets } from './profile-presets.ts';
 import { PROFILE_DESCRIPTORS, type NativeProfile } from './profiles.ts';
 import type { Preset } from './types.ts';
 import type { Voices } from './voices.ts';
@@ -23,12 +22,7 @@ interface ProfileExports {
   profile_render(n: number): number;
   profile_voices(): number;
   profile_close(): void;
-  /** Optional (the Sound Canvas cores): why the last profile_init failed. */
-  profile_init_error?(): number;
 }
-/** profile_init_error's codes (native/profiles/roland_sc.c). */
-const INIT_ERRORS = ['', 'the pack is malformed or of another model', 'a ROM role is missing or not expected', 'a ROM has the wrong size',
-  'a ROM fails its CRC32 (another revision, or a bad dump)', 'the core ran out of memory', 'the firmware did not boot'];
 export const MAX_PROFILE_ASSET_BYTES = 128 * 1024 * 1024;
 /** The native ABI of native/profiles/profile_pack.h; SysEx messages up to PROFILE_SYSEX_MAX bytes. */
 export const PROFILE_ABI = 2, PROFILE_SYSEX_MAX = 65536;
@@ -66,9 +60,7 @@ export class NativeProfileVoices implements Voices {
   private readonly voiceLimit: number;
   private view?: Float32Array;
   private heap?: Uint8Array;
-  /** Messages and SysEx the core could not take (profile_message or profile_sysex 0): the host sends only valid ones,
-   *  so they are input a core's queue had no room for, such as the Sound Canvas cores' 16 KiB MIDI IN at 3,125 bytes
-   *  per second. They are dropped as a MIDI receiver drops what overflows it, instead of stopping the synthesizer. */
+  /** Messages rejected by the core since initialization. */
   dropped = 0;
   /** sb16-cqm: the embedded bank it plays (banks.ini's number), -1 for a WOPL bank; -1 on the other profiles. */
   bank = -1;
@@ -91,13 +83,8 @@ export class NativeProfileVoices implements Voices {
       this.clock = new NativeClock(w.profile_rate(), outputRate);
       this.voiceLimit = kind === 'gus-gf1' ? Math.round(617400 / w.profile_rate()) : desc.maxVoices;
     } catch (e) { w.profile_close(); throw e; }
-    // MT-32 is not GM. Numeric names are intentional; no fictitious GM patch mapping. The Sound Canvas units list their
-    // GS tones on their variation banks and their drum sets on bank 128 (src/profile-presets.ts).
-    if (kind === 'roland-sc55' || kind === 'roland-sc55mk2') this.list = soundCanvasPresets(kind);
-    else {
-      this.list = Array.from({ length: 128 }, (_, program) => ({ bank: 0, program, name: kind === 'roland-mt32' ? `MT-32 patch ${program + 1}` : GM_PROGRAMS[program]! }));
-      if (kind !== 'roland-mt32') this.list.push({ bank: 128, program: 0, name: 'Percussion' });
-    }
+    this.list = GM_PROGRAMS.map((name, program) => ({ bank: 0, program, name }));
+    this.list.push({ bank: 128, program: 0, name: 'Percussion' });
   }
   /** Copies asset into the core and initializes it; an Error names why it failed. */
   private init(asset: Uint8Array): void {
@@ -108,8 +95,7 @@ export class NativeProfileVoices implements Voices {
       new Uint8Array(w.memory.buffer, at, asset.byteLength).set(asset);
     }
     if (w.profile_init(asset.byteLength) !== 1) {
-      const reason = INIT_ERRORS[w.profile_init_error?.() ?? 0];
-      throw new Error(`Invalid/missing assets or initialization failed for ${this.kind}${reason ? `: ${reason}` : ''}`);
+      throw new Error(`Invalid/missing assets or initialization failed for ${this.kind}`);
     }
   }
   /** sb16-cqm: starts the core again on pack, at its power-on state; a pack it rejects restores the one before. */
@@ -145,12 +131,9 @@ export class NativeProfileVoices implements Voices {
     for (let i = 0; i < length; i++) heap[at + i] = bytes[offset + i]!;
     if (this.w.profile_sysex(length) !== 1) this.dropped++;
   }
-  /** A preset of presets(): bank 128 (drums) on channel 10 by program change; any other bank as bank select (CC0 the
-   *  bank, CC32 0; a Sound Canvas variation bank too) and program change. The MT-32 ignores bank select and gets the
-   *  program change alone, on the channel given: its parts listen on channels 2 to 9 and its rhythm on 10. */
   setPreset(channel: number, bank: number, program: number): boolean {
     if (!this.list.some(p => p.bank === bank && p.program === program) || (bank === 128 && channel !== 9)) return false;
-    if (this.kind !== 'roland-mt32' && bank !== 128) {
+    if (bank !== 128) {
       this.message(0xb0 | channel, 0, bank); this.message(0xb0 | channel, 32, 0);
     }
     this.message(0xc0 | channel, program, 0); return true;

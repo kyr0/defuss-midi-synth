@@ -5,7 +5,7 @@ fetch supports arbitrary explicit HTTPS URLs + mandatory SHA256; pack is offline
 import argparse, hashlib, os, re, shutil, ssl, struct, tempfile, urllib.error, urllib.request, urllib.parse, json, subprocess
 from pathlib import Path
 LIMIT=128*1024*1024
-PROFILES={'sb16-cqm':2,'awe32':3,'awe64':4,'sb-pci128':5,'gus-gf1':6,'roland-sc55':7,'roland-sc55mk2':8,'roland-mt32':9}
+PROFILES={'sb16-cqm':2,'awe32':3,'awe64':4,'sb-pci128':5,'gus-gf1':6}
 # Known publicly served user-owned project's SoundFont. Hash must still be supplied explicitly.
 KNOWN={'opl3-sampled':'https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'}
 def sha(path):
@@ -246,12 +246,7 @@ def pack(profile,records,dest):
         if total>LIMIT: raise ValueError('Pack too large')
         ids[role]=path
     if not ids: raise ValueError('No records')
-    if profile in ('roland-sc55','roland-sc55mk2'):
-        roles=set(ids); wave=sorted(roles-{1,2})
-        if not {1,2}<=roles or not (wave==[3] or (wave and wave==list(range(16,16+len(wave))) and len(wave)<=8)):
-            raise ValueError('SC pack: boot=1, program=2, wave=3 OR contiguous raw chips=16..23')
     if profile=='sb16-cqm' and set(ids) not in ({32},{33}): raise ValueError('CQM pack: one record, WOPL bank=32 or embedded bank number=33 (4 bytes, u32 LE)')
-    if profile=='roland-mt32' and set(ids)!={1,2}: raise ValueError('MT-32 pack: control=1, PCM=2')
     if profile=='sb-pci128':
         if set(ids)!={32}:raise ValueError('PCI128: original ECW bank role 32')
         inspect_ecw(ids[32].read_bytes())

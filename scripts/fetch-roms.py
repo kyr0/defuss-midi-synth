@@ -30,6 +30,8 @@ KNOWN = ROOT / 'scripts/roms'
 ASSETS = ROOT / 'profile-assets'
 SOURCES = ASSETS / 'rom-sources.json'
 LIMIT = 64 * 1024 * 1024
+# Ignore obsolete entries in existing private configuration files. Explicit requests still fail.
+RETIRED = frozenset(('roland-mt32', 'roland-sc55', 'roland-sc55mk2'))
 AWE = frozenset(('awe32', 'awe64'))
 HASH_LENGTHS = {'sha1': 40, 'sha256': 64}
 FILENAME = re.compile(r'[A-Za-z0-9][A-Za-z0-9_.-]*\Z')
@@ -110,6 +112,8 @@ def overlay_hashes(specs, path):
     overlay = load_json(path)
     pending = []
     for profile, entry in overlay.items():
+        if profile in RETIRED:
+            continue
         if profile not in specs:
             raise ValueError(f'hash overlay: unknown profile {profile}')
         sets = {s['name']: s for s in specs[profile]['sets']}
@@ -458,7 +462,7 @@ def main(argv=None):
             raise ValueError('sources JSON must be an object')
         # Unconfigured, unknown empty profile entries may be skipped. A typo
         # in an active profile must not be silently ignored.
-        unknown = {p for p, v in sources.items() if v and p not in specs} | (set(args.profiles) - set(specs))
+        unknown = {p for p, v in sources.items() if v and p not in specs and p not in RETIRED} | (set(args.profiles) - set(specs))
         if unknown:
             raise ValueError('unknown profiles: ' + ', '.join(sorted(unknown)))
         wanted = list(dict.fromkeys(args.profiles)) if args.profiles else list(specs)

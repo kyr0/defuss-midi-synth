@@ -32,7 +32,7 @@ let take = [], takeStart = 0, takeLast = 0;
 const bankName = bank => bank === 0 ? 'General MIDI' : bank === 128 ? 'Drum kits' : 'Variations';
 const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 // Drum kits sound on channel 10 (index 9), every melodic preset on channel 1.
-const selected = () => { const bank = Number($('bank').value), program = Number($('program').value); return { bank, program, channel: bank >= 128 ? 9 : synth?.info.kind === 'roland-mt32' ? 1 : 0 }; };
+const selected = () => { const bank = Number($('bank').value), program = Number($('program').value); return { bank, program, channel: bank >= 128 ? 9 : 0 }; };
 function message(text) { $('message').textContent = text; }
 function run(fn) { return async () => { try { await fn(); } catch (error) { message(error.message); } }; }
 function listBanks(info, bank = 0, program = 0) {

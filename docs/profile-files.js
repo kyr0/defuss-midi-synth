@@ -1,25 +1,9 @@
-// The files a user drops on the ROMs section, as the devices they make (devicesIn): every pack, ECW waveset and complete
-// Roland ROM set, each with its profileSources. Loose ROM files are identified by size and hash against roms.json
-// (scripts/roms/*.json, the tables of scripts/fetch-roms.py, written by scripts/build.mjs) and packed as
-// scripts/profile-assets.py does; identifying by hash instead of by file name takes dumps under any name and refuses a
-// bad or byte-swapped one before a core sees it. An ECW waveset is the Sound Blaster PCI 128's whole pack, so it is
-// packed too. A .wasm file is an AWE card's module, which builds only locally. Nothing leaves the device.
-
-const ROLAND = ['roland-sc55', 'roland-sc55mk2', 'roland-mt32'], AWE = ['awe32', 'awe64'];
+// Decode the player cards’ instrument packs and ECW wavesets.
+const AWE = ['awe32', 'awe64'];
 /** The largest file the page reads: src/profile-voices.ts MAX_PROFILE_ASSET_BYTES, the largest pack a core takes. */
 export const MAX_FILE_BYTES = 128 * 1024 * 1024;
 const ascii = (bytes, at, text) => [...text].every((c, i) => bytes[at + i] === c.charCodeAt(0));
 const hex = buffer => [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
-const digest = async bytes => {
-  const [sha1, sha256] = await Promise.all(['SHA-1', 'SHA-256'].map(a => crypto.subtle.digest(a, bytes).then(hex)));
-  return { sha1, sha256 };
-};
-/** Every hash an entry lists must match, as in scripts/fetch-roms.py: SHA-1 and SHA-256 where it has both. */
-const matches = (file, rom) => {
-  const hashes = ['sha1', 'sha256'].filter(h => rom[h]);
-  return file.bytes.length === rom.size && hashes.length > 0 && hashes.every(h => rom[h].toLowerCase() === file[h]);
-};
-
 /** A DSPK v1 pack (native/profiles/profile_pack.h): magic, version 1, model, record count, then role, length and bytes
  *  of each record in role order, as scripts/profile-assets.py writes it. */
 export function dspack(model, records) {
@@ -51,14 +35,6 @@ function records(pack) {
   }
   return at === pack.length ? out : undefined;
 }
-/** The ROM set of table whose files a Roland pack's records are, by role, size and every listed hash. */
-async function packSet(table, pack) {
-  const recs = records(pack);
-  if (!recs || !table) return undefined;
-  const digests = new Map();
-  for (const [role, data] of recs) digests.set(role, { bytes: data, ...await digest(data) });
-  return table.sets.find(set => set.files.length === recs.size && set.files.every(rom => digests.has(rom.role) && matches(digests.get(rom.role), rom)))?.name;
-}
 /** The name an SBK or SF2 bank gives itself (its INFO list's INAM), or undefined. */
 function bankName(bank) {
   if (!bank || bank.length < 24 || !ascii(bank, 0, 'RIFF') || !ascii(bank, 8, 'sfbk') || !ascii(bank, 12, 'LIST') || !ascii(bank, 20, 'INFO')) return undefined;
@@ -71,8 +47,7 @@ function bankName(bank) {
   return undefined;
 }
 /** A device's name and year from an entry of packs.json or devices.json ({ manufacturer, model, year }):
- *  "<manufacturer> <model>[, <variant>] (<year>)", the variant without the model's name in front ("MT-32 control 1.07"
- *  is "control 1.07"); without an entry, "<label> · <variant>". */
+ *  "<manufacturer> <model>[, <variant>] (<year>)", the variant without the model's name in front; without an entry, "<label> · <variant>". */
 export function deviceName(entry, variant, label) {
   if (!entry?.model) return { name: variant ? `${label} · ${variant}` : label, year: 0 };
   const rest = variant?.startsWith(`${entry.model} `) ? variant.slice(entry.model.length + 1) : variant;
@@ -84,22 +59,9 @@ export const byYear = (a, b) => (b.year || 0) - (a.year || 0) || a.name.localeCo
  *  <profile>--<set>.dspack, fetch-gus gus-gf1-<memory>k.dspack). */
 const variantOf = (kind, name) => name.replace(/\.[^.]*$/, '').replace(new RegExp(`^${kind}-+`, 'i'), '') || name;
 
-/** The devices files make, for a list to choose a device from by name: every .dspack (by the model in its header),
- *  every ECW waveset (by the name in it), and every complete Roland ROM set among loose ROM files (by its revision); a
- *  Roland pack is named by the revision its ROMs are. An AWE pack plays with the .wasm whose file name names its card.
- *  descriptors is PROFILE_DESCRIPTORS; known() resolves with roms.json and is called only when Roland files need it;
- *  catalog (packs.json, scripts/packs-catalog.py) maps file names to { manufacturer, year, model, sha256 }, and a file
- *  found there is named "<manufacturer> <model> (<year>)" when its bytes have that SHA-256 (or the entry names none):
- *  a default pack such as roland-mt32.dspack holds whichever revision was activated last; profiles (devices.json) gives the others the maker, model and
- *  year of their profile, with their revision, bank or file name as the variant (deviceName). Packs with the same bytes
- *  count once, under a catalog name where one has it, else under the shortest. Resolves with { devices: [{ kind, name,
- *  year, variant, key, sources, needs? }], ignored: [file names], modules: { awe32?, awe64? } }, the devices in byYear
- *  order; modules are the AWE modules among the files, for packs of an earlier drop. */
-export async function devicesIn(files, descriptors, known, catalog = {}, profiles = {}) {
+export async function devicesIn(files, descriptors, catalog = {}, profiles = {}) {
   const kinds = Object.fromEntries(Object.entries(descriptors).map(([kind, d]) => [d.id, kind]));
-  const devices = new Map(), ignored = [], modules = {}, loose = [];
-  let table;
-  const tables = async () => (table ??= await known());
+  const devices = new Map(), ignored = [], modules = {};
   const entries = new Map(Object.entries(catalog).map(([file, entry]) => [file.toLowerCase(), entry]));
   const add = async (kind, variant, assets, file) => {
     const hash = await hexDigest('SHA-256', assets), key = `${kind}:${hash}`, had = devices.get(key), entry = file && entries.get(file.name.toLowerCase());
@@ -116,29 +78,14 @@ export async function devicesIn(files, descriptors, known, catalog = {}, profile
     } else if (bytes.length >= 16 && ascii(bytes, 0, 'DSPK')) {
       const kind = kinds[new DataView(bytes.buffer, bytes.byteOffset, 16).getUint32(8, true)];
       if (!kind || !records(bytes)) { ignored.push(file.name); continue; }
-      const set = ROLAND.includes(kind) ? await packSet((await tables())[kind], bytes) : undefined;
       // An AWE pack by its bank's own name, and whether it carries the wave ROM.
       const recs = AWE.includes(kind) ? records(bytes) : undefined, bank = bankName(recs?.get(32));
-      await add(kind, set ?? (bank ? `${bank}${recs.has(3) ? ' + ROM' : ''}` : variantOf(kind, file.name)), bytes, file);
+      await add(kind, bank ? `${bank}${recs.has(3) ? ' + ROM' : ''}` : variantOf(kind, file.name), bytes, file);
     } else if (ascii(bytes, 0, 'ECLW') && bytes.length > 0xb0) {
       const name = String.fromCharCode(...bytes.subarray(0x60, 0xb0)).split('\0')[0].trim();
       await add('sb-pci128', /^[\x20-\x7e]+$/.test(name) ? name : variantOf('sb-pci128', file.name), dspack(descriptors['sb-pci128'].id, [[32, bytes]]), file);
-    } else loose.push(file);
+    } else ignored.push(file.name);
   }
-  // Loose files: every complete set of a Roland profile among them; a file no set uses is ignored.
-  const used = new Set(), usedHashes = new Set();
-  if (loose.length) {
-    const all = await tables();
-    for (const file of loose) Object.assign(file, await digest(file.bytes));
-    for (const kind of ROLAND) for (const set of all[kind]?.sets ?? []) {
-      const found = set.files.map(rom => loose.find(file => matches(file, rom)));
-      if (!found.every(Boolean)) continue;
-      for (const file of found) { used.add(file); usedHashes.add(file.sha256); }
-      await add(kind, set.name, dspack(descriptors[kind].id, set.files.map((rom, i) => [rom.role, found[i].bytes])));
-    }
-  }
-  // A copy of a file a set used is no stranger; a file no complete set has is.
-  ignored.push(...loose.filter(file => !used.has(file) && !usedHashes.has(file.sha256)).map(file => file.name));
   const list = [...devices.values()].map(({ kind, variant, key, assets, name, year }) => {
     const device = { kind, variant, key, name, year, sources: { assets } };
     if (AWE.includes(kind)) { if (modules[kind]) device.sources.wasm = modules[kind]; else device.needs = `${kind}.wasm`; }

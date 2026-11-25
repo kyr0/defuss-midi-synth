@@ -44,11 +44,11 @@
     "HARDWARE_PROFILES.md",
     "scripts/build-native-profiles.py",
     "scripts/build-vintage-wasm.py",
-    "vendor/sources/munt-mt32emu-f5b968c4.tar.gz",
     "vendor/sources/86box-cqm-141ae59c.tar.gz"
   ],
   "scripts": {
     "build": "node scripts/build.mjs --prepare && pkgroll && node scripts/build.mjs --finish",
+    "prepack": "bun run build",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/crates.js docs/vgm-*.js docs/player.js docs/fx.js docs/render.js docs/sound-cards.js docs/profile-files.js && tsc --noEmit",
     "test": "node --experimental-transform-types --test tests/*.test.ts",

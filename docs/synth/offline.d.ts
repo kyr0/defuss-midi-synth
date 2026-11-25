@@ -1,5 +1,5 @@
-import { f as EngineKind, j as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, u as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './profile-store-8LHTX7sj.js';
-export { F as FmInfo, L as LoadProgress, i as PROFILE_DESCRIPTORS, k as ProfileAvailability, l as ProfileDescriptor, m as ProfileStorage, n as ProfileStorageFile, o as ProfileStore, p as ProfileUserAssets, q as SYNTH_PROFILES, r as StoredProfileSources, e as SynthEvent, s as createProfileStore, t as openProfileStore } from './profile-store-8LHTX7sj.js';
+import { f as EngineKind, j as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, u as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './profile-store-Ci50o3_k.js';
+export { F as FmInfo, L as LoadProgress, i as PROFILE_DESCRIPTORS, k as ProfileAvailability, l as ProfileDescriptor, m as ProfileStorage, n as ProfileStorageFile, o as ProfileStore, p as ProfileUserAssets, q as SYNTH_PROFILES, r as StoredProfileSources, e as SynthEvent, s as createProfileStore, t as openProfileStore } from './profile-store-Ci50o3_k.js';
 
 /** A synthesizer the engine drives: complete MIDI channel messages in, planar Float32 PCM out. */
 interface Voices {
@@ -88,8 +88,7 @@ declare class Engine {
     /** The SoundFont engine's voices sounding now, releasing ones included; on the FM engine the chip channels that
      *  notes hold (fm.cpp's fm_voices). VERIFIED: an FM note's release still sounds after note off while this is 0. */
     voices(): number;
-    /** MIDI and SysEx the active engine could not take since it loaded: a native profile whose input queue was full,
-     *  such as the Sound Canvas cores' MIDI IN; 0 on the other engines, which take everything. */
+    /** MIDI and SysEx messages the active native profile could not accept since it loaded. */
     dropped(): number;
     hasPreset(bank: number, program: number): boolean;
     /** Parses a MIDI, RMI or MUS file and positions it at its start. Stops the previous file; a rejected file leaves
@@ -110,8 +109,7 @@ declare class Engine {
     /** The General MIDI state, then the file's state before message index count in file order, so a new engine or bank
      *  continues the file as it stood: every system exclusive message and reset, and of each channel's program, pitch
      *  bend, channel pressure and controller value the last one. A message that a later one of its kind replaces leaves
-     *  nothing behind, and the Sound Canvas cores take MIDI at 3,125 bytes per second into 16 KiB, so a seek in a file of
-     *  many controller changes would wait seconds, or overflow (dropped), behind ones that change nothing. Bank select,
+     *  nothing behind. Bank select,
      *  RPN, NRPN, data entry and the channel mode messages act on what comes after them: all of those go. */
     private chase;
     /** Plays message index of song: a channel message, a reset, or a system exclusive message, which reaches the active

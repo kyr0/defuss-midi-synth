@@ -4,7 +4,7 @@ A General MIDI synthesizer for the browser and for offline rendering, with its e
 
 - **SoundFont** (default): TinySoundFont 0.9 plays SoundFont 2 files. The package bundles TimGM6mb, a General MIDI SoundFont with all 128 General MIDI programs and 8 drum kits (6.0 MB, shipped Brotli-compressed as 5.2 MB).
 - **FM**: libADLMIDI 1.6.2 drives emulated Yamaha OPL3 chips (Nuked OPL3), the sound of AdLib and Sound Blaster cards. It embeds 79 instrument banks taken from DOS and Windows games and drivers, and loads WOPL bank files.
-- **Hardware profiles**: ten named engines, nine of them sound cards and modules from the Sound Blaster 16 to the Roland MT-32. Eight run a core of their own, an emulator or a reconstruction; most need ROMs, wavesets or patches that you supply as one pack file ([HARDWARE_PROFILES.md](HARDWARE_PROFILES.md)).
+- **Hardware profiles** cover the five player cards. Their instrument data ships in `dist/assets/profiles/`. The AWE32 and AWE64 profiles also take a locally supplied WASM core.
 
 A song switches engines while it plays and keeps its position. Browser synthesis runs in an AudioWorklet. Node.js, Bun and browser offline rendering use the same engines and the same event scheduler.
 
@@ -95,7 +95,7 @@ For the SoundFont engine, `maxVoices` limits the voices. Beyond that limit, a ne
 | `loadSoundFont(source)` | Replace the SoundFont with SF2 bytes or a URL, plain or Brotli-compressed; resolves with the new `info`. Clears queued events and, while the SoundFont engine plays, stops the transport. A rejected file keeps the loaded SoundFont. Before `useEngine('soundfont')` has loaded that engine, it rejects without downloading. |
 | `loadMidi(bytes, { tempo })` | Parse a Standard MIDI File (format 0 or 1), an RMI file or a MUS file, with at most 65,536 SysEx messages. Stops the transport, clears events and returns title and duration. For MIDI and RMI, `metadata` includes the format, track count and available initial tempo, time signature, copyright and text. `tempo` (0.25 to 4, default 1) scales the file's own clock for files converted at a wrong one: 0.5 plays a MIDI file converted from Raptor's 70 Hz MUS data at Doom's 140 Hz, or such a MUS file, at its real speed. Positions, seeking and the duration count real seconds. |
 | `play(loop)`, `pause()`, `stop()`, `seek(seconds)` | Control file playback. `stop()` rewinds and returns to real-time synthesis. |
-| `status()` | Transport position, rate and end state, frame, queue depth, late-event count, sounding voices, and `dropped`: the MIDI and SysEx messages the active engine's input could not take, such as a Sound Canvas core's full 16 KiB MIDI IN (always 0 on the SoundFont and FM engines). |
+| `status()` | Transport position, rate and end state, frame, queue depth, late-event count, sounding voices, and `dropped`: the MIDI and SysEx messages the active engine's input could not take (always 0 on the SoundFont and FM engines). |
 | `setGain(value)` | Smooth output gain, from 0 to 4 (default 1). |
 | `output` | GainNode for analyzers, effects or recording destinations. |
 | `source` | The signal before `output`'s gain, for meters and visualizers that should not follow the volume. |
@@ -109,19 +109,17 @@ Channels and programs use zero-based MIDI numbering. Pitch bend is 0 through 163
 
 ## Hardware profiles
 
-`SYNTH_PROFILES` lists the ten profiles: `soundfont`, `sb16-opl3`, `sb16-cqm`, `awe32`, `awe64`, `sb-pci128`, `gus-gf1`, `roland-sc55`, `roland-sc55mk2` and `roland-mt32`. `PROFILE_DESCRIPTORS[id]` gives each one's `label`, `technology`, `maxVoices`, `availability` (`'bundled'`: the package ships the core; `'local-build-required'`: the AWE cores, which you build and supply as `profileSources[id].wasm`) and `userAssets` (`'none'`, `'optional'` or `'required'`: what you supply as the pack). A profile plays without your files exactly when its core is bundled and `userAssets` is not `'required'`: `soundfont`, `sb16-opl3` and `sb16-cqm`.
+VERIFIED: `SYNTH_PROFILES` lists `soundfont`, `sb16-opl3`, `sb16-cqm`, `sb-pci128`, `gus-gf1`, `awe32` and `awe64`. PCI 128 defaults to the 2 MB ECW waveset. To select the 4 MB or 8 MB variant, pass `{ assets: 'assets/profiles/sb-pci128-4m.dspack' }` or `{ assets: 'assets/profiles/sb-pci128-8m.dspack' }` to `useProfile('sb-pci128', sources)`. The alternate PCI SoundFont is `assets/profiles/pci128.sf2`. The GF1 defaults to its 1024 KiB patch set. AWE32 and AWE64 include their EMU8000 ROM and GS bank. Supply their local core as `profileSources[profile].wasm`. Both SB16 chips use embedded FM banks.
 
 ```ts
-import { MidiSynth, PROFILE_DESCRIPTORS } from 'defuss-midi-synth';
+import { MidiSynth } from 'defuss-midi-synth';
 
-const synth = await MidiSynth.create({ context, baseUrl: new URL('/synth/', location.href), profile: 'sb16-cqm' });
-// A .dspack the user picked in <input type="file" id="pack">; it stays in this page.
-const file = (document.getElementById('pack') as HTMLInputElement).files![0]!;
-await synth.useProfile('roland-mt32', { assets: new Uint8Array(await file.arrayBuffer()) });
-PROFILE_DESCRIPTORS['roland-mt32'].userAssets; // 'required'
+const synth = await MidiSynth.create({ context, baseUrl: new URL('/synth/', location.href), profile: 'sb-pci128' });
+await synth.useProfile('gus-gf1');
+
 ```
 
-A profile loads on first use and reports through `onProgress`; concurrent calls share one load, and `fm` and `sb16-opl3` share one download and compile of `fm-synth.wasm`. A profile that cannot load rejects with an Error that names the profile, the file and what makes it available, and the engine that played plays on. A required pack or a local-only module that `profileSources` lacks fails without a request. `sb16-opl3` is libADLMIDI on one chip with 18 voices, at the level of `fm`; `sb16-cqm` plays the same banks on a CQM chip, lists their 79 names in `info.fm` also without another FM engine, and follows `fmBank`, `setFmBank` and `loadFmBank`; an FM engine loaded later starts on the current bank. [HARDWARE_PROFILES.md](HARDWARE_PROFILES.md) states each profile's core, licence, test status, cost and fidelity limits.
+A profile loads on first use and reports through `onProgress`; concurrent calls share one load, and `fm` and `sb16-opl3` share one download and compile of `fm-synth.wasm`. A profile that cannot load rejects with an Error that names the profile, the file and what makes it available, and the engine that played plays on. An AWE profile requires a module in `profileSources`. `sb16-opl3` is libADLMIDI on one chip with 18 voices, at the level of `fm`; `sb16-cqm` plays the same banks on a CQM chip, lists their 79 names in `info.fm` also without another FM engine, and follows `fmBank`, `setFmBank` and `loadFmBank`; an FM engine loaded later starts on the current bank. [HARDWARE_PROFILES.md](HARDWARE_PROFILES.md) states each profile's core, licence, test status, cost and fidelity limits.
 
 ### Keep the user's files
 
@@ -131,28 +129,16 @@ A profile loads on first use and reports through `onProgress`; concurrent calls 
 import { MidiSynth, openProfileStore } from 'defuss-midi-synth';
 
 const store = await openProfileStore();             // OPFS: defuss-storage/defuss-midi-synth
-await store.save('roland-mt32', { assets: pack });  // after the user picked it once
-const sources = await store.load('roland-mt32');    // a later visit: { assets } or undefined
-if (sources) await synth.useProfile('roland-mt32', sources);
-await store.profiles();                             // ['roland-mt32']
-await store.remove('roland-mt32');                  // forget the user's files
+await store.save('gus-gf1', { assets: pack });  // after the user picked it once
+const sources = await store.load('gus-gf1');    // a later visit: { assets } or undefined
+if (sources) await synth.useProfile('gus-gf1', sources);
+await store.profiles();                             // ['gus-gf1']
+await store.remove('gus-gf1');                  // forget the user's files
 ```
 
 `save` replaces the parts it is given and keeps the others; it writes at most 64 MiB at once and smaller writes on an adapter whose `maxWriteBytes` is lower, and a save the adapter refuses leaves the stored copy as it was. `load` resolves `undefined` when nothing is stored, and skips a pack whose records do not add up to its size, or a module `WebAssembly.validate` refuses: a save that stopped partway leaves such a file. `openProfileStore` rejects outside a browser with OPFS. It uses defuss-storage's directory adapter over the OPFS directory `defuss-storage/<name>`, the one `createOPFSStorage({ name })` uses, because the OPFS adapter needs a dedicated worker's sync access handles and a page calls this on its main thread. The two adapters lock files under different names, so they do not exclude each other: use one of them for a store at a time. The browser keeps the files as best-effort site data, which the Storage Standard lets it evict under storage pressure; the store does not call `navigator.storage.persist()`.
 
 ### Make a pack
-
-A pack (`.dspack`) holds the files of one profile under numbered roles. You supply the ROMs: the scripts name no ROM source, because the dumps are copyrighted firmware. `scripts/fetch-roms.py` reads an HTTPS URL, a path or a ZIP member per file from `profile-assets/rom-sources.json` and keeps a file only when its size and every hash a revision lists match: `scripts/roms/<profile>.json`, plus SHA-256 from `profile-assets/rom-hashes.json` when that overlay exists. For a profile with several revisions the sources name each set's own files, the files the sets share, and a default set. Every complete Roland set becomes `profile-assets/<profile>--<set>.dspack` and the default one also `profile-assets/<profile>.dspack`; the ROMs land in `profile-assets/roms/<profile>/`. An AWE ROM it checks and copies, and prints the `pack-awe` command that packs it with your bank:
-
-```sh
-python3 scripts/fetch-roms.py init          # writes profile-assets/rom-sources.json; fill in your files
-python3 scripts/fetch-roms.py               # every profile with sources: one pack per revision
-python3 scripts/fetch-roms.py roland-mt32 --set "MT-32 control 1.07 + PCM" --activate   # that set becomes roland-mt32.dspack
-```
-
-`--set` alone packs that one set; `--sources` and `--hash-manifest` name other files than the defaults.
-
-`scripts/profile-assets.py` packs files you have (`pack`, `pack-gus`, `pack-awe`) and fetches the ECW wavesets and the Gravis patches from public driver archives, pinned by SHA-256 (`fetch-ecw`, `fetch-gus`). Everything lands in `profile-assets/`, which git ignores; the package and the demo site ship no pack. [HARDWARE_PROFILES.md](HARDWARE_PROFILES.md#packs) lists the roles of each profile and every command.
 
 ## System exclusive messages
 
@@ -163,10 +149,8 @@ A `sysex` event, `{ type: 'sysex', data }`, holds one message from F0 to F7 as a
 | `soundfont` | The GM, GM2, GS and XG resets; GM Master Volume, on TinySoundFont's channel-volume curve. The rest is ignored. |
 | `fm`, `sb16-opl3`, `sb16-cqm` | The four resets, then libADLMIDI's own: GM System On and Off, the GS reset and rhythm part assignment, XG System On, GM Master Volume. |
 | `awe32`, `awe64`, `sb-pci128`, `gus-gf1` | The four resets; the rest is ignored. |
-| `roland-sc55`, `roland-sc55mk2` | Every message goes to the original firmware's MIDI IN, which applies what the unit applies; not yet run with real ROMs. |
-| `roland-mt32` | Munt's MT-32 parameter writes; it ignores the GM, GS and XG resets, as the unit does. |
 
-A file's SysEx events (F0, divided F7 continuations and F7 escapes) play at their frames. A seek, an engine switch or a bank change resets the engine and replays the file's state before the position in file order: every SysEx and reset, every bank select, RPN, NRPN, data entry and channel mode message, and of each channel the last program, pitch bend, channel pressure and value of every other controller. So an MT-32 gets back the timbres a game uploaded, and a Sound Canvas core, whose MIDI IN takes 3,125 bytes per second, does not wait for earlier changes that later ones replace. Scheduled SysEx are not replayed, like scheduled channel messages.
+A file's SysEx events (F0, divided F7 continuations and F7 escapes) play at their frames. A seek, an engine switch or a bank change resets the engine and replays the file's state before the position in file order: every SysEx and reset, every bank select, RPN, NRPN, data entry and channel mode message, and of each channel the last program, pitch bend, channel pressure and value of every other controller. Scheduled SysEx are not replayed, like scheduled channel messages.
 
 ## Timing
 
@@ -206,10 +190,10 @@ try {
 | `make wasm` | Rebuild `vendor/runtime/midi-synth.wasm` and `fm-synth.wasm` from `native/` with the `emcc` on PATH, then check the FM block renderer against the per-sample chip (a register fuzz and game files). |
 | `make wasm-docker` | Rebuild with the `emscripten/emsdk:4.0.10` container. |
 | `make vae` | Run the bundled defuss-vae verification gate in a git working tree. |
-| `python3 scripts/build-native-profiles.py <profile>...` | Rebuild the CQM, Sound Canvas and MT-32 cores from their pinned upstream commits with Emscripten (`emcc`, `em++`, `emar`, Node, Git); `--local-awe awe32 awe64` builds the AWE cores into `profile-assets/local-builds/`. |
+| `python3 scripts/build-native-profiles.py <profile>...` | Rebuild the CQM core from its pinned upstream commit with Emscripten (`emcc`, `em++`, `emar`, Node, Git); `--local-awe awe32 awe64` builds the AWE cores into `profile-assets/local-builds/`. |
 | `python3 scripts/build-vintage-wasm.py` | Rebuild the ECW and GF1 cores with an LLVM clang that targets wasm32, without Emscripten. |
 
-`native/synth.c` and `native/fm.cpp` are the engines' C entries, `native/profiles/` the profile adapters and in-tree cores. `native/tsf.h` is TinySoundFont 0.9, copied unchanged; `native/adlmidi/` is libADLMIDI 1.6.2 trimmed to what the FM engine uses, with Nuked OPL3 fast and this project's block renderer ([native/ARCH.md](native/ARCH.md)). The prebuilt modules, the SoundFont and the native sources are hashed in [vendor/SHA256SUMS.json](vendor/SHA256SUMS.json). Builds check these hashes before JS packaging. `make wasm` rewrites them; after the profile build scripts, `node scripts/integrity.mjs --write` does. Review those changes before release. The tarball holds `dist/` (modules, SoundFont and their licence files), `src/`, `native/`, the two profile build scripts and the Munt and Nuked CQM source archives of `vendor/sources/`.
+`native/synth.c` and `native/fm.cpp` are the engines' C entries, `native/profiles/` the profile adapters and in-tree cores. `native/tsf.h` is TinySoundFont 0.9, copied unchanged; `native/adlmidi/` is libADLMIDI 1.6.2 trimmed to what the FM engine uses, with Nuked OPL3 fast and this project's block renderer ([native/ARCH.md](native/ARCH.md)). The prebuilt modules, the SoundFont and the native sources are hashed in [vendor/SHA256SUMS.json](vendor/SHA256SUMS.json). Builds check these hashes before JS packaging. `make wasm` rewrites them; after the profile build scripts, `node scripts/integrity.mjs --write` does. Review those changes before release. The tarball holds `dist/` (modules, SoundFont and their licence files), `src/`, `native/`, the two profile build scripts and the Nuked CQM source archive of `vendor/sources/`.
 
 The test suite checks pitch against SoundFont 2 rules with a SoundFont the tests write, FM pitch, banks, WOPL loading and engine switching, the General MIDI defaults, sample-accurate scheduling, block-size invariance, the MIDI, RMI and MUS parsers, SysEx in files and streams, file transport, SoundFont replacement, queue saturation, disposal and WAV encoding, and each profile core on its real module. The Chromium test drives every control of the demo, the music player and the hardware list included, and the public API in a real AudioWorklet. [VALIDATION.md](VALIDATION.md) scopes the evidence.
 

@@ -148,8 +148,7 @@ export class Engine {
   /** The SoundFont engine's voices sounding now, releasing ones included; on the FM engine the chip channels that
    *  notes hold (fm.cpp's fm_voices). VERIFIED: an FM note's release still sounds after note off while this is 0. */
   voices(): number { return this.ensure().voices(); }
-  /** MIDI and SysEx the active engine could not take since it loaded: a native profile whose input queue was full,
-   *  such as the Sound Canvas cores' MIDI IN; 0 on the other engines, which take everything. */
+  /** MIDI and SysEx messages the active native profile could not accept since it loaded. */
   dropped(): number { const v = this.ensure(); return v instanceof NativeProfileVoices ? v.dropped : 0; }
   hasPreset(bank: number, program: number): boolean {
     return this.ensure().presets().some(p => p.bank === bank && p.program === program);
@@ -211,8 +210,7 @@ export class Engine {
   /** The General MIDI state, then the file's state before message index count in file order, so a new engine or bank
    *  continues the file as it stood: every system exclusive message and reset, and of each channel's program, pitch
    *  bend, channel pressure and controller value the last one. A message that a later one of its kind replaces leaves
-   *  nothing behind, and the Sound Canvas cores take MIDI at 3,125 bytes per second into 16 KiB, so a seek in a file of
-   *  many controller changes would wait seconds, or overflow (dropped), behind ones that change nothing. Bank select,
+   *  nothing behind. Bank select,
    *  RPN, NRPN, data entry and the channel mode messages act on what comes after them: all of those go. */
   private chase(count: number): void {
     this.message(MIDI_RESET);

@@ -29,7 +29,7 @@ class MidiProcessor extends AudioWorkletProcessor {
       this.port.postMessage({ type: 'ready', info: engine.info() });
     } catch (error) { this.fail(error); }
   }
-  /** The engine's voices. Native cores boot in profile_init (the Sound Canvas firmware for up to seconds), so voices
+  /** The engine's voices. Native cores initialize in profile_init, so voices
    *  are made only here, in the constructor and in addEngine's message, never in process(): a render quantum never
    *  holds a boot, though a long boot still delays the quanta after the message. */
   private voices(part: EnginePart, module = part.module ?? this.modules.get(part.key)): Voices {

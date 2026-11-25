@@ -1,5 +1,5 @@
-import { k as MidiParser, u as dataBytes, v as MIDI_RESET, x as packMessage, y as SYSEX_MAX, q as isReset, i as integer, h as inputBytes, z as MAX_BANK_BYTES, G as GM_PROGRAMS, A as isResetMessage, B as MAX_SOUNDFONT_BYTES, C as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, D as FM_BANKS, j as MAX_SONG_BYTES, f as finite, E as OP, H as OP_COUNT, I as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, J as instantiateProfile, m as moduleKey } from './profile-store-DcWn1JWP.js';
-export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, t as openProfileStore } from './profile-store-DcWn1JWP.js';
+import { k as MidiParser, u as dataBytes, v as MIDI_RESET, x as packMessage, y as SYSEX_MAX, q as isReset, i as integer, h as inputBytes, z as MAX_BANK_BYTES, G as GM_PROGRAMS, A as isResetMessage, B as MAX_SOUNDFONT_BYTES, C as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, D as FM_BANKS, j as MAX_SONG_BYTES, f as finite, E as OP, H as OP_COUNT, I as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, J as instantiateProfile, m as moduleKey } from './profile-store-CtY7XS1N.js';
+export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, t as openProfileStore } from './profile-store-CtY7XS1N.js';
 
 const FM_BANK_NAMES = Object.freeze([
   "AIL (The Fat Man 2op set, default AIL)",
@@ -732,8 +732,7 @@ class Engine {
   voices() {
     return this.ensure().voices();
   }
-  /** MIDI and SysEx the active engine could not take since it loaded: a native profile whose input queue was full,
-   *  such as the Sound Canvas cores' MIDI IN; 0 on the other engines, which take everything. */
+  /** MIDI and SysEx messages the active native profile could not accept since it loaded. */
   dropped() {
     const v = this.ensure();
     return v instanceof NativeProfileVoices ? v.dropped : 0;
@@ -811,8 +810,7 @@ class Engine {
   /** The General MIDI state, then the file's state before message index count in file order, so a new engine or bank
    *  continues the file as it stood: every system exclusive message and reset, and of each channel's program, pitch
    *  bend, channel pressure and controller value the last one. A message that a later one of its kind replaces leaves
-   *  nothing behind, and the Sound Canvas cores take MIDI at 3,125 bytes per second into 16 KiB, so a seek in a file of
-   *  many controller changes would wait seconds, or overflow (dropped), behind ones that change nothing. Bank select,
+   *  nothing behind. Bank select,
    *  RPN, NRPN, data entry and the channel mode messages act on what comes after them: all of those go. */
   chase(count) {
     this.message(MIDI_RESET);

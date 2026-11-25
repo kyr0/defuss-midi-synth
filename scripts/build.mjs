@@ -4,6 +4,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { dspack } from '../docs/profile-files.js';
 import { romTable } from './rom-table.mjs';
 // The package build runs pkgroll between these phases so cleaning cannot delete its output.
 if (process.argv.includes('--prepare')) {
@@ -16,11 +17,24 @@ if (process.argv.includes('--prepare')) {
   await cp('node_modules/defuss-brotli/dist/decompressor.wasm', 'dist/assets/brotli-decompressor.wasm');
   await writeFile('dist/assets/brotli-decompressor.LICENSE.txt', `brotli-decompressor.wasm is the decoder of defuss-brotli 0.4.0.\n\n${(await readFile('node_modules/defuss-brotli/LICENSE', 'utf8')).trim()}\n\n${await readFile('node_modules/defuss-brotli/THIRD_PARTY_NOTICES.txt', 'utf8')}`);
   await cp('vendor/runtime/fm-synth.wasm', 'dist/assets/fm-synth.wasm');
-  // Only public WASM/notice artifacts are installed. ROM packs are separately user-provided.
+  // Copy the emulator cores, then install the instrument data each card can load.
   const profileDir = 'vendor/runtime/profiles';
   const profiles = await readdir(profileDir).catch(error => { if (error.code === 'ENOENT') return []; throw error; });
   if (profiles.length) await mkdir('dist/assets/profiles', { recursive: true });
-  for (const file of profiles) if (/^(sb16-cqm|sb-pci128|gus-gf1|roland-sc55|roland-sc55mk2|roland-mt32)\.(wasm|LICENSE\.txt)$/.test(file)) await cp(`${profileDir}/${file}`, `dist/assets/profiles/${file}`);
+  for (const file of profiles) if (/^(sb16-cqm|sb-pci128|gus-gf1)\.(wasm|LICENSE\.txt)$/.test(file)) await cp(`${profileDir}/${file}`, `dist/assets/profiles/${file}`);
+  const cardDir = 'docs/soundcards', destination = 'dist/assets/profiles';
+  for (const model of ['awe32', 'awe64']) {
+    await cp(`${cardDir}/${model}--emu8000-gm-rom-synthgs.dspack`, `${destination}/${model}.dspack`);
+  }
+  await cp(`${cardDir}/gus-gf1-1024k.dspack`, `${destination}/gus-gf1.dspack`);
+  // The AudioPCI core takes an ECW waveset as role 32 in a model-5 DSPK.
+  for (const size of [2, 4, 8]) {
+    const waveset = await readFile(`${cardDir}/sb128_EAPCI${size}M.ECW`);
+    const name = size === 2 ? 'sb-pci128' : `sb-pci128-${size}m`;
+    await writeFile(`${destination}/${name}.dspack`, dspack(5, [[32, waveset]]));
+  }
+  await cp(`${cardDir}/pci128.sf2`, `${destination}/pci128.sf2`);
+  await cp(`${cardDir}/LICENSE`, `${destination}/soundcards.LICENSE.txt`);
   // Each served asset keeps its licence beside it, so copying dist/ to a static host carries the notices along.
   const tsf = await readFile('native/tsf.h', 'utf8');
   const notice = tsf.slice(tsf.indexOf('LICENSE (MIT)'), tsf.indexOf('*/'));

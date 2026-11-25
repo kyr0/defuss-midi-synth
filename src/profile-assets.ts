@@ -33,21 +33,18 @@ function unavailable(kind: NativeProfile, what: 'module' | 'asset pack', error: 
       : ` It builds only locally (scripts/build-native-profiles.py --local-awe) and is supplied as profileSources['${kind}'].wasm.`;
   return new Error(`The ${kind} profile (${d.label}) is unavailable: its ${what} did not load: ${error instanceof Error ? error.message : String(error)}.${hint}`, { cause: error });
 }
-/** The module (unless withWasm is false: the caller holds it) and the DSPK pack of a native profile, from
- *  profileSources or the package's assets/profiles/<kind>.wasm; compile makes the module here. sb16-cqm needs no pack.
- *  The package ships no pack and no local-only module, so a profile whose pack is the user's (userAssets 'required')
- *  or whose module is a local build fails without a request when profileSources lacks it. Any failure is an Error
- *  naming the profile and the file. VERIFIED: scripts/e2e.mjs, which fails on any failed request or HTTP error,
- *  asks for roland-mt32 without a pack and gets the error naming it; tests/profiles.test.ts checks what it needs. */
+/** Load the requested native profile. Explicit sources override the package defaults independently. */
 export async function nativePart(kind: NativeProfile, base: URL, sources: ProfileSourceMap | undefined, compile: boolean, timeout?: number, progress?: ProgressListener, withWasm = true, readWasm = readBytes): Promise<NativePart> {
   const override = sources?.[kind], d = PROFILE_DESCRIPTORS[kind];
   const stem = `assets/profiles/${kind}`, key = moduleKey(kind);
-  const none = (what: string) => Promise.reject(new Error(`no ${what} was given, and the package has none`));
   const wasmSource = override?.wasm ?? (d.availability === 'local-build-required' ? undefined : `${stem}.wasm`);
+  if (withWasm && wasmSource === undefined) throw unavailable(kind, 'module', new Error('no local build was given'));
+  // CQM embeds its default FM bank in the core. Other optional packs live beside their core.
+  const packSource = override?.assets ?? (kind !== 'sb16-cqm' ? `${stem}.dspack` : undefined);
   // Both settle before either reports, so a missing module, the more basic gap, names the error whichever ends first.
   const [module, pack] = await Promise.allSettled([
-    withWasm ? wasmSource === undefined ? none('local build') : bytes(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress, readWasm) : undefined,
-    override?.assets ? bytes(override.assets, base, MAX_PROFILE_ASSET_BYTES, timeout, progress) : d.userAssets === 'required' ? none('pack of your files') : new ArrayBuffer(0),
+    withWasm && wasmSource !== undefined ? bytes(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress, readWasm) : undefined,
+    packSource !== undefined ? bytes(packSource, base, MAX_PROFILE_ASSET_BYTES, timeout, progress) : new ArrayBuffer(0),
   ]);
   if (module.status === 'rejected') throw unavailable(kind, 'module', module.reason);
   if (pack.status === 'rejected') throw unavailable(kind, 'asset pack', pack.reason);
