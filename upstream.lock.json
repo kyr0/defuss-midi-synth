@@ -52,10 +52,9 @@
     "reuse": "The slim decoder bundled into dist/ by pkgroll; dist/assets/brotli-decompressor.wasm is its decompressor.wasm."
   },
   "opl3Fm128m": {
-    "file": "docs/sf2_sb16/OPL-3_FM_128M.sf2",
+    "url": "https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br",
     "author": "Zandro Reveille",
     "licence": "CC BY-SA 4.0",
-    "sha256Compressed": "see RELEASE_SHA256.json",
-    "use": "Demo page only."
+    "use": "Demo page only, loaded from the Hugging Face model repo; not in this repository."
   }
 }

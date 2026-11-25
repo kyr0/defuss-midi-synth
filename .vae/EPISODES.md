@@ -58,3 +58,4 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-25T05:09:56Z s=5ed957d1 FINDING src/profile-store.ts:WRITE_CHUNK; tests/profile-store.test.ts learn=none: A stale comment and test name, no behavior; the claim is now labelled by its evidence.
 2026-11-25T05:13:41Z s=5ed957d1 DONE fp=a562fca09167 cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,Makefile(+43)
 2026-11-25T05:21:54Z s=5ed957d1 DONE fp=60d880e5400f cov=98.0% paths=CHANGELOG.md,README.md,VALIDATION.md,docs/ARCH.md(+5)
+2026-11-25T05:57:34Z s=5ed957d1 DONE fp=efa76ee91a87 cov=98.0% paths=THIRD_PARTY.md,docs/ARCH.md,docs/app.js,docs/fm_banks/ibk_files/ibk/IBK.H(+2)

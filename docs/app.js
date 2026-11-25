@@ -5,8 +5,8 @@ import { renderWav, save } from './render.js';
 const $ = id => document.getElementById(id);
 // The page starts on the FM engine; the SoundFont engine plays the OPL-3 FM 128M SoundFont, Brotli-compressed
 // (scripts/compress-banks.mjs; the library unpacks it with defuss-brotli). It comes from the Hugging Face model repo of
-// this project's soundbanks: at 104 MB it exceeds GitHub's 100 MB file limit, so git keeps it in LFS, which GitHub
-// Pages does not serve. The Hub allows cross-origin requests.
+// this project's soundbanks: at 104 MB it exceeds GitHub's 100 MB file limit, so neither this repository nor GitHub
+// Pages holds it. The Hub allows cross-origin requests.
 // On this machine's own addresses the demo server (scripts/serve.mjs) also serves files no public copy of the site
 // holds: the AWE cards' local builds and E-mu's 2GMGSMT SoundFont. With that SoundFont the SoundFont engine is the
 // "Sound Blaster 128" and plays it; elsewhere it plays the OPL-3 FM 128M SoundFont.
