@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Spencer Nielsen
+Sequencer: Ben M.W., Kit Smith, Matze
+Num of tunes: 6
+Complete: 
+
+*** Game info ***
+Name: Batman Returns
+Platform: Sega Genesis, Sega CD
+Year: 1992
+Genre: Action
+Publisher: Sega
+Developer: Sega

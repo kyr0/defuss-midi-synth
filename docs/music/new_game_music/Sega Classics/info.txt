@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Matze
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Sega Classics
+Platform: Sega CD
+Year: 1992
+Genre: 
+Publisher: Sega
+Developer: 

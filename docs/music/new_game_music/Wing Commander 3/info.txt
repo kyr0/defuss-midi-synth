@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: George Oldziey, George Oldziey, Nenad Vugrinec
+Sequencer: George Oldziey, Nenad Vugrinec
+Num of tunes: 21
+Complete:
+
+*** Game info ***
+Name: Wing Commander 3
+Platform: PC
+Year: 1994
+Genre: Mix
+Publisher: Origin
+Developer: Origin

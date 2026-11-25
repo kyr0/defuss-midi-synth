@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Converted
+Format: MID (GM)
+Original Composer: Brian Conrad, Sue Kasper, Justin McCormick
+Sequencer: Brian Conrad, Sue Kasper, Justin McCormick
+Num of tunes: 71
+Complete: 100%
+
+*** Game info ***
+Name: Sim City 2000
+Platform: PC
+Year: 1993
+Genre: Simulator
+Publisher: Maxis, Imagianeer, EA, HAL Laboratory, Artdink, Black Pearl Software, Destination, SOJ
+Developer: Maxis, Imagineer
+
+*** Additional info ***
+Replaced the previous rip with the ones from Kawocat, as they sound
+subjectively slightly better

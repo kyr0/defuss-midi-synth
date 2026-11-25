@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Nathan McCree
+Sequencer: Richard McDonald
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Tomb Raider 2
+Platform: Sony PSX
+Year: 1997
+Genre: Mix
+Publisher: Eidos
+Developer: Core Design

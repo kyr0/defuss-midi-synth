@@ -1,0 +1,27 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKitem-t.mid
+Upload Date and Time: 10/04/2001 19:56:26
+
+Uploaded by <syo_axenn@hotmail.com> (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: Item Timer
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+Staff-1
+Title: Item Timer
+Original Composer: Taisuke Araki
+(c) 1994 Nintendo
+Secuenced by: FireMario (04/Oct/2001)
+System: Game Boy

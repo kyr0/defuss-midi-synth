@@ -1,0 +1,24 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/pacmanx.mid
+
+Uploaded by JansenM@home.com (Mark Jansen)
+Originating IP Address: 24.14.231.10
+
+File Type: MIDI
+Game System: Arcade
+Game Name: Pac-Man
+Song Title: Level Intro (Remix)
+Sequenced by: Mark Jansen <JansenM@home.com>
+Other Information: 
+Pacman theme, added powerdrums, mixed in Ms. Pacman theme at the end. 
+
+
+Midi TrackName Analysis:
+
+
+Part 2
+Bass
+Pad Effect
+Percussion

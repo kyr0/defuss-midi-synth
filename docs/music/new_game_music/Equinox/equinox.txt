@@ -1,0 +1,4 @@
+<html>Game System: Commodore 64
+Game Name: Equinox
+Song Title: Title Theme
+Sequenced by: Tom Schrantz <schrantz@premier.net>

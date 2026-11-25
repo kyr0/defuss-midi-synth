@@ -1,5 +1,5 @@
 import { isReset, MIDI_RESET, MidiParser, packMessage, dataBytes } from './parser.ts';
-import { SYSEX_MAX } from './types.ts';
+import { SYSEX_MAX, type MidiMetadata } from './types.ts';
 
 /** The status of a song message that stands for the system exclusive message of its index in Song.sysex. */
 export const SYSEX_STATUS = 0xf0;
@@ -11,7 +11,7 @@ export const MAX_FILE_SYSEX = 65536;
  *  play order. sysex holds the system exclusive messages, F0 through F7, by the index of their message: SYSEX_STATUS,
  *  or MIDI_RESET for the GM, GM2, GS and XG resets, which every engine takes as a reset and a SysEx engine receives as
  *  they are. */
-export interface Song { title: string; duration: number; times: Float64Array; messages: Uint32Array; sysex: Map<number, Uint8Array> }
+export interface Song { metadata?: MidiMetadata; title: string; duration: number; times: Float64Array; messages: Uint32Array; sysex: Map<number, Uint8Array> }
 
 class Reader {
   constructor(readonly bytes: Uint8Array, public at: number, readonly end: number, readonly label: string) {}
@@ -31,6 +31,18 @@ class Reader {
     throw new Error(`Malformed ${this.label}: variable-length quantity over four bytes`);
   }
   text(n: number): string { this.need(n); let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(this.bytes[this.at + i]!); this.at += n; return s; }
+}
+
+// TextDecoder is unavailable in some AudioWorklets. MIDI files use both UTF-8 and legacy single-byte text.
+function metaText(reader: Reader, size: number): string {
+  const length = Math.min(size, 2048);
+  const raw = reader.text(length).split(String.fromCharCode(0))[0]!;
+  reader.at += size - length;
+  if (Array.from(raw).some(char => char.charCodeAt(0) > 127)) {
+    const encoded = Array.from(raw, c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+    try { return decodeURIComponent(encoded).trim(); } catch { /* Legacy single-byte text. */ }
+  }
+  return raw.trim();
 }
 
 const ascii = (bytes: Uint8Array, at: number, text: string) => text.split('').every((c, i) => bytes[at + i] === c.charCodeAt(0));
@@ -78,6 +90,7 @@ function parseSmf(bytes: Uint8Array): Song {
     secondsPerTick = tempo => tempo / 1e6 / division;
   }
   r.at = 8 + headerLength;
+  const metadata: MidiMetadata = { format, trackCount: tracks };
   const entries: Entry[] = [];
   let sysexCount = 0;
   let title = '', endTick = 0, track = 0, order = 0;
@@ -123,14 +136,25 @@ function parseSmf(bytes: Uint8Array): Song {
       tick += t.vlq();
       let byte = t.u8();
       if (byte === 0xff) {
-        const type = t.u8(), size = t.vlq();
+        const type = t.u8();
+        // Some XMI2MID conversions end the track with FF 2F FF 00 instead of FF 2F 00.
+        if (type === 0x2f && t.at + 2 === t.end && t.bytes[t.at] === 0xff && t.bytes[t.at + 1] === 0) break;
+        const size = t.vlq();
         t.need(size);
         if (type === 0x2f) { t.at += size; break; }
         if (type === 0x51 && size === 3) {
           const tempo = t.u8() << 16 | t.u8() << 8 | t.u8();
+          if (tick === 0 && tempo) metadata.initialBpm = 60e6 / tempo;
           if (tempo) entries.push({ tick, track, order: order++, tempo, message: 0 });
         }
-        else if (type === 0x03 && track === 0 && !title) title = t.text(size).split(String.fromCharCode(0))[0]!.trimEnd();
+        else if (type === 0x03 && track === 0 && !title) title = metaText(t, size);
+        else if (type === 0x02 && !metadata.copyright) metadata.copyright = metaText(t, size);
+        else if (type === 0x01 && !metadata.text) metadata.text = metaText(t, size);
+        else if (type === 0x58 && tick === 0 && size === 4) {
+          const numerator = t.u8(), exponent = t.u8();
+          if (numerator && exponent < 16) metadata.timeSignature = `${numerator}/${2 ** exponent}`;
+          t.at += 2;
+        }
         else t.at += size;
         continue;
       }
@@ -166,7 +190,7 @@ function parseSmf(bytes: Uint8Array): Song {
     else { if (entry.data) sysex.set(messages.length, entry.data); times.push(seconds); messages.push(entry.message); }
   }
   const duration = seconds + Math.max(0, endTick - lastTick) * secondsPerTick(tempo);
-  return { title, duration, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
+  return { title, duration, metadata, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
 }
 
 /* MUS controllers 1 to 9 as MIDI controllers (bank select, modulation, volume, pan, expression, reverb, chorus,

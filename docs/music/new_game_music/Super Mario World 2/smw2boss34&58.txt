@@ -1,0 +1,39 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-08-16
+
+File URL is http://www.vgmusic.com/new-files/smw2boss34&58.mid
+
+Uploaded by midiman10@hotmail.com (Tony Thai)
+Originating IP Address: 63.23.173.205
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario World 2: Yoshi's Island
+Song Title: Boss 3-4 & 5-8
+Sequenced by: Tony Thai <midiman10@hotmail.com>
+Other Information: 
+[V2.0]
+I fixed something on the other one and switched around a few other things.
+Made on the 4GMGSMT.SF2 soundfont bank
+8GMGSMT.SF2 soundfont bank might be okay.
+ 
+
+Midi TrackName Analysis:
+
+
+Boss Growing
+Boss Growing
+Boss Growing
+Boss Growing
+Boss Growing
+Fast repetitive notes
+Second fast repetitive notes
+Big Bass & Lead
+Bass to make the other three basses stronger & Second lead
+Second Big Bass
+Hi-Hats
+Drums
+Super Mario World 2: Yoshi's Island
+Boss: 3-4 & 5-8
+Sequenced by: Tony Thai
+midiman10@hotmail.com

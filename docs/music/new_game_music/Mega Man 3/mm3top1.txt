@@ -1,0 +1,40 @@
+File URL is http://www.vgmusic.com/new-files/mm3top1.mid
+Upload Date and Time: 07/07/2001 22:34:55
+
+Uploaded by hannay@hotmail.com (FFfreak42)
+Originating IP Address: 209.23.4.174
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Top Man
+Sequenced by: FFfreak42
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Staff 1
+Staff 9
+Staff 2
+Staff 3
+Bass Drum
+Snare
+Staff 6
+Bass Drum-NoRule
+Bass Drum-kick drum 1
+Bass Drum-kick drum 2
+Bass Drum-mid tom 1
+Bass Drum-low tom 1
+Bass Drum-closed hi-hat
+Snare-NoRule
+Snare-kick drum 1
+Snare-kick drum 2
+Snare-snare drum 1
+Snare-mid tom 1
+Snare-closed hi-hat
+Snare-open hi-hat
+Snare-crash cymbal 1
+Snare-crash cymbal 2

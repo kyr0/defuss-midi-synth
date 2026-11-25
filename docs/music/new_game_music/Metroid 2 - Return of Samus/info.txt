@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Hatchet, Joe Cortez, Chuck Dodgers
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Metroid 2 - Return of Samus
+Platform: Gameboy
+Year: 1991
+Genre: Adventure
+Publisher: Nintendo
+Developer: Nintendo

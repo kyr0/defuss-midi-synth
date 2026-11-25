@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Dr. Spa, Reactor ##9625
+Type: Arranged
+Format: MID
+Original Composer: Brian Johnston, Tony Williams, Tim Wright
+Sequencer: ???, M. Van Vugt, Xky Rauh, Maxime Abbey
+Num of tunes: 24
+Complete:
+
+*** Game info ***
+Name: Lemmings
+Platform: Amiga, PC, NES, SNES
+Year: 1991
+Genre: Logical
+Publisher: Psygnosis
+Developer: DMA Design

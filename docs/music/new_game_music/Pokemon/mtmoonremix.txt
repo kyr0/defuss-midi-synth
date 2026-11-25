@@ -1,0 +1,22 @@
+<html>File URL is http://www.vgmusic.com/new-files/mtmoonremix.mid
+Upload Date and Time: 06/03/2001 02:29:13
+
+Uploaded by twinkleelf@hotmail.com (Twinkle Elf)
+Originating IP Address: 63.229.4.104
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon Gold/Silver
+Song Title: Clefairy Medley
+Sequenced by: Twinkle Elf <twinkleelf@hotmail.com>
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+
+DEVICE=GENERAL.MDV
+MMOPT:0,1,0,0,1,0,35,0.010000,0.020000,1.300000,30,0
+MMOPT:0,1,0,0,1,0,35,0.010000,0.020000,1.300000,30,0

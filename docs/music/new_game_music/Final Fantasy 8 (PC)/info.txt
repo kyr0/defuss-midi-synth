@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Nobuo Uematsu
+Sequencer: Nobuo Uematsu
+Num of tunes: 77
+Complete: 100%
+
+*** Game info ***
+Name: Final Fantasy 8 (PC)
+Platform: PC
+Year: 1999
+Genre: RPG
+Publisher: Squaresoft
+Developer: Squaresoft

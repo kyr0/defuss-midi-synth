@@ -1,0 +1,20 @@
+<html>Added by: Necrosaro <necrosaro@vgmusic.com>
+Date Added: 1998-10-25
+
+Fixed by: Princess Peach Toadstool (peach@vgmusic.com)
+Date Fixed: 1998-12-08
+
+File URL is http://www.vgmusic.com/new-files/Pokemon_Game.mid
+
+Uploaded by alpha_mretoid@hotmail.com (Elias Flores)
+
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Player's House
+
+Other Information: 
+
+Midi TrackName Analysis:
+
+(I had to fix this MIDI's title because we were receiving complaints that this wasn't the Introduction Theme.  All should be fixed now.  -Peach)
+

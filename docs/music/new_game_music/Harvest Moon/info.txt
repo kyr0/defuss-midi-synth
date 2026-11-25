@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Joe, Setzer, Nick Jacobi, Daniel Lippert
+Num of tunes: 17
+Complete: 
+
+*** Game info ***
+Name: Harvest Moon
+Platform: SNES
+Year: 1997
+Genre: RPG
+Publisher: Natsume
+Developer: Pack-In-Video

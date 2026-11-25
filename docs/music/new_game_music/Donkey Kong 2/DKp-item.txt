@@ -1,0 +1,27 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKp-item.mid
+Upload Date and Time: 10/04/2001 20:03:15
+
+Uploaded by <syo_axenn@hotmail.com> (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: Placing An Item
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+Staff-1
+Title: Placing an Item
+Original Composer: Taisuke Araki
+(c) 1994 Nintendo
+Secuenced by: FireMario (04/Oct/2001)
+System: Game Boy

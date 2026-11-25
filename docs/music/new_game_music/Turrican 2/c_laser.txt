@@ -1,0 +1,34 @@
+<html>Added by: Mike Newman <newman@vgmusic.com>
+Date Added: 2000-07-08
+
+File URL is http://www.vgmusic.com/new-files/c_laser.mid
+
+Uploaded by c-dodgers@geocities.com (Chuck Dodgers)
+
+File Type: MIDI
+Game System: Commodore Amiga
+Game Name: Turrican 2
+Song Title: Level 3-1
+Sequenced by: Chuck Dodgers
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Lead 1B Halo
+Lead 2 Bells
+Lead 3 Synth
+Chords A Pad
+Chords B SynthStr
+Bass A Synth
+Bass B Other
+Drums
+Concerto of Lasers for Enemies
+Lvl. 3-1 from Turrican II
+Comp. by Chris Huelsbeck
+Seq. by Chuck Dodgers
+c-dodgers@geocities.com

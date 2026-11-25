@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Chocobo_Tamer
+Num of tunes: 8
+Complete: 
+
+*** Game info ***
+Name: Pokemon Pinball
+Platform: Gameboy
+Year: 1999
+Genre: Other
+Publisher: Nintendo
+Developer: Nintendo

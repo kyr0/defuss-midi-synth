@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Kazumi Totaka
+Sequencer: mrdata, Alluro95, FireMario, B1itz
+Num of tunes: 20
+Complete: 
+
+*** Game info ***
+Name: Super Mario Land 2
+Platform: Gameboy
+Year: 1992
+Genre: Jump'n'Run
+Publisher: Nintendo
+Developer: Nintendo

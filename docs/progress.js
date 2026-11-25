@@ -19,7 +19,14 @@ export function createProgress(root) {
     root.dataset.phase = phase;
   }
   return progress => {
-    if (progress.phase !== 'render' && Math.max(progress.total, progress.loaded) < MB) return;
+    if (progress.phase === 'finish') {
+      if (latest?.url === progress.url) {
+        clearTimeout(hide);
+        hide = setTimeout(() => { root.hidden = true; shown = ''; }, 700);
+      }
+      return;
+    }
+    if (!progress.card && progress.phase !== 'render' && Math.max(progress.total, progress.loaded) < MB) return;
     latest = progress;
     root.hidden = false;
     clearTimeout(hide);

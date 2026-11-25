@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Glenn Stafford, Derek Duke, Jason Hayes, Big Tuna, Tracy W. Bush
+Sequencer: 
+Num of tunes: 1
+Complete: 5%
+
+*** Game info ***
+Name: Starcraft
+Platform: PC
+Year: 1997
+Genre: Strategy
+Publisher: Blizzard
+Developer: Blizzard

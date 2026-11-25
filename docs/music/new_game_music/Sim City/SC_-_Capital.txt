@@ -1,0 +1,41 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-07-18
+
+File URL is http://www.vgmusic.com/new-files/SC_-_Capital.mid
+Upload Date and Time: 06/29/2001 14:01:54
+
+Uploaded by setzer@sympatico.ca (Setzer)
+Originating IP Address: 209.226.239.136
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: SimCity
+Song Title: Capital Theme
+Sequenced by: Setzer- <setzer@sympatico.ca>
+Other Information: 
+well, maybe it won't sound as good as the real one...
+if you wish to change the instruments in the midi, just go ahead...
+but good luck dealing with them! there are a bunch of patch change events scattered through the tracks...
+but you may try 
+
+Setzer-
+
+
+Midi TrackName Analysis:
+
+
+Track 1 2 & 5 first part
+Echo
+Track 3
+Track 4
+Track 6
+Track 8
+Track 7
+Track 5
+Track 1
+Track 2
+Sequenced by Setzer- (setzer@sympatico.ca) 06-26-2001
+track 6
+track 7
+track 8
+track 678 support

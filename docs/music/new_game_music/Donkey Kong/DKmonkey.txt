@@ -1,0 +1,26 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKmonkey.mid
+Upload Date and Time: 10/03/2001 18:13:57
+
+Uploaded by <syo_axenn@hotmail.com> (Juan Pablo Peloso)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: Monkey Stage
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Title: Monkey Stage
+Original Composer: Taisuke Araki
+Game: Donkey Kong
+(c) 1994 Nintendo
+Secuenced by: FireMario (03/Oct/2001)
+System: Game Boy

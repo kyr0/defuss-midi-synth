@@ -1,0 +1,27 @@
+File URL is http://www.vgmusic.com/new-files/DKworld8.mid
+Upload Date and Time: 10/09/2001 11:42:03
+
+Uploaded by syo_axenn@hotmail.com (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: World-8 Map
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+System: Game Boy
+Title: World-8 Map
+Original Composer: Taisuke Araki
+(c) 1994 Nintendo
+Secuenced by:
+FireMario (09/Oct/2001)

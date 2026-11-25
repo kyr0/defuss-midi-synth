@@ -1,0 +1,25 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Robin Wetzel, Borg No. One, Darth Nefelim
+Type: Converted
+Format: MID (Recorded from LDS music files using MidiOx)
+Original Composer: Alexander Brandon
+Sequencer: Alexander Brandon
+Num of tunes: 18
+Complete: 100%
+
+*** Game info ***
+Name: Tyrian
+Platform: PC Dos
+Year: 1995
+Genre: Shooter
+Publisher: Epic Mega Games
+Developer: Eclipse Productions
+
+*** Additional info ***
+Thanks to:
+Robin Wetzel for supplying the tunes
+Borg No. One for recording and converting the tunes from LDS format by Andreas Molnar to Midi
+Darth Nefelim for dividing the tunes between Tyrian and Tyrian 2000 games and credits fixes

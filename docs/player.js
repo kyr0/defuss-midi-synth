@@ -1,8 +1,10 @@
 // The game music player: the albums of music/index.json played by the page's synthesizer, on the SoundFont or the FM
 // engine. The controls use defuss-shadcn's Audio markup and styles, but this module drives them: the sound comes from
 // the AudioWorklet, not from an <audio> element.
-import { PROFILE_DESCRIPTORS, openProfileStore } from './synth/index.js';
-import { byYear, deviceName, devicesIn, readFiles } from './profile-files.js';
+import { PROFILE_DESCRIPTORS } from './synth/index.js';
+import { soundCards, cardSources, pciSoundFontLabel } from './sound-cards.js';
+import { mountCrate } from './crates.js';
+import { createOplPlayer } from './vgm-player.js';
 import { renderWav, save } from './render.js';
 
 /** Lucide icons (ISC licence, lucide.dev), 24-unit outlines. */
@@ -38,85 +40,118 @@ function el(tag, props = {}, ...children) {
 
 /**
  * Builds the player in its section and returns its handle.
- * - start(): resolves with the page's MidiSynth, starting audio when it is off (a click is the user gesture).
+ * - startAudio(initial): starts the page's MidiSynth once, using the first caller's engine and bank.
  * - analyser(): the AnalyserNode on the synthesizer's output, or undefined before the start.
  * - engineChanged(info): the piano's lists follow the engine.
  * - setVolume(value): the page's output gain, 0 to 1; volumeChanged(value) is the player's call back into it.
  * - message(text): the display's status line.
- * - soundFontName(): what the SoundFont engine plays, for the bank line; soundFontEngine: that engine's name.
- * - local: { url, names }: the files of this machine the demo server serves at url (docs/app.js).
+ * - soundFontName(): what the SoundFont engine plays, for the bank line.
  * - sound(album): what a WAV download plays on (docs/render.js): the engine shown, album's FM bank, the SoundFont.
  * - progress(event): the page's progress bar.
  */
-export async function createPlayer({ start, analyser, engineChanged, message, setVolume, soundFontName, soundFontEngine = 'SoundFont', local = { names: [] }, sound, progress }) {
+export async function createPlayer({ startAudio, readWasm, startOutput, analyser, engineChanged, message, setVolume, setCardGain, soundFontName, cardFont, storageWarning, sound, progress }) {
   const $ = id => document.getElementById(id);
   for (const slot of document.querySelectorAll('#player [data-icon]')) slot.outerHTML = icon(slot.dataset.icon);
   const music = new URL('./music/', import.meta.url);
-  const library = await (await fetch(new URL('index.json', music))).json();
-  const albums = library.albums;
-  // The maker, model and release year of each engine and profile, for the Sound Engine list.
-  const deviceTable = await fetch(new URL('devices.json', import.meta.url)).then(r => r.ok ? r.json() : {}).catch(() => ({}));
-  const count = albums.reduce((n, a) => n + a.editions.reduce((m, e) => m + e.tracks.length, 0), 0);
-  $('library').textContent = `${albums.length} ALBUMS · ${count} TRACKS`;
+  const [games, computer, cards] = await Promise.all([
+    ...['index.json', 'computer-music.json'].map(async file => {
+      const response = await fetch(new URL(file, music));
+      if (!response.ok) throw new Error(`${file}: HTTP ${response.status}`);
+      return (await response.json()).albums;
+    }), soundCards(),
+  ]);
+  const libraryLabel = list => `${list.length} ALBUMS · ${list.reduce((n, a) => n + a.editions.reduce((m, e) => m + e.tracks.length, 0), 0)} TRACKS`;
+  const labels = [libraryLabel(games), libraryLabel(computer)];
+  const opl = createOplPlayer(readWasm, progress);
   // album shown; current is what the synthesizer holds: {album, edition, index} or a file of the user's. An album's list
   // holds the tracks of all its editions (GM first), each row naming its edition.
   // The page opens on Warcraft II, the first album (the human's choice of 2026-11-24).
-  let album = albums.find(a => a.id === 'warcraft-ii-tides-of-darkness-1995') ?? albums[0];
+  let album = games[0];
   const entries = a => a.editions.flatMap(e => e.tracks.map((track, index) => ({ edition: e, index, track })));
   const position = (a, e, index) => entries(a).findIndex(x => x.edition === e && x.index === index);
   let current = null, playing = false, duration = 0, busy = false, muted = false, volume = Number($('volume').value);
-  const status = synth => synth.status();
+  const transport = async () => current?.album.computer ? opl : start();
   const act = fn => () => fn().catch(error => message(error.message));
 
-  $('albums').replaceChildren(...albums.map(a => {
-    // A sleeve: the cover on the release's CRT tube (a still frame), the year on a sticker, the title and the platform.
-    const label = el('label', { className: 'album', title: `${a.title} (${a.year})` },
-      el('input', { type: 'radio', name: 'album', value: a.id, checked: a === album }),
-      el('span', { className: 'album-year', textContent: String(a.year), 'aria-hidden': 'true' }),
+  function sleeve(a) {
+    const label = el('label', { className: a.thumbnail ? 'album' : 'album crate-spine', title: a.title },
+      el('input', { type: 'radio', name: 'album', value: a.id, checked: a === album }));
+    if (a.year) label.append(el('span', { className: 'album-year', textContent: String(a.year), 'aria-hidden': 'true' }));
+    if (a.thumbnail) label.append(
       el('div', { className: 'shader', 'data-effect': 'crt', 'data-curve': '0.25', 'data-scanlines': '150', 'data-glow': '0.4', 'data-speed': '0', 'aria-hidden': 'true' },
-        el('img', { src: new URL(a.thumbnail, music).href, alt: '', width: 240, height: 320 })),
-      el('strong', { textContent: a.title }),
-      el('small', { textContent: [a.composers[0], a.platform].filter(Boolean).join(' · ') }));
+        el('img', { src: new URL(a.thumbnail, music).href, alt: '', width: 240, height: 320 })));
+    const n = a.editions[0].tracks.length;
+    label.append(el('strong', { textContent: a.title }), el('small', { textContent: a.computer
+      ? `${n} ${n === 1 ? 'recording' : 'recordings'}` : [a.composers[0], a.platform, a.source].filter(Boolean).join(' · ') }));
     // A sleeve chosen in the crates plays the album's first track and brings the player into view.
     label.querySelector('input').onchange = () => {
       showAlbum(a); $('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
       play(a, a.editions[0], 0).catch(error => message(error.message));
     };
     return label;
-  }));
+  }
+  $('open-file').onclick = () => $('file').click();
+  mountCrate({ id: 'albums', albums: games, search: 'game-search', count: 'game-count', sleeve, upload: $('your-midi') });
+  mountCrate({ id: 'computer-albums', albums: computer, search: 'computer-search', count: 'computer-count', sleeve });
+  let visualAlbum, revealTimer;
+  function hideVisual() {
+    clearTimeout(revealTimer);
+    visualAlbum = undefined;
+    $('visual-panel').inert = true;
+  }
   function showAlbum(next) {
+    if (next !== album) hideVisual();
     album = next;
-    $('player-cover').src = new URL(album.thumbnail, music).href;
+    $('player').classList.toggle('local-file', Boolean(album.local));
+    $('cover-art').hidden = !album.thumbnail;
+    if (!album.thumbnail) $('player-cover').removeAttribute('src');
+    else $('player-cover').src = new URL(album.thumbnail, music).href;
+    for (const input of document.querySelectorAll('.crates .album input')) input.checked = input.value === album.id;
+    $('release-type').textContent = album.local ? 'YOUR MIDI' : album.computer ? 'COMPUTER MUSIC' : 'GAME MUSIC';
+    $('library').textContent = album.local ? '1 FILE' : labels[Number(Boolean(album.computer))];
     $('album-title').textContent = album.title;
-    $('album-line').textContent = [album.year, album.composers.join(', '), album.platform].filter(Boolean).join(' · ');
+    $('album-line').textContent = album.local ? album.details : album.computer ? 'The OPL Archive · VGZ recordings' : [album.year, album.composers.join(', '), album.platform, album.source].filter(Boolean).join(' · ');
+    $('previous').disabled = $('next').disabled = Boolean(album.local);
     showBank();
     listTracks();
   }
   /** The engines that play the game banks: libADLMIDI on one OPL3, on one CQM, and the legacy multi-chip engine. */
   const FM = new Set(['sb16-opl3', 'sb16-cqm', 'fm']);
   /** The built-in engines' names; a profile is named by its descriptor. */
-  const ENGINE_NAMES = { 'sb16-opl3': 'Sound Blaster 16 (OPL3)', 'sb16-cqm': 'Sound Blaster 16 (CQM)', soundfont: soundFontEngine };
-  $('engine').querySelector('.toggle[value=soundfont]').textContent = soundFontEngine;
+  const ENGINE_NAMES = { 'sb16-opl3': 'Sound Blaster 16 (OPL3)', 'sb16-cqm': 'Sound Blaster 16 (CQM)', soundfont: pciSoundFontLabel };
   const engineName = (kind, synth) => ENGINE_NAMES[kind] ?? PROFILE_DESCRIPTORS[kind]?.label ?? synth?.info.engine ?? kind;
-  /** The Sound Engine buttons: the engine a kind is (the FM engines are the Sound Blaster 16's chips; every profile is
-   *  a device of the ROMs list), and the panel of its controls. */
-  const engineOf = kind => FM.has(kind) ? 'sb16' : kind === 'soundfont' ? 'soundfont' : 'roms';
-  function showPanel(engine) {
-    for (const button of $('engine').querySelectorAll('.toggle')) button.setAttribute('aria-pressed', String(button.value === engine));
-    for (const panel of ['sb16', 'soundfont', 'roms']) $(`panel-${panel}`).hidden = panel !== engine;
+  const defaultVariant = cards.find(card => card.id === 'sb128').variants[0];
+  let engineKind = defaultVariant.kind;
+  const lastVariant = new Map(cards.map(card => [card.id, card.variants[0]]));
+  const loaded = new Map(), packs = {};
+  function remember(variant, sources) {
+    if (sources?.soundfont) cardFont(sources.soundfont);
+    if (sources?.assets) packs[variant.kind] = sources;
+    loaded.set(variant.kind, variant);
   }
-  /** The engine the controls show (the synthesizer's, or the page's first before audio starts), the Sound Blaster 16's
-   *  chip it played last, and the device of the ROMs list each profile has loaded, by its key. */
-  let engineKind = 'sb16-opl3', chip = 'sb16-opl3';
-  const loadedDevice = {};
-  /** The controls show kind: its engine's button pressed and panel shown, its chip or its device chosen. */
-  function markEngine(kind) {
+  async function start(variant = defaultVariant) {
+    let sources, initialized = false;
+    const synth = await startAudio(async () => {
+      initialized = true;
+      sources = await cardSources(variant, progress, storageWarning);
+      return { engine: variant.kind, soundfont: sources?.soundfont, profileSources: sources?.assets ? { [variant.kind]: sources } : undefined };
+    });
+    if (initialized) remember(variant, sources);
+    return synth;
+  }
+  function markEngine(kind, variant) {
     engineKind = kind;
-    if (kind.startsWith('sb16')) chip = kind;
-    showPanel(engineOf(kind));
-    for (const button of $('engine-modes').querySelectorAll('.toggle')) button.setAttribute('aria-pressed', String(button.value === chip));
-    if (loadedDevice[kind]) $('devices').value = loadedDevice[kind];
-    $('soundfont-info').textContent = soundFontName();
+    const selectedCard = cards.find(card => card.variants.includes(variant));
+    setCardGain(10 ** ((variant?.trimDb ?? 0) / 20));
+    for (const card of cards) {
+      const active = card === selectedCard;
+      if (active) lastVariant.set(card.id, variant);
+      const cover = $(`cover-${card.id}`);
+      cover.setAttribute('aria-pressed', String(active));
+      for (const button of cover.parentElement.querySelectorAll('.toggle')) {
+        button.setAttribute('aria-pressed', String(active && button.value === (variant.file ?? variant.kind)));
+      }
+    }
   }
   /** The bank: on an FM engine a list of the synthesizer's banks (only the album's before audio starts), the playing
    *  bank chosen, with the user's WOPL file when one is loaded; on another engine its SoundFont's or its own name. */
@@ -125,12 +160,15 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     shownSynth = synth;
     const kind = synth?.info.kind ?? engineKind;
     const fm = FM.has(kind), list = $('fm-banks');
+    if (album.computer) {
+      list.hidden = true; $('soundfont-name').hidden = false; $('soundfont-name').textContent = 'Nuked OPL · register playback'; return;
+    }
     list.hidden = !fm; $('soundfont-name').hidden = fm;
     if (!fm) { $('soundfont-name').textContent = kind === 'soundfont' ? soundFontName() : engineName(kind, synth); return; }
-    const info = synth?.info.fm, bank = info?.bank ?? album.fm.bank;
-    const names = info ? info.banks.map((name, i) => [i, name]) : [[album.fm.bank, album.fm.name]];
+    const info = synth?.info.fm, bank = info?.bank ?? album.fm?.bank ?? 0;
+    const names = info ? info.banks.map((name, i) => [i, name]) : album.fm ? [[album.fm.bank, album.fm.name]] : [];
     list.replaceChildren(...(bank < 0 ? [new Option('Your WOPL file', '-1')] : []),
-      ...names.map(([i, name]) => new Option(`${i} · ${name}${i === album.fm.bank ? ` (${album.title})` : ''}`, String(i))));
+      ...names.map(([i, name]) => new Option(`${i} · ${name}${i === album.fm?.bank ? ` (${album.title})` : ''}`, String(i))));
     list.value = String(bank);
   }
   // A bank the user picks holds for the album it was picked on; another album plays with its game's bank.
@@ -140,30 +178,9 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     await synth.setFmBank(Number($('fm-banks').value));
     showBank(synth); await engineChanged(synth.info);
   });
-  /** Switches the synthesizer to engine kind for album a, with a's bank on an FM engine; sources is the user's pack for
-   *  a device of the Sound Engine list. An engine that fails to load leaves the one that played, and the controls show it. */
-  async function useEngine(synth, kind, a, sources) {
-    const name = engineName(kind, synth);
-    message(`Loading ${name}…`);
-    try {
-      await (sources ? synth.useProfile(kind, sources) : synth.useEngine(kind));
-      await gameBank(synth, a);
-    } finally { markEngine(synth.info.kind); showBank(synth); }
-    engineChanged(synth.info);
-    message(FM.has(kind) ? `${name}: ${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices.` : `${name}: ${synth.info.presets.length} presets.`);
-  }
-  // An album plays on its engine from the index (the FM engine unless it names the SoundFont engine); an engine the user
-  // picks, or loads a file into, holds for the album it was picked on, as a picked bank does.
-  let pickedEngine = null;
-  async function albumEngine(synth, a) {
-    if (pickedEngine === a) return;
-    pickedEngine = null;
-    const kind = a.engine ?? 'sb16-opl3';
-    if (synth.info.kind !== kind) await useEngine(synth, kind, a);
-  }
   /** The game's bank for album on the FM engine, unless the user loaded a WOPL file or picked a bank for it. */
   async function gameBank(synth, a) {
-    if (picked === a) return;
+    if (a.local || a.computer || picked === a) return;
     picked = null;
     if (FM.has(synth.info.kind) && synth.info.fm.bank !== -1 && synth.info.fm.bank !== a.fm.bank) { await synth.setFmBank(a.fm.bank); await engineChanged(synth.info); }
   }
@@ -176,7 +193,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
         input,
         el('span', { className: 'mk-playlist-item-index', 'aria-hidden': 'true' }, el('span', { textContent: String(track.number) }),
           el('i', { className: 'mk-playlist-item-bars' }, el('b'), el('b'), el('b'))),
-        el('span', { className: 'mk-playlist-item-text' }, el('strong', { textContent: track.title }), el('small', { textContent: edition.name })),
+        el('span', { className: 'mk-playlist-item-text' }, el('strong', { textContent: track.title }), el('small', { textContent: album.computer ? [track.artist, track.year].filter(Boolean).join(' · ') : edition.name })),
         el('span', { className: 'mk-playlist-item-duration', textContent: clock(track.duration) }),
         download(album, edition, i)));
     }));
@@ -189,29 +206,44 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     button.onclick = act(async () => {
       button.disabled = true;
       try {
-        await start();
-        const data = new Uint8Array(await fetchTrack(track)), name = `${a.title} - ${track.number} ${track.title}`.replace(/[\\/:*?"<>|]+/g, '-');
+        if (!a.computer) await start();
+        const data = new Uint8Array(await fetchTrack(track)), name = (a.local ? track.title : `${a.title} - ${track.number} ${track.title}`).replace(/[\\/:*?"<>|]+/g, '-');
         message(`Rendering ${track.title} as WAV…`);
         // The file plays to its end on the engine and bank shown, at the album's clock, with two seconds for the last notes.
-        const wav = await renderWav(name, sound(a), offline => { const info = offline.loadMidi(data, { tempo: a.tempo ?? 1 }); offline.play(); return info.duration + 2; }, progress);
+        const wav = a.computer ? await opl.render(data, track.title) : await renderWav(name, sound(a), offline => { const info = offline.loadMidi(data, { tempo: a.tempo ?? 1 }); offline.play(); return info.duration + 2; }, progress);
         save(wav, `${name}.wav`);
-        message(`Downloaded ${track.title} as WAV: 48 kHz, stereo, 16-bit.`);
+        message(`Downloaded ${track.title} as WAV.`);
       } finally { button.disabled = false; }
     });
     return button;
   }
-  const fetchTrack = async track => (await fetch(new URL(track.file.split('/').map(encodeURIComponent).join('/'), music))).arrayBuffer();
+  async function fetchTrack(track, signal) {
+    if (track.data) return track.data;
+    const response = await fetch(new URL(track.file.split('/').map(encodeURIComponent).join('/'), music), { signal });
+    if (!response.ok) throw new Error(`${track.title}: HTTP ${response.status}`);
+    return response.arrayBuffer();
+  }
 
   /** Loads a file into the synthesizer and plays it from the start. */
-  async function load(data, title, entry) {
-    const synth = await start();
+  async function load(data, entry) {
+    const { album: release, edition, index } = entry, track = edition.tracks[index];
+    const synth = release.computer ? shownSynth : await start();
+    await switches;
     busy = true;
     try {
-      await synth.stop();
-      if (entry) { await albumEngine(synth, entry.album); await gameBank(synth, entry.album); }
+      opl.close();
+      await synth?.stop();
+      if (!release.computer) await gameBank(synth, release);
       let info;
-      // tempo: the album's clock correction from the index (Raptor's files were converted at twice its clock).
-      try { info = await synth.loadMidi(data, { tempo: entry?.album.tempo ?? 1 }); }
+      try {
+        if (release.computer) {
+          opl.load(data, await startOutput(), Number($('speed').value));
+          info = { duration: track.duration };
+        } else {
+          info = await synth.loadMidi(data, { tempo: release.tempo ?? 1 });
+          await synth.setPlaybackRate(Number($('speed').value));
+        }
+      }
       catch (error) {
         // A rejected file unloads the previous one: the player holds nothing.
         current = null; duration = 0; setPlaying(false);
@@ -220,55 +252,86 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
         for (const input of $('tracks').querySelectorAll('input')) input.checked = false;
         throw error;
       }
-      current = entry ?? { title }; duration = info.duration;
+      current = entry; duration = info.duration;
+      if (release.local) {
+        release.title = track.title = info.title || edition.name;
+        track.duration = duration;
+        const m = info.metadata;
+        release.details = m ? [`MIDI format ${m.format}`, `${m.trackCount} MIDI track${m.trackCount === 1 ? '' : 's'}`,
+          m.initialBpm && `${Number(m.initialBpm.toFixed(1))} BPM`, m.timeSignature, m.copyright, m.text].filter(Boolean).join(' · ') : 'MUS';
+      }
+      if (release.local || album !== release) showAlbum(release);
+      const title = release.local ? track.title : `${track.title} · ${release.title}`;
       $('track-title').textContent = title;
       $('player-audio').setAttribute('aria-label', title);
       $('seek').max = String(Math.max(duration, 0.1)); setRange($('seek'), 0); $('seek').disabled = false;
       $('duration').value = clock(duration);
-      await synth.play(false); setPlaying(true);
+      // Prepare immediate visuals before short uploads start. Game covers have a lead-in while the renderer warms up.
+      const visualReady = showVisual().catch(error => message(error.message));
+      if (!release.thumbnail) await visualReady;
+      await (await transport()).play(false); setPlaying(true);
       showBank(synth);
-      await showVisual(synth);
+      await visualReady;
       visual?.title(title);
     } finally { busy = false; }
   }
   // Each choice of a track counts; a file that arrives after a later choice is left unplayed.
-  let choice = 0;
+  let pending, loading = Promise.resolve();
   async function play(a, e, index) {
-    const ticket = ++choice, track = e.tracks[index];
-    const data = await fetchTrack(track);
-    if (ticket !== choice) return;
-    if (album !== a) showAlbum(a);
-    await load(data, `${track.title} · ${a.title}`, { album: a, edition: e, index });
+    pending?.abort();
+    const request = new AbortController(), track = e.tracks[index];
+    pending = request;
+    try {
+      const [raw] = await Promise.all([fetchTrack(track, request.signal), a.computer ? startOutput() : start()]);
+      const data = a.computer ? await opl.render(raw, track.title, request.signal) : raw;
+      const selected = loading.then(() => {
+        if (!request.signal.aborted) return load(data, { album: a, edition: e, index });
+      });
+      loading = selected.catch(() => {});
+      await selected;
+    } catch (error) {
+      if (!request.signal.aborted) throw error;
+    } finally { if (pending === request) pending = undefined; }
+    if (request.signal.aborted) return;
     const input = $('tracks').querySelector(`input[value="${position(a, e, index)}"]`);
     if (input) { input.checked = true; input.closest('li').scrollIntoView({ block: 'nearest' }); }
-    message(`Playing ${track.title} from ${a.title} (${e.name}).`);
+    message(a.local ? `Playing ${e.name}.` : `Playing ${track.title} from ${a.title} (${e.name}).`);
   }
   function setPlaying(value) {
     playing = value;
     $('toggle').setAttribute('aria-pressed', String(value));
+    $('toggle').setAttribute('aria-label', value ? 'Pause' : 'Play');
     $('player').dataset.playing = String(value);
+    if (!value) { hideVisual(); return; }
+    if (visualAlbum === current.album) return;
+    hideVisual();
+    visualAlbum = current.album;
+    if (visualAlbum.thumbnail) revealTimer = setTimeout(() => { $('visual-panel').inert = false; }, 2500);
+    else $('visual-panel').inert = false;
   }
   async function step(delta) {
+    if (album.local) return;
     if (!current?.album) return play(album, album.editions[0], 0);
     const list = entries(current.album), at = position(current.album, current.edition, current.index) + delta;
     if (at >= 0 && at < list.length) return play(current.album, list[at].edition, list[at].index);
     // Past the album's last track the next album plays.
+    const albums = current.album.computer ? computer : games;
     const next = albums[(albums.indexOf(current.album) + (delta > 0 ? 1 : albums.length - 1)) % albums.length], all = entries(next);
     const to = delta > 0 ? all[0] : all.at(-1);
     return play(next, to.edition, to.index);
   }
   $('toggle').onclick = act(async () => {
     if (!current) return play(album, album.editions[0], 0);
-    const synth = await start();
-    if (playing) { await synth.pause(); setPlaying(false); }
-    else { await synth.play(false); setPlaying(true); }
+    const player = await transport();
+    if (playing) { await player.pause(); setPlaying(false); }
+    else { await player.play(false); setPlaying(true); }
   });
   $('previous').onclick = act(() => step(-1));
   $('next').onclick = act(() => step(1));
   const skip = seconds => act(async () => {
     if (!current) return;
-    const synth = await start(), position = (await status(synth)).position;
-    await synth.seek(Math.min(Math.max(0, position + seconds), duration));
+    const player = await transport(), position = (await player.status()).position;
+    await player.seek(Math.min(Math.max(0, position + seconds), duration));
   });
   $('back').onclick = skip(-10);
   $('forward').onclick = skip(10);
@@ -279,176 +342,70 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   $('seek').addEventListener('pointerup', () => setTimeout(() => { dragging = false; }, 400));
   $('seek').addEventListener('input', () => { dragging = true; setRange($('seek'), $('seek').value); $('time').value = clock(Number($('seek').value)); });
   $('seek').onchange = act(async () => {
-    try { if (current) await (await start()).seek(Number($('seek').value)); } finally { dragging = false; }
+    try { if (current) await (await transport()).seek(Number($('seek').value)); } finally { dragging = false; }
   });
-  $('speed').onchange = act(async () => { await (await start()).setPlaybackRate(Number($('speed').value)); });
+  $('speed').onchange = act(async () => { await (await transport()).setPlaybackRate(Number($('speed').value)); });
   $('volume').oninput = () => { volume = Number($('volume').value); muted = false; $('mute').setAttribute('aria-pressed', 'false'); setVolume(volume); };
   $('mute').onclick = () => { muted = !muted; $('mute').setAttribute('aria-pressed', String(muted)); setVolume(muted ? 0 : volume); };
-  // The Sound Engine section: a button per engine, and its controls below it. The ROMs list holds the devices of the
-  // user's files, dropped once (packs, ECW wavesets, Roland ROMs, an AWE card's local build) and chosen by name;
-  // profile-files.js finds them. The page reads the
-  // files here and sends them nowhere. A device that played is kept in this origin's private file system (OPFS), one per
-  // profile, and listed on a later visit; a browser without OPFS plays the files and keeps none. packs[kind] is what a
-  // WAV download of a profile renders with: the device that plays on it.
-  const packs = {}, devices = new Map(), modules = {};
-  // The device choices, one after another (choose, below), and the newest one not yet played.
-  let queue = Promise.resolve(), latest = null;
-  // roms.json (known ROM revisions) and packs.json (names of known files) load once, when files are first added.
-  let known, catalog;
-  const table = () => {
-    known ??= fetch(new URL('roms.json', import.meta.url)).then(r => { if (!r.ok) throw new Error(`roms.json: HTTP ${r.status}`); return r.json(); });
-    known.catch(() => { known = undefined; });
-    return known;
-  };
-  // On a local server (scripts/serve.mjs) the AWE cards' local builds come with the page, so their packs play as they
-  // are; GitHub Pages has none.
-  const localModules = Promise.all(local.names.filter(name => /^awe(32|64)\.wasm$/.test(name)).map(async name =>
-    [name.replace('.wasm', ''), new Uint8Array(await (await fetch(new URL(name, local.url))).arrayBuffer())]))
-    .then(Object.fromEntries).catch(() => ({}));
-  /** Every AWE pack of the list that has no module gets its card's, where one is known. */
-  function completeModules() {
-    for (const device of devices.values()) if (device.needs && modules[device.kind]) { device.sources.wasm = modules[device.kind]; delete device.needs; }
+  // Serialize engine changes. Only the newest waiting click may change the active card.
+  let switches = Promise.resolve(), requested = 0;
+  function selectCard(card, variant) {
+    const ticket = ++requested;
+    const select = async () => {
+      if (ticket !== requested) return;
+      const kind = variant.kind;
+      $('card-status').textContent = '';
+      const cover = $(`cover-${card.id}`);
+      cover.setAttribute('aria-busy', 'true');
+      try {
+        const synth = await start(variant);
+        if (variant.file && loaded.get(kind) !== variant) {
+          const sources = await cardSources(variant, progress, storageWarning);
+          if (ticket !== requested) return;
+          if (sources.soundfont) await synth.useSoundFont(sources.soundfont);
+          else await synth.useProfile(kind, sources);
+          remember(variant, sources);
+        } else if (synth.info.kind !== kind) await synth.useEngine(kind);
+        markEngine(kind, variant);
+        await gameBank(synth, album);
+        showBank(synth); await engineChanged(synth.info);
+        message(`${engineName(kind, synth)}: ${FM.has(kind) ? `${synth.info.fm.banks[synth.info.fm.bank] ?? 'your bank'}, ${synth.info.maxVoices} voices` : `${synth.info.presets.length} presets`}.`);
+      } catch (error) {
+        if (ticket === requested) { $('card-status').textContent = error.message; message(error.message); }
+      } finally { cover.removeAttribute('aria-busy'); }
+    };
+    switches = switches.then(select, select);
+    return switches;
   }
-  const store = openProfileStore().catch(() => undefined);
-  // kept: the profiles whose files this browser keeps, for the Forget buttons; saved: the device of the list whose
-  // files the store holds, by profile (one per profile).
-  const storedKey = kind => `stored:${kind}`, kept = new Set(), saved = {};
-  /** The ROMs list: the user's devices, the newest release first; the device that plays chosen, else the first. */
-  function showDevices() {
-    const all = [...devices.values()].sort(byYear), list = $('devices');
-    list.replaceChildren(...all.map(d => {
-      const option = new Option(d.needs ? `${d.name} (needs ${d.needs})` : d.name, d.key);
-      option.disabled = Boolean(d.needs);
-      return option;
-    }));
-    if (!all.length) { const empty = new Option('Drop your files to list their devices', ''); empty.disabled = true; list.append(empty); }
-    list.value = (latest && devices.has(latest) ? latest : undefined) ?? loadedDevice[engineKind] ?? all.find(d => !d.needs)?.key ?? '';
-    $('forget-files').hidden = !kept.size;
-    $('forget-device').hidden = !devices.has(list.value);
-  }
-  showDevices(); markEngine(engineKind);
-  store.then(s => s?.profiles()).then(kinds => {
-    for (const kind of kinds ?? []) kept.add(kind);
-    for (const kind of kinds ?? []) if (!devices.has(storedKey(kind))) {
-      devices.set(storedKey(kind), { kind, key: storedKey(kind), stored: true, ...deviceName(deviceTable[kind], 'stored in this browser', PROFILE_DESCRIPTORS[kind].label) });
+  $('sound-cards').replaceChildren(...cards.map(card => {
+    const cover = el('button', { id: `cover-${card.id}`, className: 'card-cover', type: 'button', 'aria-label': `${card.name} (${card.year})` },
+      el('img', { src: card.cover.href, alt: '' }), el('span', { className: 'album-year', textContent: String(card.year) }), el('strong', { textContent: card.name }));
+    cover.onclick = () => selectCard(card, lastVariant.get(card.id));
+    const tile = el('div', { className: 'sound-card' }, cover);
+    if (card.variants.length > 1) {
+      tile.append(el('div', { className: 'toggle-group', role: 'group', 'aria-label': `${card.name} variants`, 'data-variant': 'outline', 'data-size': 'sm' },
+        ...card.variants.map(variant => el('button', { type: 'button', className: 'toggle', value: variant.file ?? variant.kind,
+          textContent: variant.label, onclick: () => selectCard(card, variant) }))));
     }
-    showDevices();
-  }).catch(() => {});
-  localModules.then(found => { Object.assign(modules, found); completeModules(); showDevices(); });
-  async function addFiles(list) {
-    const files = await readFiles(list);
-    catalog ??= fetch(new URL('packs.json', import.meta.url)).then(r => r.ok ? r.json() : {}, () => ({}));
-    const { devices: found, ignored, modules: built } = await devicesIn(files, PROFILE_DESCRIPTORS, table, await catalog, deviceTable);
-    for (const device of found) devices.set(device.key, device);
-    // An AWE card's local build, dropped with its packs or after them, completes every pack of that card.
-    Object.assign(modules, await localModules, built); completeModules();
-    showDevices(); showPanel('roms');
-    message(`${found.length} device${found.length === 1 ? '' : 's'} from ${files.length} file${files.length === 1 ? '' : 's'}${ignored.length ? `; not a device: ${ignored.join(', ')}` : ''}.`);
-  }
-  // The whole section takes dropped files, the list among it; Load pack… opens the file chooser.
-  const section = $('sound-engine');
-  section.ondragover = event => { event.preventDefault(); section.classList.add('dragging'); };
-  section.ondragleave = event => { if (!section.contains(event.relatedTarget)) section.classList.remove('dragging'); };
-  section.ondrop = event => { event.preventDefault(); section.classList.remove('dragging'); act(() => addFiles(event.dataTransfer.files))(); };
-  $('load-pack').onclick = () => $('device-files').click();
-  $('device-files').onchange = act(async () => { const chosen = [...$('device-files').files]; $('device-files').value = ''; if (chosen.length) await addFiles(chosen); });
-  // An engine's button plays it: the Sound Blaster 16 on the chip it played last, the ROMs on the device chosen in
-  // their list (the newest unless one played); with no device, the ROMs button shows the list to drop files on.
-  const playEngine = engine => act(async () => {
-    if (engine === 'roms') { showPanel('roms'); if ($('devices').value) await choose(); return; }
-    const kind = engine === 'sb16' ? chip : 'soundfont';
-    if (engineKind === kind) { showPanel(engine); return; }
-    const synth = await start();
-    pickedEngine = current?.album ?? album;
-    await useEngine(synth, kind, pickedEngine);
-  });
-  for (const button of $('engine').querySelectorAll('.toggle')) button.onclick = playEngine(button.value);
-  for (const button of $('engine-modes').querySelectorAll('.toggle')) button.onclick = act(async () => { chip = button.value; await playEngine('sb16')(); });
-  // A device of the user's plays on its profile: loaded with its files, or loaded again with them when another device
-  // of that profile played (a file plays on). Stored files that do not play are deleted, so they are not offered again.
-  // A click on the chosen device plays it too (the first is chosen without a change). Choices load one after another,
-  // since a profile takes no new sources while it loads, and a choice still waiting gives way to a newer one; the change
-  // and click of one choice count once. latest is the newest choice not yet played, which the list keeps chosen.
-  // Stored files are deleted only when they are gone or their core refuses them, not when the store is busy (another
-  // tab saving them).
-  const choose = () => {
-    const key = $('devices').value;
-    if (key === latest) return queue;
-    latest = key;
-    return (queue = queue.then(() => chooseDevice(key), () => chooseDevice(key)));
-  };
-  async function chooseDevice(key) {
-    if (key !== latest) return;
-    // Played or failed, it is no longer pending: the list shows the device that plays, unless a newer choice waits.
-    try { await playDevice(key); } finally { if (latest === key) { latest = null; showDevices(); } }
-  }
-  async function playDevice(key) {
-    const device = devices.get(key);
-    if (!device || device.needs) return;
-    if (loadedDevice[device.kind] === key && engineKind === device.kind) return;
-    const synth = await start(), s = await store;
-    pickedEngine = current?.album ?? album;
-    let refused = false;
-    try {
-      if (device.stored && !device.sources) {
-        device.sources = await s?.load(device.kind);
-        if (!device.sources) { refused = true; throw new Error('they are no longer stored'); }
-      }
-      refused = true;
-      await useEngine(synth, device.kind, pickedEngine, loadedDevice[device.kind] === key ? undefined : device.sources);
-    } catch (error) {
-      if (device.stored && refused) { await s?.remove(device.kind).catch(() => {}); devices.delete(key); kept.delete(device.kind); }
-      showPanel('roms');
-      throw new Error(device.stored && refused ? `Your stored files for ${engineName(device.kind)} did not play (${error.message}): drop them again` : error.message);
-    }
-    loadedDevice[device.kind] = key; packs[device.kind] = device.sources;
-    if (s && !device.stored) {
-      await s.save(device.kind, device.sources).then(() => {
-        devices.delete(storedKey(device.kind)); kept.add(device.kind); saved[device.kind] = key;
-        message(`${$('message').textContent} This browser keeps your files for later visits.`);
-      }, error => message(`${engineName(device.kind)} plays, but this browser did not keep your files: ${error.message}`));
-    }
-    showDevices();
-  }
-  $('devices').onchange = act(choose);
-  $('devices').onclick = act(choose);
-  // Forget this device takes the chosen device off the list and, where this browser keeps its files (it was stored, or
-  // it is the device of its profile that was saved), deletes them; the device that plays plays on until another is
-  // chosen. The other devices and their stored files stay.
-  $('forget-device').onclick = act(async () => {
-    const key = $('devices').value, device = devices.get(key);
-    if (!device) return;
-    const keptHere = device.stored || saved[device.kind] === key, s = await store;
-    if (keptHere && s) { await s.remove(device.kind); kept.delete(device.kind); delete saved[device.kind]; }
-    devices.delete(key);
-    if (loadedDevice[device.kind] === key) delete loadedDevice[device.kind];
-    showDevices();
-    message(`${device.name} is off the list${keptHere ? ', and this browser no longer keeps its files' : ''}.`);
-  });
-  // Forget asks the store, not this tab's list: another tab of the site may have stored a profile since this one loaded.
-  $('forget-files').onclick = act(async () => {
-    const s = await store;
-    for (const kind of await s?.profiles() ?? []) await s.remove(kind);
-    for (const [key, device] of devices) if (device.stored) devices.delete(key);
-    kept.clear(); for (const kind in saved) delete saved[kind];
-    showDevices(); message('Your files are no longer stored in this browser.');
-  });
+    return tile;
+  }));
+  markEngine(engineKind, defaultVariant);
   showAlbum(album);
 
   // The visualizer: Bergium's Butterchurn pipeline, on by default, rotating through the presets of
   // demo/bergium-presets.json. It loads once audio runs, since it draws from the synthesizer's AudioContext.
   let visual;
   const chosen = () => $('visualizer').querySelector('[aria-pressed="true"]').value;
-  async function showVisual(synth) {
+  async function showVisual() {
     const kind = chosen();
     $('visual-panel').hidden = kind === 'off';
     if (kind !== 'off' && !visual) {
       const { Visualizer } = await import('./visualizer/visualizer.js');
       // Bergium hears the synthesizer before the volume slider, four times as loud, so quiet listening still moves it.
-      const input = new GainNode(synth.context, { gain: VISUAL_GAIN });
-      synth.source.connect(input);
+      const mix = await startOutput(), input = new GainNode(mix.context, { gain: VISUAL_GAIN });
+      mix.connect(input);
       // Four CSS pixels per drawn pixel: the picture is pixelated, as on a DOS screen.
-      visual ??= new Visualizer($('visual'), synth.context, input, name => { $('visual-name').textContent = name; }, 4);
+      visual ??= new Visualizer($('visual'), mix.context, input, name => { $('visual-name').textContent = name; }, 4);
       visual.onFrame = blocks();
     }
     if (visual && visual.pipeline !== (kind === 'off' ? undefined : kind)) await visual.use(kind);
@@ -471,7 +428,7 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
     button.onclick = act(async () => {
       if (button.getAttribute('aria-pressed') === 'true') return;
       for (const other of $('visualizer').querySelectorAll('.toggle')) other.setAttribute('aria-pressed', String(other === button));
-      await showVisual(await start());
+      await showVisual();
       if (current && button.value !== 'off') visual.title($('track-title').textContent);
     });
   }
@@ -481,12 +438,13 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   setInterval(async () => {
     if (!current || busy) return;
     try {
-      const synth = await start(), s = await status(synth);
+      const s = await (await transport()).status();
       if (!dragging) setRange($('seek'), s.position);
       $('time').value = clock(s.position);
-      if (s.ended && playing) {
-        setPlaying(false);
-        if (current.album) await step(1);
+      if (s.ended && playing && !pending) {
+        const { album: release, edition, index } = current;
+        if (edition === release.editions.at(-1) && index === edition.tracks.length - 1) setPlaying(false);
+        else await step(1).catch(error => { setPlaying(false); message(error.message); });
       }
     } catch (error) { message(error.message); }
   }, 250);
@@ -515,18 +473,29 @@ export async function createPlayer({ start, analyser, engineChanged, message, se
   })(0);
 
   return {
+    start,
+    async stop() {
+      pending?.abort();
+      setPlaying(false);
+      await loading;
+      if (current?.album.computer) { opl.pause(); opl.seek(0); }
+      await shownSynth?.stop();
+      setPlaying(false);
+    },
     /** Plays a MIDI, RMI or MUS file of the user's. */
-    playFile: (name, data) => load(data, name, null).then(() => {
-      for (const input of $('tracks').querySelectorAll('input')) input.checked = false;
-    }),
-    /** Audio started (from any control): the bank list fills with the synthesizer's banks, the visualizer can draw. */
-    started(synth) { showBank(synth); return showVisual(synth).catch(error => message(error.message)); },
+    playFile(name, data) {
+      const edition = { name, tracks: [{ number: 1, title: name, data }] };
+      return play({ local: true, editions: [edition] }, edition, 0);
+    },
+    started(synth) { showBank(synth); },
     /** The volume slider follows the page's output gain (0 to 1). */
     volumeChanged(value) { volume = value; muted = false; setRange($('volume'), value); $('mute').setAttribute('aria-pressed', 'false'); },
-    /** The engine buttons follow the synthesizer, after the user loaded a file into it: that engine holds for the album. */
+    /** The engine buttons follow the synthesizer, after the user loads a file into it. */
     engineShown(synth) {
-      pickedEngine = current?.album ?? album;
-      markEngine(synth.info.kind); showBank(synth);
+      const kind = synth.info.kind;
+      if (kind === 'soundfont') loaded.delete(kind);
+      const variant = FM.has(kind) ? cards.find(card => card.id === 'sb16').variants.find(v => v.kind === kind) : loaded.get(kind);
+      markEngine(kind, variant); showBank(synth);
     },
     /** The profileSources the user loaded, by profile: a WAV download renders with the same ones. */
     get packs() { return packs; },

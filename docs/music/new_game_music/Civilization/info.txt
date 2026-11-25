@@ -1,0 +1,43 @@
+Archive created by Mr_KrzYch00.
+You can visit my blog krzyrio.blogspot.com or my site www.gptchat.com .
+
+*** Archive info ***
+Archiver: Mr_KrzYch00
+Type: Game rip
+Format: MID (MT)
+Original Composer: Jeff Briggs
+Sequencer: Jeff Briggs
+Num of tunes: 39
+Complete: 100%
+
+*** Game info ***
+Name: Civilization
+Platform: PC Dos
+Year: 1991
+Genre: Turn-based strategy
+Publisher: MicroProse
+Developer: MPS Labs
+
+*** Additional info ***
+
+Track titles/additional info located here: https://en.wikipedia.org/wiki/Music_in_the_Civilization_video_game_series#Civilization
+
+All MIDI Files contain SysEx information at the beginning for correct playback
+on Roland MT-32 (real device or the emulator).
+
+Ripped using:
+- DOSBox (to run the game),
+- Munt: MT-32 Emulator (to output MIDI files),
+- MFPlay (to include SysEx Data at the beginning of MIDI files).
+
+====================
+Special thanks to:
+====================
+- Sid Meier,
+- MPS Labs,
+  (for the game)
+
+- All the developers of the software used for ripping.
+
+~~~~
+Mr_KrzYch00

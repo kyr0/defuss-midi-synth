@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Koji Kondo, Kenta Nagata
+Sequencer: Various Authors
+Num of tunes: 37
+Complete: 
+
+*** Game info ***
+Name: Pokemon Gold
+Platform: Gameboy
+Year: 2000
+Genre: RPG
+Publisher: Nintendo
+Developer: Game Freak

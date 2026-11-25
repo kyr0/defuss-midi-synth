@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""Writes docs/packs.json, the names the demo page shows for the user's files: every .dspack and .ECW file in
-profile-assets/ (or the directories given), by file name, to {"manufacturer", "year", "model", "sha256"}. The page
-loads it and shows a dropped file found there as "<manufacturer> <model> (<year>)" when the file's bytes have that
-SHA-256, so a default pack that now holds another revision is named by its content instead. It holds file names,
-descriptions and hashes only.
+"""Writes docs/packs.json with model names, release years and SHA-256 checksums for DSPK packs, ECW wavesets
+and the PCI128 SoundFont. The gallery uses the catalog to sort covers and verify bank downloads.
 
 An entry already in docs/packs.json is kept while its file still has its SHA-256, so a name edited by hand stays; a
 changed or new file gets one from its
@@ -62,6 +59,9 @@ def bank_name(pack):
 
 def entry(path):
     name = path.name
+    if name.lower() == 'pci128.sf2':
+        manufacturer, model, year = DEVICES['sb-pci128']
+        return {'manufacturer': manufacturer, 'year': year, 'model': f'{model}, 2GMGSMT SoundFont'}
     if name.upper().endswith('.ECW'):
         data = path.read_bytes()[:0xb0]
         waveset = data[0x60:0xb0].split(b'\0')[0].decode('ascii', 'replace').strip() if data[:4] == b'ECLW' else ''
@@ -95,7 +95,7 @@ def main():
     dirs = [d for d in dirs if str(d) != '--fresh'] or [ROOT / 'profile-assets']
     for directory in dirs:
         for path in sorted(directory.rglob('*')):
-            if not path.is_file() or path.suffix.lower() not in ('.dspack', '.ecw'):
+            if not path.is_file() or (path.suffix.lower() not in ('.dspack', '.ecw') and path.name.lower() != 'pci128.sf2'):
                 continue
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             if catalog.get(path.name, {}).get('sha256') != digest:

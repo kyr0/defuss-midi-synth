@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Daniel Witt, Jeff Daily
+Num of tunes: 4
+Complete: 
+
+*** Game info ***
+Name: Turok 2
+Platform: Nintendo 64
+Year: 1998
+Genre: FPS
+Publisher: Acclaim
+Developer: Iguana

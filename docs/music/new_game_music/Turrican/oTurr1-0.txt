@@ -1,0 +1,25 @@
+<html>Added by: Mike Newman <newman@vgmusic.com>
+Date Added: 2000-07-06
+
+File URL is http://www.vgmusic.com/new-files/oTurr1-0.mid
+
+Uploaded by oedipus@islandia.is (oedipus)
+
+File Type: MIDI
+Game System: Atari Computers
+Game Name: Turrican
+Song Title: Level 2
+Sequenced by: oedipus
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Turrican 1 : World 2
+BY: Chris Huelsbeck
+SEQ: Oedipus (oedipus@islandia.is)
+CPU: ST, Amiga, TG16.

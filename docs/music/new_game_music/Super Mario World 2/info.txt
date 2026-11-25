@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Koji Kondo
+Sequencer: Various Authors
+Num of tunes: 36
+Complete: 
+
+*** Game info ***
+Name: Super Mario World 2
+Platform: SNES
+Year: 1995
+Genre: Jump'n'Run
+Publisher: Nintendo
+Developer: Nintendo

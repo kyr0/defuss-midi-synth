@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 8
+Complete: 
+
+*** Game info ***
+Name: Zorro
+Platform: PC
+Year: 1995
+Genre: Jump'n'Run
+Publisher: Capstone Software
+Developer: Capstone Software

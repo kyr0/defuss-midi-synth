@@ -1,0 +1,28 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKworld1.mid
+Upload Date and Time: 10/18/2001 12:02:29
+
+Uploaded by <syo_axenn@hotmail.com> (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: World-1 Map
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+System: Game Boy
+Title: World-1 Map
+Original Composer: Taisuke Araki
+(c) 1994 Nintendo
+Secuenced by:
+FireMario (15/Oct/2001)
+Dedicated to Facundo Peña Olivera...

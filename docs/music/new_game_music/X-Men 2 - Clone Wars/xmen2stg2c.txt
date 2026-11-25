@@ -1,0 +1,22 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1998-12-23
+
+File URL is http://www.vgmusic.com/new-files/xmen2stg2c.mid
+
+Uploaded by markjansen@uswest.net (Mark Jansen)
+
+Game System: Sega Genesis
+Game Name: X-Men 2: Clone Wars
+Song Title: Stage 2c
+Sequenced by: Mark Jansen <markjansen@uswest.net>
+
+Other Information: This is the stage where you are falling and falling and you have to keep hitting the switches. It's pretty cool with stereo speakers and a wavetable soundcard
+
+Midi TrackName Analysis:
+
+
+Synth Bass
+Synth Bass 2
+Synth Bass2
+Synth Bass 22
+Percussion

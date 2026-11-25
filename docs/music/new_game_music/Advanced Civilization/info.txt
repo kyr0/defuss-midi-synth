@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Knurek
+Type: Game rip
+Format: MID
+Original Composer: Eric Heberling
+Sequencer: Eric Heberling
+Num of tunes: 12
+Complete: 100%
+
+*** Game info ***
+Name: Advanced Civilization
+Platform: PC Dos
+Year: 1995
+Genre: Strategy
+Publisher: Avalon Hill
+Developer: Avalon Hill

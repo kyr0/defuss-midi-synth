@@ -1,0 +1,26 @@
+File URL is http://www.vgmusic.com/new-files/DKworld5.mid
+Upload Date and Time: 10/09/2001 11:43:20
+
+Uploaded by syo_axenn@hotmail.com (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: World-5 Map
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+System: Game Boy
+Title: World-5 Map
+Original Composer: Taisuke Araki
+(c) 1994 Nintendo
+Secuenced by: FireMario (05/Oct/2001)

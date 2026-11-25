@@ -1,0 +1,48 @@
+Archive created by Mr_KrzYch00.
+You can visit my blog krzyrio.blogspot.com or my site www.gptchat.com .
+
+*** Archive info ***
+Archiver: Mr_KrzYch00
+Type: Game rip
+Format: MID (MT)
+Original Composer: David Whittaker, Brian Johnston, Raymond Usher 
+Sequencer: David Whittaker, Brian Johnston, Raymond Usher 
+Num of tunes: 14
+Complete: 100%
+
+*** Game info ***
+Name: Lemmings 2: The Tribes
+Platform: PC Dos
+Year: 1993
+Genre: Puzzle
+Publisher: Psygnosis
+Developer: DMA Design
+
+*** Additional info ***
+
+Every MIDI File contains SysEx information at the beginning
+with samples for correct playback
+on Roland MT-32 (real device or the emulator).
+
+Due to large Sysex blocks every song has a bit delayed
+start to allow all Sysex commands to be properly received
+by the device on the other end of MIDI port.
+
+Ripped using:
+- DOSBox (to run the game),
+- Munt: MT-32 Emulator (to output MIDI files),
+- MFPlay (to re-cut MIDI files and inject Sysex data).
+
+====================
+Special thanks to:
+====================
+- DMA Design,
+  (for the game)
+
+- All the developers of the software used for ripping.
+
+~~~~
+Mr_KrzYch00
+
+Note from Mirsoft: some tunes (like cavelem.mid) were not playable on my Munt.
+Any help playing these files correctly is appreciated :)

@@ -1,0 +1,10 @@
+<html>File URL is http://www.vgmusic.com/nes/dkstage.mid
+
+
+Game System: nes
+Game Name: Donkey Kong
+
+Song Title: Stage Start
+
+Sequenced by: Andrew Meador <mariomaster@hotmail.com>
+

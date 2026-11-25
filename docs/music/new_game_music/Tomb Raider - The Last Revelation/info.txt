@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Rachmon4
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Tomb Raider - The Last Revelation
+Platform: Sony PSX
+Year: 1999
+Genre: Mix
+Publisher: Eidos
+Developer: Core Design

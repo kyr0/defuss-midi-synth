@@ -1,0 +1,30 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/JpRemix[1].mid
+
+Uploaded by yahaga@az.com (Chocobo_Tamer)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon Pinball
+Song Title: Catch 'Em Mode (Rock Remix)
+Sequenced by: Chocobo_Tamer <Yahaga@az.com>
+
+Other Information: This is a rock and roll version of Catch Em' mode in Pokemon Pinball, it's also the intro for japanese Pokemon TV show.
+
+Midi TrackName Analysis:
+
+
+BRASS1
+BRASS2
+BASS
+GUITAR2
+ORGAN1
+VOCAL1
+VOCAL2
+DRUMS
+SE1
+ORGAN2
+PIANO
+GUITAR3

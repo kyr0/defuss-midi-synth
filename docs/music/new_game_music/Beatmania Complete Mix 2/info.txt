@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: DJ TaQ
+Sequencer: SCT
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Beatmania Complete Mix 2
+Platform: Arcade
+Year: 2000
+Genre: Other
+Publisher: Konami
+Developer: Konami

@@ -31,6 +31,7 @@ build_fm() { # output, extra flags...
   em++ -O2 -msimd128 -fno-exceptions tmp/fm-build/*.o --no-entry -sSTANDALONE_WASM=1 -sALLOW_MEMORY_GROWTH=1 \
     -sINITIAL_MEMORY=16777216 -sFILESYSTEM=0 -sEXPORTED_FUNCTIONS="$fm_exports" -o "$out"
 }
+sh scripts/build-vgm.sh
 build_fm vendor/runtime/fm-synth.wasm
 node scripts/check-wasm.mjs
 

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Dune - The Battle for Arrakis
+Platform: Sega Genesis
+Year: 1993
+Genre: Strategy
+Publisher: Virgin
+Developer: 

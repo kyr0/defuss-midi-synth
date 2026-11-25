@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Ken Allen, Brian Luzietti, Larry Peacock, Leslie Spitzer, Jim Torres, Tim Wiles
+Sequencer: Ken Allen, Brian Luzietti, Larry Peacock, Leslie Spitzer, Jim Torres, Tim Wiles
+Num of tunes: 27
+Complete: 100%
+
+*** Game info ***
+Name: Descent
+Platform: PC
+Year: 1995
+Genre: FPS
+Publisher: Interplay
+Developer: Parallax Software

@@ -1,0 +1,31 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Borg No. One, J7N
+Type: Game rip
+Format: MID (Converted from XMI using Awave Studio, fixed the playability)
+Original Composer: Haiko Ruttmann
+Sequencer: Haiko Ruttmann
+Num of tunes: 15
+Complete: 100%
+
+*** Game info ***
+Name: Settlers 2, The
+Platform: PC
+Year: 1996
+Genre: Strategy
+Publisher: Blue Byte
+Developer: Blue Byte
+
+*** Additional info ***
+Comments from J7N:
+The reason why I update the Settlers 2 music is that I saw it converted by Winamp's plugin from XMID. I've used this function many times and for some reason it doesn't write proper note-offs (along with other inaudible deffects). Notes remain on and turn music unlistenable. This effect wasn't strong on S2 but still present.
+
+
+- Where the songs seemed designed for looping
+  a small repeat with fadeout was added.
+- Ctrl 123 added at the end to allow
+  reverberated sound decay completely.
+- Converted files to MIDI format 1 and
+  cleaned up of repeated controllers.

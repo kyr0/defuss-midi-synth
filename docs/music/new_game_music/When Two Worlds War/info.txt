@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID (MT, GM, FM)
+Original Composer: 
+Sequencer: 
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: When Two Worlds War
+Platform: PC
+Year: 1993
+Genre: Strategy
+Publisher: Impressions
+Developer: Edward Grabowski Communications

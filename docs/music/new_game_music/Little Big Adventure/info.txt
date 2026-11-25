@@ -1,0 +1,21 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Converted
+Format: MID (GM)
+Original Composer: Philippe Vachey, P. Sigwalt
+Sequencer:
+Num of tunes: 54
+Complete: 100%
+
+*** Game info ***
+Name: Little Big Adventure
+Platform: PC
+Year: 1994
+Genre: Adventure
+Publisher: Electronic Arts
+Developer: Adeline Software International
+
+*** Additional info ***

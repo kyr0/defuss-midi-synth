@@ -1,0 +1,27 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/gscave.mid
+
+Uploaded by mattc73@hotmail.com (Mattc73)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon Gold
+Song Title: Cave
+Sequenced by: Pixie
+Other Information: This is the new cave music from G&S. It's really good IHMO.it gives that dark and spooky effect.
+
+Midi TrackName Analysis:
+
+%00
+%00
+%00
+%00
+%00
+%00
+%00
+%00
+%00
+%00
+%00

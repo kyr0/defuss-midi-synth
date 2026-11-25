@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Alfh Lyra
+Sequencer: Tsu Ryu
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Street Fighter Zero
+Platform: Arcade, Sony PSX
+Year: 19??
+Genre: Beat'em up
+Publisher: Capcom
+Developer: Capcom

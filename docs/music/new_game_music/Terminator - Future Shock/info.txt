@@ -1,0 +1,29 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID (FM, GM: Converted from XMI, CD: Converted from HMI + Recorded)
+Original Composer: Andy Warr
+Sequencer: Andy Warr
+Num of tunes: 37
+Complete: 100%
+
+*** Game info ***
+Name: Terminator: Future Shock
+Platform: PC
+Year: 1995
+Genre: FPS
+Publisher: Bethesda Softworks
+Developer: Bethesda Softworks
+
+*** Additional info ***
+The FM* and GM* tracks have been found at the original floppy version and were converted from XMI format using
+XMI2MID tool.
+
+The CD* tracks were the enhanced tunes found at CD version of the game released later. These were converted 
+from HMI format using Winamp, except track CDINTRO.MID, which was recorded from the sound setup tool (WinAmp
+crashed on original HMI file :) ).
+
+File FMT03.MID was removed because it was the same as GMT03.MID

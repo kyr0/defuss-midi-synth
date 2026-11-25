@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Jeff & Kevin Daily
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Bomberman
+Platform: NES
+Year: 1989
+Genre: Classic
+Publisher: Hudson Soft
+Developer: Hudson Soft

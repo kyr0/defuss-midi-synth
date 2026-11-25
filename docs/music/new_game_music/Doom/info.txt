@@ -1,0 +1,35 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Jeremy Blackman, Joakim Erdfelt, Gerwin, crumby2
+Type: Game rip
+Format: MID
+Original Composer: Robert Prince
+Sequencer: Robert Prince
+Num of tunes: 23
+Complete: 100%
+
+*** Game info ***
+Name: Doom
+Platform: PC
+Year: 1993
+Genre: FPS
+Publisher: ID Software
+Developer: ID Software
+
+*** Additional info ***
+Here is the music from the game DOOM in General MIDI format. Enjoy.
+Remember that all this music is the property of Id Software.  Do not use in
+your own demos/games without their permission.  This is merely for your
+personal listening pleasure.
+Extracted/Converted by Jeremy Blackman [ranma@eskimo.com]
+Conversion Routines by Joakim Erdfelt  [joakim.erdfelt@swbbs.com]
+[with some small help on MIDI format from Jeremy Blackman]
+
+
+GB 5-2002: All identical/duplicate songs have removed,
+
+Info from crumby2:
+I have renamed every track (with the official titles) and put them in 
+order of appearance. I think it is prettier like this..

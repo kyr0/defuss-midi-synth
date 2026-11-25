@@ -1,0 +1,27 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/Song6.mid
+
+Uploaded by pauldoom@microtech.com.au (Paul Corfiatis)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Super Mario Bros. 3
+Song Title: Field (2)
+Sequenced by: Paul Corfiatis <pauldoom@microtech.com.au>
+
+Other Information: Written from scratch by Paul Corfiatis using his brain, Original song (C) 1989 Nintendo. You need a wavetable Soundcard for best results.  -Paul
+(This is amazing.  The glockenspiel or something doesn't sound right on my card (although I know it does on other people's), but the way this was set sounds great.  It even has some effects (time running out / death).  -Peach)
+
+Midi TrackName Analysis:
+
+
+
+
+
+
+
+
+
+

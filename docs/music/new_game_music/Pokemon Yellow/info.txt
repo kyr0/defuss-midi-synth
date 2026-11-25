@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: nick brightbill, Pixie, Dylan Robley
+Num of tunes: 5
+Complete: 
+
+*** Game info ***
+Name: Pokemon Yellow
+Platform: Gameboy
+Year: 1999
+Genre: RPG
+Publisher: Nintendo
+Developer: Nintendo

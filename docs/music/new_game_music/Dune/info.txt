@@ -1,0 +1,43 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: C. Lialiambis, Obrigado
+Type: Converted
+Format: MID (GS, MT?GM)
+Original Composer: Stephane Picq, Remi Herbulot, Philippe Ulrich
+Sequencer: Stephane Picq, Remi Herbulot, Philippe Ulrich, C. Lialiambis
+Num of tunes: 10
+Complete: 100%
+
+*** Game info ***
+Name: Dune
+Platform: PC
+Year: 1992
+Genre: Adventure
+Publisher: Virgin
+Developer: Cryo
+
+*** Additional info ***
+Folder GM-MT contains the tunes archived by Obrigado from his Dune Midi page,
+http://www.terravista.pt/Nazare/4347/midis/midis.html . However, I'm not sure if
+the tunes are originated for Roland MT32 or General Midi. I know original game
+tunes were for MT32 only, but for me the tunes seemed to sound right also on GM.
+However, if you'll have any more info, let me know.
+
+Folder GS contains Dune Soundtrack in one big midi file captured by Stp 
+(C. Lialiambis) with Roland Sound Brush. Original Midi in MT-32 Rearranged for 
+GS by Stp (C. Lialiambis)
+
+Tracklist:
+
+Dune Theme
+Chani's Eyes
+Free Men
+Wake Up
+Sign on the Worm
+Spice
+* * *
+Too
+Water
+Dune (reprise)

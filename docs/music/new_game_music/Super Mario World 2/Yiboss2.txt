@@ -1,0 +1,37 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-08-16
+
+File URL is http://www.vgmusic.com/new-files/Yiboss2.mid
+
+Uploaded by alluro95@hotmail.com (Alluro95)
+Originating IP Address: 63.207.143.46
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario World 2: Yoshi's Island
+Song Title: Big Boss (Long Intro)
+Sequenced by: Alluro95 <alluro95@hotmail.com>
+Song Originally Composed by: Koji Kondo
+
+Other Information: 
+This is the end-of-world boss theme with the long intro, played in the Giant Piranha Plant and Raven boss battles.
+
+
+Midi TrackName Analysis:
+
+
+Organ 2
+Ostinato            
+Bass                
+Low Saw Wave            
+Drums               
+Hi-Hats             
+Crashes
+Big Boss Theme (Super Mario World 2)
+(c) 1995 Nintendo
+Original Composer: Koji Kondo
+MIDI version by: Alluro95
+URL:http://alluro95.tripod.com
+E-mail: alluro95@hotmail.com
+Date: April 27, 2001
+Original Filename: YIBOSS2.MID

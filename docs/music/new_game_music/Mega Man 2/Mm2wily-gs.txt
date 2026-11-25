@@ -1,0 +1,31 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/Mm2wily-gs.mid
+
+Uploaded by nzero_x@yahoo.com (nZero)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Dr. Wily Stage 1 (Remix) (2) (GS Version)
+Sequenced by: Dave Choe (Resequenced by nZero) <nzero_x@yahoo.com>
+
+Other Information: Again, please replace the version currently in the archive that I did with this one, it's been very much improved since the initial release  ^_^It's also named correctly this time, hee hee
+
+Midi TrackName Analysis:
+
+
+Bottom
+Percussion
+Countermelody
+Square Lead -> Sine Wave
+Square Lead -> Square Wave
+Saw Lead -> Doctor Solo
+Saw Lead -> Saw Wave
+Synth Brass 1 -> Synth Brass 3
+Original Sequence - Dave Choe
+Modified by nZero & others...
+Roland GS Version 2!
+Can't be a hypocrite... 
+X-Bass Channel  ;)

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Dan Finkelstein, Ashura Demon
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Jurassic Park 2 - The Lost World
+Platform: Gameboy, Sega Genesis
+Year: 1998
+Genre: Action
+Publisher: THQ
+Developer: Torus Games

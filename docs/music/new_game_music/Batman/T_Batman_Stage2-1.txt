@@ -1,0 +1,38 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-09-20
+
+File URL is http://www.vgmusic.com/new-files/T_Batman_Stage2-1.mid
+Upload Date and Time: 08/28/2001 15:05:02
+
+Uploaded by Kane_Blueriver@Linainverse.com (Tsu Ryu)
+Originating IP Address: 66.108.16.197
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Batman
+Song Title: Stage 2: Axis Chemical Factory
+Sequenced by: Tsu Ryu <Kane_Blueriver@Linainverse.com>
+Song Originally Composed by: Nobuyuki-kun and Kodaka-san
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+tk1 - Breath Tenor
+tk2 - Tenor Echoed I
+tk3 - Feedback Guitar
+tk4 - Finger Dark
+tk5 - Tenor Echoed II
+tk10 - Room Drum Kit
+"Outgunned"
+[ Stage 2 - 1 Theme ]
+Batman 
+Famicom/Nintendo System
+Originally Composed by Nobuyuki-Kun and Kodaka-San, Sunsoft 1989
+Sequenced to MIDI by Tsu Ryu - Kibegami
+Email, tsu_ryu@sailormoon.com
+TheJupiterFan@Chibiusa.org
+Kane_Blueriver@Linainverse.com

@@ -1,0 +1,38 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-08-16
+
+File URL is http://www.vgmusic.com/new-files/Transmo.mid
+Upload Date and Time: 06/04/2001 18:57:19
+
+Uploaded by monkeymadness@worldofmi.com (Mr.Monkey)
+Originating IP Address: 24.4.159.105
+
+File Type: MIDI
+Game System: Sony Playstation 2
+Game Name: Ecsape From Monkey Island
+Song Title: The Transmogrification School For Pirates
+Sequenced by: Peter Silk <monkeymadness@worldofmi.com>
+Song Originally Composed by: Michael Land
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+%00
+Track 2%00
+Track 3%00
+Track 4%00
+Track 5%00
+Track 6%00
+Track 7%00
+Track 8%00
+Track 9%00
+Track 10%00
+Track 11%00
+Track 12%00
+Track 13%00
+Track 14%00
+Track 15%00
+Track 16%00

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Rob Hubbard
+Sequencer: Geir Tjelta, Chris Abbott
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Spellbound
+Platform: C64
+Year: 1986
+Genre: Adventure
+Publisher: Mastertronic
+Developer: MAD

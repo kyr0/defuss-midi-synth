@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Akira Yamaoka
+Sequencer: Seth Brown, Daniel Wright, Nicholas Rees
+Num of tunes: 5
+Complete: 
+
+*** Game info ***
+Name: Silent Hill 2
+Platform: PC
+Year: 2003
+Genre: RPG
+Publisher: Konami
+Developer: Konami

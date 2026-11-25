@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Masami Ueda
+Sequencer: SCT, Nicholas Rees, Solar Daemon
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Resident Evil 3 - Nemesis
+Platform: Sony PSX
+Year: 1999
+Genre: Mix
+Publisher: Capcom
+Developer: Capcom
+
+*** Additional info ***
+In Japan is this game known under name "Biohazard 3"

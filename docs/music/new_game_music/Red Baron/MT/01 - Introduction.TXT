@@ -1,0 +1,48 @@
+
+                         SIERRA ON-LINE, INC.
+            3-D Animated Adventure Game Soundtrack Series
+         ====================================================
+                             RED BARON          
+
+
+                          "INTRODUCTION"                 
+                           Cayanie Music
+         ====================================================
+                     Copyright (c)1990 Dynamix, Inc.         
+         ====================================================
+
+
+
+System Requirements:
+
+- MIDI File player
+- System Exclusive patch bank utility (i.e. MidiEx)
+- Roland MT-32, CM-32L, CM-64, or LAPC-1
+- MPU-401 compatible MIDI interface
+   (Not required for LAPC-1 users.)
+
+
+This Standard MIDI File was recorded directly from Dynamix's "Red Baron"
+simulation game.  In order to obtain the proper sounds during playback,
+you must first transmit the included BARON.SYX SysEx patch bank file to the
+MT-32.  Use any SysEx utility (MidiEx, Cakewalk, Quick Send, etc.) to
+transmit the patch bank to the MT-32 prior to playback of the song file.
+
+
+Converted to Standard MIDI File format by Tom Lewandowski.
+Address E-Mail questions or comments to:
+
+      tom+di@netnet.net
+
+
+      Visit us on the Internet!
+
+      QUEST STUDIOS
+      http://bayland.net/~tom+di/
+
+      THE ROLAND MT-32 SOUND MODULE RESOURCE CENTER
+      http://bayland.net/~tom+di/quest/roland.html
+
+
+
+

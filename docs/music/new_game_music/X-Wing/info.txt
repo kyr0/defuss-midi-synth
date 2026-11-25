@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: John Williams, Clint Bajakian, Michael Land, Peter McConnell
+Sequencer: Clint Bajakian, Michael Land, Peter McConnell
+Num of tunes: 36
+Complete: 100%
+
+*** Game info ***
+Name: X-Wing
+Platform: PC
+Year: 1992
+Genre: Simulator
+Publisher: LucasArts
+Developer: LucasArts

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 18
+Complete: 100%
+
+*** Game info ***
+Name: Realms of Chaos
+Platform: PC Dos
+Year: 1995
+Genre: Jump'n'Run
+Publisher: Apogee
+Developer: Apogee

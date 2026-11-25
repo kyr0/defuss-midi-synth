@@ -1,0 +1,41 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: EdMan6623, crumby2
+Type: Game rip
+Format: MID (GM, MT)
+Original Composer: Frank Klepacki
+Sequencer: Frank Klepacki
+Num of tunes: 69
+Complete: 100%
+
+*** Game info ***
+Name: Dune 2
+Platform: PC
+Year: 1992
+Genre: RTS
+Publisher: Virgin
+Developer: Westwood
+
+*** Additional info ***
+This archive includes both the GM and MT versions (34 songs each) completely
+re-ripped by myself and the additional tune from the previous archive, all 
+songs are named.
+
+The tunes were converted from 'C55' files, which were actually XMI files with 
+subsongs.  The old archive wasn't very accurate; the tempo was way off
+(too fast and erratic) and the instruments didn't change on cue.  I used Awave 
+Studio to turn them into midi files, and guarantee 100% accuracy.
+
+I had considered including the XMIs, but figured it wasn't necessary.
+
+If you have any questions or soundtrack requests, send me an E-mail through
+my profile.
+
+Info from crumby2:
+
+The file MT/init/Dune_init.mid is the init file (sysex data) required for 
+the MT32 soundtrack of Dune 2. It must be played once before playing the 
+various midi files or they won't sound correct.
+Found this on a forum. credits for this init file : ShaiWa

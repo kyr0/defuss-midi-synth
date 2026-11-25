@@ -1,0 +1,25 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/Dk1ice.mid
+
+Uploaded by conker_64@yahoo.com.au (Conker_64)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Donkey Kong Country
+Song Title: Ice Cave Chant
+Sequenced by: Conker_64 <conker_64@yahoo.com.au>
+Song Originally Composed by: D. Wise
+Other Information: 
+
+Midi TrackName Analysis:
+
+%00
+Bell melody%00
+Synth strings%00
+Bass guitar%00
+Harp melody%00
+Synth strings 2%00
+Merged%00
+Track 8%00

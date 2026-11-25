@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Remix
+Format: MID
+Original Composer: Nobou Uematsu
+Sequencer: Stuart Brigham, Michael Huang, JackRabbit
+Num of tunes: 11
+Complete: 
+
+*** Game info ***
+Name: Final Fantasy (Series Crossover)
+Platform:
+Year: 1986-2001
+Genre: RPG
+Publisher: Square
+Developer: Square
+
+*** Additional info ***
+Here are remixes of themes repeated in all FF games 
+(Chocobos and Preludes) and medleys from more FF games.

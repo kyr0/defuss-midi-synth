@@ -16,8 +16,8 @@ const MAX_PROFILE_WASM_BYTES = 64 * 1024 * 1024;
 export function moduleKey(kind: EngineKind): string {
   return kind === 'fm' || kind === 'sb16-opl3' ? FM_WASM_ASSET : kind === 'soundfont' ? WASM_ASSET : `assets/profiles/${kind}.wasm`;
 }
-async function bytes(source: ProfileSource, base: URL, limit: number, timeout?: number, progress?: ProgressListener): Promise<ArrayBuffer> {
-  const data = source instanceof ArrayBuffer ? new Uint8Array(source) : source instanceof Uint8Array ? source : await readBytes(new URL(source, base), timeout, progress);
+async function bytes(source: ProfileSource, base: URL, limit: number, timeout?: number, progress?: ProgressListener, read = readBytes): Promise<ArrayBuffer> {
+  const data = source instanceof ArrayBuffer ? new Uint8Array(source) : source instanceof Uint8Array ? source : await read(new URL(source, base), timeout, progress);
   if (!data.length || data.length > limit) throw new RangeError(`its length must be 1 to ${limit} bytes, not ${data.length}`);
   // A copy of exactly these bytes: Node's Buffer.slice is a view, so slice().buffer can be a whole pooled ArrayBuffer.
   const copy = new Uint8Array(data.length);
@@ -39,14 +39,14 @@ function unavailable(kind: NativeProfile, what: 'module' | 'asset pack', error: 
  *  or whose module is a local build fails without a request when profileSources lacks it. Any failure is an Error
  *  naming the profile and the file. VERIFIED: scripts/e2e.mjs, which fails on any failed request or HTTP error,
  *  asks for roland-mt32 without a pack and gets the error naming it; tests/profiles.test.ts checks what it needs. */
-export async function nativePart(kind: NativeProfile, base: URL, sources: ProfileSourceMap | undefined, compile: boolean, timeout?: number, progress?: ProgressListener, withWasm = true): Promise<NativePart> {
+export async function nativePart(kind: NativeProfile, base: URL, sources: ProfileSourceMap | undefined, compile: boolean, timeout?: number, progress?: ProgressListener, withWasm = true, readWasm = readBytes): Promise<NativePart> {
   const override = sources?.[kind], d = PROFILE_DESCRIPTORS[kind];
   const stem = `assets/profiles/${kind}`, key = moduleKey(kind);
   const none = (what: string) => Promise.reject(new Error(`no ${what} was given, and the package has none`));
   const wasmSource = override?.wasm ?? (d.availability === 'local-build-required' ? undefined : `${stem}.wasm`);
   // Both settle before either reports, so a missing module, the more basic gap, names the error whichever ends first.
   const [module, pack] = await Promise.allSettled([
-    withWasm ? wasmSource === undefined ? none('local build') : bytes(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress) : undefined,
+    withWasm ? wasmSource === undefined ? none('local build') : bytes(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress, readWasm) : undefined,
     override?.assets ? bytes(override.assets, base, MAX_PROFILE_ASSET_BYTES, timeout, progress) : d.userAssets === 'required' ? none('pack of your files') : new ArrayBuffer(0),
   ]);
   if (module.status === 'rejected') throw unavailable(kind, 'module', module.reason);

@@ -1,0 +1,33 @@
+File URL is http://www.vgmusic.com/new-files/Resident_Evil_Code_Veronica_-_Battle_Game_(Player_Select)_v2.0.mid
+Upload Date and Time: 07/21/2001 11:20:33
+
+Uploaded by aimster@echoes.net (Shawn Tonkin)
+Originating IP Address: 208.197.134.254
+
+File Type: MIDI
+Game System: Sega Dreamcast
+Game Name: Resident Evil: Code Veronica
+Song Title: Battle Game (Player Select) V2.0
+Sequenced by: Shawn Tonkin
+Other Information: 
+1) Timing/Percussion fixed. 
+2) Wingroove compadibility available
+3) Changed some instruments
+4) Rewrote
+
+
+Midi TrackName Analysis:
+
+
+Tremolo Strings
+Strings 
+Electric Bass (fingered)
+Orchertral Timpani
+Fretless Bass
+Trombone
+Roland Orchestra Kit
+Sequenced by:
+Shawn Tonkin
+rune@antionline.org/aimster@echoes.net
+Resident Evil: Code Veronica
+Battle Game

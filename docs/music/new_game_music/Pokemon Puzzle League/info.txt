@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Nathaniel Lind, Stacy Anne Christiansen, Andrew Taylor
+Num of tunes: 4
+Complete: 
+
+*** Game info ***
+Name: Pokemon Puzzle League
+Platform: Nintendo 64
+Year: 2000
+Genre: Logical
+Publisher: Nintendo
+Developer: Nintendo

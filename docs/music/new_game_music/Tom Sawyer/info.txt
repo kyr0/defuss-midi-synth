@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Nobuo Uematsu
+Sequencer: Joshua Rosen "Ragnarosen", Timothy Peters
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Tom Sawyer
+Platform: NES
+Year: 1989
+Genre: RPG
+Publisher: Square
+Developer: 

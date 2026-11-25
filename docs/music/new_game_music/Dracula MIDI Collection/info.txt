@@ -1,0 +1,47 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Hally
+Type: Soundtrack
+Format: MID (GM)
+Original Composer: 
+Sequencer: 
+Num of tunes: 21
+Complete: 100%
+
+*** Game info ***
+Name: Dracula MIDI Collection
+Platform: Audio CD
+Year: 1997
+Genre: Action
+Publisher: Konami
+Catalogue Nr: KICA-7809
+
+*** Additional info *** 
+This should be 100% MIDI files of the soundtrack named "Dracula MIDI Collection". 
+Thanks to Hally for help with english translations of track-names. There are some tracks that are not on CD as
+soundtrack, and some tracks are named a bit different as on soundtrack. 
+
+Soundtrack Tracklist:
+01-Vampire Killer
+02-Stalker
+03-Wicked Child
+04-Walking on the Edge
+05-Heart of Fire
+06-Out of Time
+07-Nothing to Lose
+08-The Silence of Daylight
+09-Battle of the Holy
+10-Theme of Simon
+11-Blood Relations
+12-Vampire Killer
+13-Out of Time
+14-The Silence of Daylight
+15-Bloodlines
+16-Wandering Ghosts
+17-Rainbow Cemetery
+18-Lost Painting
+19-Stage 1
+20-Beginning
+21-Data Track

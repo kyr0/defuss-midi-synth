@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Alpha23
+Type: Game rip
+Format: MID (Converted from XMI using WinAmp)
+Original Composer: Kevin Manthei, Ralph Thomas, Steven Methy
+Sequencer: Kevin Manthei, Ralph Thomas, Steven Methy
+Num of tunes: 1
+Complete: 100% Mids
+
+*** Game info ***
+Name: Panzer General 2
+Platform: PC Windows
+Year: 1997
+Genre: Strategy
+Publisher: Mindscape
+Developer: SSI
+
+*** Additional info ***
+This is the only Midi tune that plays during the setup. The rest
+of tunes are in Digital Audio.

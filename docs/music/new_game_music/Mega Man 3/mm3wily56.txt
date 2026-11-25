@@ -1,0 +1,30 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/mm3wily3.mid
+
+Uploaded by JansenM@home.com (Mark Jansen)
+Originating IP Address: 24.14.231.10
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Skull Castle Stages 5 & 6
+Sequenced by: Mark Jansen <JansenM@home.com>
+Song Originally Composed by: Bunbun
+
+Other Information: 
+Manko o tabetai
+[I added my own MIDI!] -Mark
+
+
+Midi TrackName Analysis:
+
+
+Channel 1b
+Channel 2
+Channel 2b
+Bass
+Percussion
+Sequenced by
+Mark Jansen

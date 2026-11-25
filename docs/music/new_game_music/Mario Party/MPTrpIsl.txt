@@ -1,0 +1,46 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-04-18
+
+File URL is http://www.vgmusic.com/new-files/MPTrpIsl.mid
+
+Uploaded by toadstool@csnsys.com (Princess Peach Toadstool)
+
+File Type: MIDI
+Game System: Nintendo 64
+Game Name: Mario Party
+Song Title: Yoshi's "Tropical Island"
+Sequenced by: Princess Peach Toadstool <toadstool@csnsys.com>
+Song Originally Composed by: Yasunori Mitsuda
+
+Other Information: 
+
+Dear N64 Fans:
+
+    After a lot of effort, I've finally managed to
+release my next Mario Party MIDI: Yoshi's "Tropical
+Island".  As most of my other MIDIs, I strongly recommend
+a Wavetable Synth, or else you may have some missing
+instruments.  Speaking of which, some instruments were
+hard to do, especially the drums, and may not be exactly
+perfect, due to MIDI limitations, but I tried my best.
+This is relatively for Sound Blaster (32, 64, or Live!).
+I don't recommend using Yamaha SoftSynth for this,
+because some drum samples aren't correct with that synth.
+Anyway, feel free to send any comments or suggestions.
+
+Enjoy!
+
+               Yours truly - -
+                              Princess Toadstool (Peach)
+
+Midi TrackName Analysis:
+
+
+Trumpet
+Alto Saxophone
+Steel Drums
+Acoustic Bass
+Grand Piano
+Percussion Organ
+Drums
+Mario Party - Yoshi's "Tropical Island" by Peach (toadstool@csnsys.com)

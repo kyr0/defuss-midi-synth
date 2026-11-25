@@ -1,0 +1,16 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-01-22
+
+File URL is http://www.vgmusic.com/new-files/Mm2wilystg1.mid
+
+Uploaded by nzero_x@hotmail.com (nZero)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Dr. Wily Stage 1 (3)
+
+Other Information: I fixed the hung notes that sounded good on some cards and annoyed others.  I also reduced the drum volume since they seemed slightly strong to me.  Oh, and I hope this is the right file   ;<`
+
+Original sequencer is still unknown... resequenced by 2 others between me and him.
+

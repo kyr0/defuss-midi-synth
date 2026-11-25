@@ -1,0 +1,22 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/pmforest.mid
+
+Uploaded by MarkJansen@uswest.net (Mark Jansen)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Veridian Forest
+Sequenced by: Mark Jansen <MarkJansen@uswest.net>
+Other Information: The parts where it might sound a little off is the way it is in the actual song. I mean Pokemon doesn't exactly have the best music.. totally limited by GB. Well.. I didn't really have a whole lot to use to do this.. But it's the game not me. Blame the game... 
+
+Midi TrackName Analysis:
+
+
+Channel 1
+Channel 2
+Channel 3a
+Channel 3b
+Percussion

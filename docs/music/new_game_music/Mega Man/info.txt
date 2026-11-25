@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Chanchacorin Manami
+Sequencer: Various Authors
+Num of tunes: 70
+Complete: 
+
+*** Game info ***
+Name: Mega Man
+Platform: NES, Gameboy
+Year: 1987
+Genre: Action
+Publisher: Capcom
+Developer: Capcom

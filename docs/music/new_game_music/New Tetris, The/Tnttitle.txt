@@ -1,0 +1,30 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-04-30
+
+File URL is http://www.vgmusic.com/new-files/Tnttitle.mid
+
+Uploaded by vgmusic@pineight.8m.com (Damian Yerrick)
+
+File Type: MIDI
+Game System: Nintendo 64
+Game Name: The New Tetris
+Song Title: Title
+Sequenced by: Damian Yerrick <vgmusic@pineight.8m.com>
+Song Originally Composed by: Neil Voss
+
+Other Information: 
+You _really_ should have symlinks.  This can
+also be counted as a "remix" of Game Boy Tetris
+music A.
+
+
+Midi TrackName Analysis:
+
+
+strings
+clarinet
+guitar (echo)
+bass2
+bass
+drums
+more drums

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID
+Original Composer: Teri Mason, Nathan Wang
+Sequencer: Teri Mason, Nathan Wang
+Num of tunes: 195
+Complete: 
+
+*** Game info ***
+Name: Return to Zork
+Platform: PC
+Year: 1993
+Genre: Adventure
+Publisher: Activision, Inc.
+Developer: Infocom

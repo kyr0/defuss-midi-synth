@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged, Remix
+Format: MID
+Original Composer: 
+Sequencer: DoctorJ, Jarel Jones, Dave Phaneuf, Cuddly Battleship Kattywampus, Kitsune Keitsuken
+Num of tunes: 6
+Complete: 
+
+*** Game info ***
+Name: Super Bomberman
+Platform: SNES
+Year: 1993
+Genre: Classic
+Publisher: Hudson
+Developer: Hudson

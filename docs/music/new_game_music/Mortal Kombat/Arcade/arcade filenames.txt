@@ -1,0 +1,13 @@
+Arcade
+--------------------------------------------
+Mortal Kombat-
+>Courtyard
+>Palace Gates
+>The Pit
+>Throne Room
+>Demo Mode
+>Character Select
+>Press Start To Continue
+>Fatality
+>Gameover
+

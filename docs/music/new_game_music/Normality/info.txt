@@ -1,0 +1,22 @@
+Archive created for -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Sakura Matsumoto
+Type: Converted
+Format: MID (GS [GM], MT32)
+Original Composer: Chris Adams, Neil Biggin and Patrick Phelan
+Sequencer: Chris Adams, Neil Biggin and Patrick Phelan
+Num of tunes: 11
+Complete: 100%
+
+*** Game info ***
+Name: Normality
+Platform: PC
+Year: 1996
+Genre: Adventure
+Publisher: Interplay
+Developer: Gremlin Interactive
+
+*** Additional info ***
+Includes SysEx-format patch bank for use on MT-32-compatible devices; if you want to play this on an MT-32, you *must* transfer the file "normal.syx" before each time you listen to a song from this game!

@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Alpha23
+Type: Game rip
+Format: MID (GM, XG)
+Original Composer: David Rippy, Stephan Rippy
+Sequencer: David Rippy, Stephan Rippy
+Num of tunes: 13
+Complete: 100%
+
+*** Game info ***
+Name: Age of Empires: The Rise Of Rome
+Platform: PC
+Year: 1998
+Genre: RTS
+Publisher: Microsoft
+Developer: Ensemble Studios
+
+*** Additional info ***
+Playing time: 0:31:51

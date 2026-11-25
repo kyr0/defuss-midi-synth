@@ -1,0 +1,16 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-06-27
+
+File URL is http://www.vgmusic.com/new-files/megapass.mid
+
+Uploaded by asteroid11@earthlink.net (KingTT)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Mega Man
+Song Title: Password Screen
+Other Information: 
+(The song doesn't start until 35 seconds into the MIDI.  The reason for this is that the sequencer set tempo to under 20 and the song starts on the 4th beat or so of the first measure.  I tried fixing this, but the song is very compressed.  Very odd.  I hope the sequencer fixes this.  -Peach)
+
+Midi TrackName Analysis:
+

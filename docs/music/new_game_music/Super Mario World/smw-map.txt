@@ -1,0 +1,20 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-04-18
+
+File URL is http://www.vgmusic.com/new-files/smw-map.mid
+
+Uploaded by none@n (MR2)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario World
+Song Title: Map
+Sequenced by: MR2
+Other Information:          -----------         -Thanx to:-         -----------SnEmulModPlug TrackerXm2MIDVoyetra MIDI Orchestrator
+
+Midi TrackName Analysis:
+
+
+SqWave
+Bass
+High Hat

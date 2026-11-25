@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Mark Jansen
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: X-Men 2 - Clone Wars
+Platform: Sega Genesis
+Year: 1995
+Genre: Beat'em up
+Publisher: Sega
+Developer: Sega

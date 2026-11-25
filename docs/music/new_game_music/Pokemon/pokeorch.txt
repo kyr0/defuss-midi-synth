@@ -1,0 +1,17 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-06-27
+
+File URL is http://www.vgmusic.com/new-files/pokeorch.mid
+
+Uploaded by pteryx@ime.net (Pteryx)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Battle a Rival Trainer (Orchestrated)
+Sequenced by: Eji / Modifications by Pteryx
+Other Information: Well, let's hope Powerlord's advice that I just upload this midi despite not being able to contact the sequencer of the midi I worked from (gbbattle.mid by Eji).  Anyway, this is a midi of the boss battle music from Pokemon enhanced so it's a full orchestra mix.  Several people have confirmed that it still sounds like battle music, so at least I'm following *that* rule...  Anyway, I hope that this midi at least pleases a few of the new-files mavens out there.  -Pteryx
+(I've given credit to both sequencers.  Currently, the CGI script can't accept two e-mail addresses for the "Sequenced by" field, so I'll leave it as-is.  Any problems, let me know.  -Peach)
+
+Midi TrackName Analysis:
+

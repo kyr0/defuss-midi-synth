@@ -1,0 +1,21 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Game rip
+Format: MID (GM)
+Original Composer: Sue Kasper
+Sequencer:
+Num of tunes: 8
+Complete: 100%
+
+*** Game info ***
+Name: SimFarm: SimCity's Country Cousin
+Platform: PC
+Year: 1993
+Genre: Simulator
+Publisher: Maxis, Mindscape
+Developer: Maxis, Leaping Lizard Software
+
+*** Additional info ***

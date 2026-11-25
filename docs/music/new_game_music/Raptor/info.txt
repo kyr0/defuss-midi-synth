@@ -1,0 +1,25 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Furutsun
+Type: Game rip
+Format: MID
+Original Composer: Paul Radek
+Sequencer: Paul Radek
+Num of tunes: 16
+Complete:
+
+*** Game info ***
+Name: Raptor
+Platform: PC
+Year: 1994
+Genre: Shooter
+Publisher: Apogee
+Developer: Mountain King Studios
+
+*** Additional info ***
+Thanks to Furutsun who provided this additional info about the 'Night Mission.mid' tune":
+
+The tune is from chapters 2 and 3 of the game, but is not played in chapter 1, therefore anyone with the shareware version of the game would not know the track.
+The track itself is only played during the dark night missions, of which there is one in chapter 2 and one in chapter 3. it replaces one level song from the songs that are played in chapter 1 and repeated in chapters 2 and 3, I'm not sure which level the song is from though, level 5 or 6 maybe of chapeters 2 or 3, although I would suggest the track name to be named to "Night Mission" or something like that, even better if someone knew what level its from in chapters 2 and 3.

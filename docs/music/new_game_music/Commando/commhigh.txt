@@ -1,0 +1,5 @@
+<html>Game System: Commodore 64
+Game Name: Commando
+Song Title: High-Score
+Sequenced by: Chris <chris@c64audio.com>
+Song Originally Composed by: Rob Hubbard

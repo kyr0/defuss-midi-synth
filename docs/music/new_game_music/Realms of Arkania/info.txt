@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID (MT32)
+Original Composer: Rudolf Stember
+Sequencer: Rusolf Stember
+Num of tunes: 13
+Complete: 100%
+
+*** Game info ***
+Name: Realms of Arkania
+Platform: PC
+Year: 1992
+Genre: RPG
+Publisher: Fantasy Productions
+Developer: Attic

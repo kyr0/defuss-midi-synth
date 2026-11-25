@@ -1,0 +1,10 @@
+<html>File URL is http://www.vgmusic.com/snes/harvest.mid
+
+
+Game System: snes
+Game Name: Harvest Moon
+
+Song Title: Spring Theme
+
+Sequenced by: Nick Jacobi <cobes@bigfoot.com>
+

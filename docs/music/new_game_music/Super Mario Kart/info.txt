@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Soyo Oka, Taro Bando
+Sequencer: Various Authors
+Num of tunes: 33
+Complete: 
+
+*** Game info ***
+Name: Super Mario Kart
+Platform: SNES
+Year: 1992
+Genre: Cars
+Publisher: Nintendo
+Developer: Nintendo

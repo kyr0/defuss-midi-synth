@@ -1,0 +1,21 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: pelya
+Type: Soundtrack
+Format: MID
+Original Composer: Nobuo Uematsu
+Sequencer: Various Authors
+Num of tunes: 90
+Complete: 100%
+
+*** Game info ***
+Name: Final Fantasy 9
+Platform: PlayStation
+Genre: RPG
+Publisher: SquareSoft
+Developer: SquareSoft
+
+*** Additional info ***
+Ripped from http://www.ffshrine.org

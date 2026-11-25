@@ -23,6 +23,8 @@ export interface OfflineOptions extends EngineOptions {
   queueCapacity?: number;
   /** SoundFont 2 bytes or URL; defaults to the bundled TimGM6mb.sf2. */
   soundfont?: SoundFontSource;
+  /** Optional reader for engine WASM URLs, for instance from an application cache. */
+  readWasm?(url: URL, timeoutMs?: number, onProgress?: ProgressListener): Promise<Uint8Array>;
   /** Hears each download and decompression of the files this synthesizer loads. */
   onProgress?: ProgressListener;
 }
@@ -35,13 +37,13 @@ const MAX_WAV_FRAMES = Math.floor((0xffffffff - 36) / 4);
  *  share fm-synth.wasm), the SoundFont and a profile's pack with each engine. */
 class EngineLoader {
   private readonly modules = new Map<string, Promise<WebAssembly.Module>>();
-  constructor(readonly settings: Required<EngineOptions>, readonly base: URL, readonly soundfont?: SoundFontSource, readonly onProgress?: ProgressListener, public sources?: ProfileSourceMap) {}
+  constructor(readonly settings: Required<EngineOptions>, readonly base: URL, readonly soundfont?: SoundFontSource, readonly onProgress?: ProgressListener, public sources?: ProfileSourceMap, private readonly readWasm = readBytes) {}
   /** The compiled module of a built-in engine; a failed read or compile is tried again next time. */
   private module(kind: 'soundfont' | 'fm' | 'sb16-opl3'): Promise<WebAssembly.Module> {
     const key = moduleKey(kind);
     let module = this.modules.get(key);
     if (!module) {
-      module = readBytes(new URL(key, this.base), undefined, this.onProgress).then(bytes => WebAssembly.compile(bytes as Uint8Array<ArrayBuffer>));
+      module = this.readWasm(new URL(key, this.base), undefined, this.onProgress).then(bytes => WebAssembly.compile(bytes as Uint8Array<ArrayBuffer>));
       this.modules.set(key, module);
       module.catch(() => this.modules.delete(key));
     }
@@ -52,7 +54,7 @@ class EngineLoader {
   async voices(kind: EngineKind, fmBank = (): number => this.settings.fmBank): Promise<Voices> {
     const { settings } = this;
     if (isNativeProfile(kind)) {
-      const part = await nativePart(kind, this.base, this.sources, true, undefined, this.onProgress);
+      const part = await nativePart(kind, this.base, this.sources, true, undefined, this.onProgress, true, this.readWasm);
       return new NativeProfileVoices(kind, instantiateProfile(part.module!), new Uint8Array(part.assets), settings.sampleRate, fmBank());
     }
     if (kind === 'fm' || kind === 'sb16-opl3') {
@@ -77,7 +79,7 @@ export class OfflineSynth {
     const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile) });
     const capacity = integer(options.queueCapacity ?? 8192, 1, 1048576, 'queueCapacity');
     const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-    const loader = new EngineLoader(settings, base, options.soundfont, options.onProgress, options.profileSources);
+    const loader = new EngineLoader(settings, base, options.soundfont, options.onProgress, options.profileSources, options.readWasm);
     return new OfflineSynth(new Engine(await loader.voices(settings.engine), settings), capacity, loader);
   }
   get info(): SynthInfo { return this.engine.info(); }

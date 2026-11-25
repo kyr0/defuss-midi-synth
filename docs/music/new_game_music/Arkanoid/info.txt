@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Martin Galway
+Sequencer: Oedipus, ???
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Arkanoid
+Platform: C64
+Year: 1987
+Genre: Classic
+Publisher: Imagine
+Developer: Taito

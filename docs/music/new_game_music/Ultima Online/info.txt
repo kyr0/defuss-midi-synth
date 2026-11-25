@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID (8MB, 4MB, 512K)
+Original Composer: Joe Basquez, Kirk Winterrowd
+Sequencer: Joe Basquez, Kirk Winterrowd
+Num of tunes: 138
+Complete: 100%
+
+*** Game info ***
+Name: Ultima Online
+Platform: PC
+Year: 1997
+Genre: RPG
+Publisher: Electronic Arts
+Developer: Origin

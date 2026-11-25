@@ -1,0 +1,43 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/(Ind_Inc).mid
+
+Uploaded by sct34@hotmail.com (Brandon Lee Ritter)
+Originating IP Address: 166.90.21.48
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Donkey Kong Country
+Song Title: Fear Factory (3)
+Sequenced by: S.C.T. <sct34@hotmail.com>
+Song Originally Composed by: 
+
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+"Donkey says" Give the guy that did that other midi the finger.
+
+Rewritten by S.C.T.
+
+Best played back on sblive driver with GM sndfont
+
+Fretless Bass
+Acoustic Bass 
+Lead 1 Square ---- (w/alt patch later)
+Rhodes Piano ---- (w/alt patch later)
+Alt Chorus Patches Left
+Alt Chorus Patches Center
+Alt Chorus Patches Right
+Alt Melody Patches
+Atl Melody Patches Reverb
+drums
+Bright Acoustic Piano
+Glitch Sound
+Track 13
+Track 14
+Track 15
+Track 16

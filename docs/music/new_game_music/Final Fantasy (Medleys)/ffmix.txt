@@ -1,0 +1,27 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-27
+
+File URL is http://www.vgmusic.com/new-files/ffmix.mid
+
+Uploaded by Lightbunny@aol.com (Lightbunny)
+Originating IP Address: 172.128.128.4
+
+File Type: MIDI
+Game System: Medley
+Game Name: Final Fantasy Series
+Song Title: "FF Mix" Medley
+Song Originally Composed by: mostly Nobuo Uematsu
+
+Other Information: 
+I'm really not sure who sequenced this MIDI.  I got about 2 years ago with an old software bundle.  It's about 15 minutes long, and consists of just about every song from Final Fantasy, with bits of other Square RPGs.  Enjoy!
+
+
+Midi TrackName Analysis:
+
+%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00
+Lead Strings
+Slap Bass
+Kit 66
+Timpani
+Perc. Organ
+Rhodes

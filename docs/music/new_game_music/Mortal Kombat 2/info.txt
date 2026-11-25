@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Danny ##23997
+Type: Game rip
+Format: MID
+Original Composer: Matt Furniss, S. Hollingworth, Dan Forden
+Sequencer: Tony Thai, Matze, Mark Jansen, Zero Beats
+Num of tunes: 19
+Complete:
+
+*** Game info ***
+Name: Mortal Kombat 2
+Platform: Arcade, SNES, PC
+Year: 1993
+Genre: Beat'em up
+Publisher: Acclaim
+Developer: Midway

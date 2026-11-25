@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Remix
+Format: MID
+Original Composer: Chris Huelsbeck
+Sequencer: Chuck Dodgers, Oedipus, 
+Num of tunes: 19
+Complete: 
+
+*** Game info ***
+Name: Turrican 2
+Platform: Amiga
+Year: 1991
+Genre: Action
+Publisher: Rainbow Arts
+Developer: Factor 5

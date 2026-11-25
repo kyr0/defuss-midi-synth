@@ -1,0 +1,47 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-08-15
+
+File URL is http://www.vgmusic.com/new-files/Dkcjungle.mid
+
+Uploaded by alluro95@hotmail.com (Alluro95)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Donkey Kong Country
+Song Title: DK Island Swing (Jungle Hijinx)
+Sequenced by: Alluro95 <alluro95@hotmail.com>
+Song Originally Composed by: David Wise
+
+Other Information: Fixed some volume inconsistencies, especially the piano and bass parts.After going back and listening to the MIDI file again, I found out that the volume levels were a bit detrimental.First MIDI file I ever sequenced that uses all 16 MIDI channels!Took a total of 12 hours over three days to sequence this sucker.[NOTE to site updater: Please change the filename of this MIDI file to "Dkcjungl.mid", as stated in the tracknames.] -Alluro95
+(I've always loved this tune.  If you like this, then you like cool jazz / gypsy jazz...  -Peach)
+
+Midi TrackName Analysis:
+
+
+Synth Brass
+Saxophone
+Trombones
+Clarinet            
+High Strings        
+Low Strings         
+Marimba
+Marimba Echo
+Melodic Tom
+Drums               
+Hi-Hats             
+Bongos              
+Woodblock/Claves
+Piano
+Piano Echo  
+Piccolo             
+Piccolo Echo        
+Celesta             
+Celesta Echo        
+Jungle Hijinx (Donkey Kong Country)
+(c) 1994 Nintendo/RAREWare
+Original composer: David Wise
+MIDI version by: Alluro95
+E-mail: alluro95@hotmail.com
+URL: http://members.tripod.com/alluro95
+Date Finished: Fri, July 30, 1999
+Original Filename: DKCJUNGL.MID

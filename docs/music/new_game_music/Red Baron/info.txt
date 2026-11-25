@@ -1,0 +1,27 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Quest Studios - www.QuestStudios.com
+Type: Game rip
+Format: MID (MT, GM)
+Original Composer: Christopher Stevens, Cayanie Music
+Sequencer: Christopher Stevens, Cayanie Music, Tom Lewandowski
+Num of tunes: 1
+Complete:
+
+*** Game info ***
+Name: Red Baron
+Platform: PC Dos
+Year: 1991
+Genre: Simulation
+Publisher: Sierra
+Developer: Dynamix
+
+*** Additional Info ***
+MT - Original tunes recorded directly from the game
+GM - General Midi versions converted from the Roland MT-32 versions
+for playback on General MIDI sound cards
+
+Recorded/Converted to Standard MIDI File format by Tom Lewandowski
+(Quest Studios, www.QuestStudios.com)

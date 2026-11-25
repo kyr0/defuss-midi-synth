@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged, Remix
+Format: MID
+Original Composer: Bjorn Lynne
+Sequencer: Ryan Bury
+Num of tunes: 4
+Complete: 
+
+*** Game info ***
+Name: Worms
+Platform: Sega Genesis, Sony PSX
+Year: 1995
+Genre: Classic
+Publisher: Ocean
+Developer: Team 17

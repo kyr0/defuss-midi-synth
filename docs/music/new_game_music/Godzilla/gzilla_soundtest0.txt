@@ -1,0 +1,20 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-03-06
+
+File URL is http://www.vgmusic.com/new-files/gzilla_soundtest0.mid
+
+Uploaded by meezo@lcc.net (Meezo)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Godzilla
+Song Title: Sound Test 00
+Sequenced by: Meezo <meezo@lcc.net>
+Other Information: This, as well as the other 6 sound test midis, midi is in the sound test but nowhere to be found in the game!  I tried to find out where these were in the game, but I couldn't find them used anywhere but the Sound Test.  Perhaps they were hidden??
+
+Midi TrackName Analysis:
+
+
+Godzilla
+-Soundtest 00
+meezo@lcc.net

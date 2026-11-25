@@ -1,0 +1,26 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-06-11
+
+File URL is http://www.vgmusic.com/new-files/sf2VS.mid
+
+Uploaded by anthony.bouchereau@caramail.com (anthony bouchereau)
+Originating IP Address: 193.252.24.118
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Street Fighter 2
+Song Title: VS Screen
+Sequenced by: Anthony Bouchereau <anthony.bouchereau@caramail.com>
+Other Information: 
+ 
+
+
+Midi TrackName Analysis:
+
+
+trp
+trp oct
+trp echo
+basse
+basse echo
+anthony.bouchereau@caramail.com

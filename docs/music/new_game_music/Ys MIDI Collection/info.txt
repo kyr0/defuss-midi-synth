@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Soundtrack
+Format: MID (GM, PC88, SC88)
+Original Composer: Nihon Falcom
+Sequencer: H. Matsuoka?
+Num of tunes: 26
+Complete: 95%
+
+*** Game info ***
+Name: Ys MIDI Collection
+Platform: Audio CD
+Year: 1996
+Genre: RPG
+Publisher: Nihon Falcom
+Catalogue Nr: NF02003
+
+*** Additional info ***
+There is complete CD soundtrack from GM and PC88, only las two files (SC88 versions) are missing.
+Tracknames are named and numbered as they are on the CD (track 01 is data track).

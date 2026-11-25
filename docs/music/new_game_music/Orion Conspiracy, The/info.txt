@@ -1,0 +1,21 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Game rip
+Format: MID (GM)
+Original Composer: Ian McCue
+Sequencer:
+Num of tunes: 8
+Complete: 100%
+
+*** Game info ***
+Name: The Orion Conspiracy
+Platform: PC
+Year: 1995
+Genre: Adventure
+Publisher: Domark
+Developer: Divide By Zero
+
+*** Additional info ***

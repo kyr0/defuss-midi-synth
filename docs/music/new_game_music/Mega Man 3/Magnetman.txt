@@ -1,0 +1,13 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+File URL is http://www.vgmusic.com/new-files/Magnetman.zip
+Uploaded by saikyoryu@netzero.net (Marc Concepcion)
+Originating IP Address: 128.6.30.34
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Magnet Man's Stage (Drums up! remix)
+Sequenced by: Marc Concepcion <saikyoryu@netzero.net>
+Other Information: 
+This song was composed using a SBAWE64 sound card.
+All special effects can only be heard on a Wavetable Synthesis sound card.

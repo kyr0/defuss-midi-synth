@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Hideki Okugawa
+Sequencer: Tsu Ryu, Erik Menjivar
+Num of tunes: 6
+Complete: 
+
+*** Game info ***
+Name: Street Fighter 3 - 3rd Strike
+Platform: Arcade
+Year: 19??
+Genre: Beat'em up
+Publisher: Capcom
+Developer: Capcom

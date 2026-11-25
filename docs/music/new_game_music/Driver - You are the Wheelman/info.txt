@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Chris Francis
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Driver - You are the Wheelman
+Platform: Sony PSX
+Year: 1999
+Genre: Cars
+Publisher: GT Interactive
+Developer: Reflections

@@ -1,5 +1,5 @@
-import { E as EngineOptions, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, c as SynthInfo, d as ProfileSources, T as TimedEvent, e as SynthEvent, f as EngineKind, B as BankSource, M as MidiLoadOptions, g as PlaybackInfo, R as RenderStats } from './profile-store-D88E0Koc.js';
-export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, i as Preset, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileStorage, m as ProfileStorageFile, n as ProfileStore, o as ProfileUserAssets, p as SYNTH_PROFILES, q as StoredProfileSources, r as createProfileStore, s as openProfileStore } from './profile-store-D88E0Koc.js';
+import { E as EngineOptions, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, c as SynthInfo, d as ProfileSources, T as TimedEvent, e as SynthEvent, f as EngineKind, B as BankSource, M as MidiLoadOptions, g as PlaybackInfo, R as RenderStats } from './profile-store-8LHTX7sj.js';
+export { F as FmInfo, L as LoadProgress, h as MidiMetadata, i as PROFILE_DESCRIPTORS, j as Preset, k as ProfileAvailability, l as ProfileDescriptor, m as ProfileStorage, n as ProfileStorageFile, o as ProfileStore, p as ProfileUserAssets, q as SYNTH_PROFILES, r as StoredProfileSources, s as createProfileStore, t as openProfileStore } from './profile-store-8LHTX7sj.js';
 
 interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
     profile?: SynthProfile;
@@ -9,6 +9,8 @@ interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
     baseUrl?: string | URL;
     /** SoundFont 2 bytes or URL (relative to baseUrl) for the soundfont engine; defaults to the bundled TimGM6mb.sf2. */
     soundfont?: SoundFontSource;
+    /** Optional reader for engine WASM URLs, for instance from an application cache. */
+    readWasm?(url: URL, timeoutMs?: number, onProgress?: ProgressListener): Promise<Uint8Array>;
     /** Hears each download and decompression of the files this synthesizer loads: modules, SoundFonts, banks. */
     onProgress?: ProgressListener;
     /** Connect to context.destination automatically; disable for custom graphs. */
@@ -65,7 +67,8 @@ declare class MidiSynth {
     useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo>;
     /** Loads kind again on its profileSources, in place of the loaded engine; the worklet keeps the compiled module
      *  unless a new one comes (withWasm), so a new pack costs no new fetch or compile of its core. The previous sources
-     *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses. */
+     *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses.
+     *  useSoundFont also uses this path to install the first SF2 directly or replace one during playback. */
     private reload;
     private fail;
     private request;
@@ -91,6 +94,8 @@ declare class MidiSynth {
      *  and, while the SoundFont engine plays, stops file playback; a rejected SoundFont keeps the loaded one. Without
      *  the SoundFont engine it rejects before downloading. */
     loadSoundFont(source: SoundFontSource): Promise<SynthInfo>;
+    /** Opens a SoundFont and selects it in one operation. A playing MIDI keeps its position across the change. */
+    useSoundFont(source: SoundFontSource): Promise<SynthInfo>;
     /** Makes kind's engine play, fetching and compiling it first when needed, and resolves with the new info. A loaded
      *  file keeps its position and plays on; scheduled events are cleared. */
     useEngine(kind: EngineKind): Promise<SynthInfo>;

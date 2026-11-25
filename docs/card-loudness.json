@@ -1,0 +1,13 @@
+{
+  "baseTrimDb": {
+    "sb128_EAPCI2M.ECW": 9,
+    "pci128.sf2": 3.0,
+    "sb128_EAPCI4M.ECW": 10.5,
+    "sb128_EAPCI8M.ECW": 10.5,
+    "sb16-opl3": 0.8,
+    "sb16-cqm": 8.1,
+    "awe64--emu8000-gm-rom-synthgs.dspack": 6,
+    "awe32--emu8000-gm-rom-synthgs.dspack": 6,
+    "gus-gf1-1024k.dspack": 6.8
+  }
+}

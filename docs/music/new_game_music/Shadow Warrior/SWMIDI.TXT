@@ -1,0 +1,14 @@
+SHADOW WARRIOR - MIDI FILES
+===========================
+
+The following MIDI files were written for the Shareware release of Shadow
+Warrior by Lee Jackson, Music and Sound Director for 3D Realms Entertainment.
+
+FILENAME        TITLE
+--------        -----
+OKINOWWA.MID    Okinoww!a (Shadow Warrior Theme Song)
+EVRYOFF.MID     Everybody OFF!!!
+254MM.MID       254 mm.
+MORSE.MID       Morse Kodo
+A10TION.MID     Attention
+

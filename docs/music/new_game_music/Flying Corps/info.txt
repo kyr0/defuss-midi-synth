@@ -1,0 +1,19 @@
+
+
+
+*** Archive info ***
+Archiver: mirwais57
+Type: Converted
+Format: MID (Converted from XMI using Winamp)
+Original Composer: Paul Robotham
+Sequencer: Paul Robotham
+Num of tunes: 28
+Complete: 100%
+
+*** Game info ***
+Name: Flying Corps
+Platform: PC
+Year: 1996
+Genre: Simulator
+Publisher: Empire Interactive Entertainment
+Developer: Rowan Software Ltd.

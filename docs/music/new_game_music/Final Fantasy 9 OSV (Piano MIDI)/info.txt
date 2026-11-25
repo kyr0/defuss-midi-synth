@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Soundtrack
+Format: MID
+Original Composer: Nobuo Uematsu
+Sequencer: 
+Num of tunes: 17
+Complete: 15%
+
+*** Game info ***
+Name: Final Fantasy 9 OSV (Piano MIDI)
+Platform: Audio CD
+Year: 2000
+Genre: RPG
+Publisher: Squaresoft
+Developer: Squaresoft

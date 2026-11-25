@@ -1,0 +1,38 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-07-18
+
+File URL is http://www.vgmusic.com/new-files/sf2LasVegas.mid
+Upload Date and Time: 06/30/2001 18:19:56
+
+Uploaded by Xeladun@hotmail.com (Ben M.W.)
+Originating IP Address: 65.96.89.106
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Street Fighter 2
+Song Title: Balrog (3)
+Sequenced by: Ben M.W. <Xeladun@hotmail.com>
+Song Originally Composed by: Capcom
+
+Other Information: 
+best with "Fluid2" or "Reality" soundfonts.
+ 
+
+
+Midi TrackName Analysis:
+
+
+Pick Bass
+EPiano2
+Trumpet
+NylonGtr
+PickBass
+PickBass
+ObeSax
+Std Drum
+Std Drum
+Ben M.W. 
+XelAdun@hotmail.com
+StreetFighter2Turbo by:Capcom
+SF tested with: Fluid
+: Reality, Ultimate.

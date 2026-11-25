@@ -1,0 +1,35 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-08-16
+
+File URL is http://www.vgmusic.com/new-files/turrican2_final_challenge.mid
+
+Uploaded by c-dodgers@geocities.com (Chuck Dodgers)
+Originating IP Address: 193.229.72.75
+
+File Type: MIDI
+Game System: Commodore Amiga
+Game Name: Turrican 2
+Song Title: Level 5-1
+Sequenced by: Chuck Dodgers <c-dodgers@geocities.com>
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Effect1
+Effect2
+Bright
+Calliope
+SynthBass
+ElecBass
+SawChords
+Drums
+Turrican II
+Level 5-1: Final Challenge
+Orig. by Chris Huelsbeck
+Seq. by Chuck Dodgers
+c-dodgers@geocities.com

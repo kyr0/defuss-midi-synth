@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Setzer-, UncleJohn04, John Engelmann, Corlen Belspar
+Num of tunes: 10
+Complete: 
+
+*** Game info ***
+Name: Sim City
+Platform: SNES, NES
+Year: 1991
+Genre: Strategy
+Publisher: Nintendo
+Developer: Maxis

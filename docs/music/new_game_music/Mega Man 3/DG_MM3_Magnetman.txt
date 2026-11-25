@@ -1,0 +1,42 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-23
+
+File URL is http://www.vgmusic.com/new-files/DG_MM3_Magnetman.mid
+
+Uploaded by dan.g@debitel.net (Daniel Genz)
+Originating IP Address: 62.54.138.196
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Magnet Man's Stage (5)
+Sequenced by: Daniel Genz <dan.g@debitel.net>
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+"Magnet Man's Theme"
+Sequenced,
+arranged and
+mixed by
+Daniel Genz
+dan.g@debitel.net
+String Pad 3
+Harmony
+Harmony 2
+Harmony 3
+Rhythm Piano
+Sawtooth
+Bassline
+Kick
+Snare 1
+Snare 2
+Claps
+Hi Hat 1
+Hi Hat 2
+Tambourine
+Crash
+Toms
+Synth Toms

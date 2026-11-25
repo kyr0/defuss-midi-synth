@@ -1,0 +1,25 @@
+<html>Added by: Mike Newman <newman@vgmusic.com>
+Date Added: 2000-07-08
+
+File URL is http://www.vgmusic.com/new-files/oTurr3-0.mid
+
+Uploaded by oedipus@islandia.is (oedipus)
+
+File Type: MIDI
+Game System: Commodore Amiga
+Game Name: Turrican 3
+Song Title: Level 4
+Sequenced by: oedipus
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Turrican 3: ingame3
+BY: Chris Huelsbeck
+SEQ: Oedipus (oedipus@islandia.is)
+CPU: Amiga, SNES?, Genesis..

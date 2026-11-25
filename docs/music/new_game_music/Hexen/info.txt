@@ -1,0 +1,41 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID (Converted from MUS using Winamp)
+Original Composer: Kevin Schilder
+Sequencer: Kevin Schilder
+Num of tunes: 37
+Complete: 100%
+
+*** Game info ***
+Name: Hexen
+Platform: PC
+Year: 1995
+Genre: FPS
+Publisher: ID Software
+Developer: Raven Software
+
+*** Additional info ***
+Game had also CD-Audio tracks near Midi music. However, there was only 12 
+CD-Audio tracks, comparing to all 37 tunes in Midi form. 
+
+Musically are the CD-audio tracks the same as 12 of Midi tracks, only recorded
+with exact, proper and better instruments. Here are the CD audio tracks and
+their equivalent tunes in Midi:
+
+CD Track 01: Data Track
+CD Track 02: 01 - Hexen.mid
+CD Track 03: 02 - Hexen.mid
+CD Track 04: 03 - Hexen.mid
+CD Track 05: 04 - Hexen.mid
+CD Track 06: 05 - Hexen.mid
+CD Track 07: 06 - Hexen.mid
+CD Track 08: 08 - Hexen.mid
+CD Track 09: 14 - Hexen.mid
+CD Track 10: 17 - Hexen.mid
+CD Track 11: 23 - Hexen.mid
+CD Track 12: 27 - Hexen.mid
+CD Track 13: 29 - Hexen.mid

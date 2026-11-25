@@ -1,0 +1,25 @@
+File URL is http://www.vgmusic.com/new-files/mm3-int(editedbyicbh_devious.mid
+Upload Date and Time: 07/12/2001 12:13:47
+
+Uploaded by icbhcommand@hotmail.com (ICBH_Devious)
+Originating IP Address: 205.188.193.188
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Intro
+Sequenced by: Tom Kim (edited by ICBH_Devious)
+Other Information: 
+I made his song sound more like video game music, if somebody wants it that way. I credited the original sequencer, and if somebody knows who wrote it originally email me at icbhcommand@hotmail.com i give much credit to the person who wrote this version and the person who wrote the original. 
+
+
+Midi TrackName Analysis:
+
+
+melody1 - echo
+melody2
+melody2 - echo
+melody2- echo2
+bass1
+bass2
+drums

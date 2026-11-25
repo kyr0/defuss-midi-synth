@@ -1,0 +1,28 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-12-18
+
+File URL is http://www.vgmusic.com/new-files/xkylem.mid
+
+Uploaded by xkylyr@cts.com (Xky Rauh)
+
+File Type: MIDI
+Game System: Medley - Nintendo
+Game Name: Lemmings
+Song Title: Medley (v1.0)
+Sequenced by: Xky Rauh <xkylyr@cts.com>
+Other Information: WOOHOO!!! Clocking in at just under 12:00, this is a must-have for any true Lemmings Fan!! :-D  -Xky Ruah
+(* Okay, this medley is being held in here just like The Accursed Seal until a medley section is put up.  -Peach)
+
+Midi TrackName Analysis:
+
+
+Piano [7]
+Mallets [8]
+Brass [1]
+Strings [2]
+PolySynth [3]
+Harp [4]
+Bass 1 [5]
+Bass 2 [6]
+Drums [10]
+Drum Copy Track

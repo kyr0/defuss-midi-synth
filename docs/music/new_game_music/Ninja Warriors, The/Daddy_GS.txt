@@ -1,0 +1,35 @@
+<html>added by: Necrosaro <necrosaro@vgmusic.com>
+Date Added: 1998-09-27
+
+File URL is http://www.vgmusic.com/new-files/Daddy_GS.mid
+
+Uploaded by askull@jps.net (John Michalski)
+
+Game System: Turbo-Grafx 16
+Game Name: The Ninja Warriors
+Song Title: Stage 1
+Song Originally Composed by: Zuntata
+
+Other Information: For Roland GS, sounds correct on GS and XG synths (XG can play GS correctly)..  Doesn't sound as good as the XG version of this sound on an XG synth, but does on a GS synth..  Seems to be optimized for the AWE-32 (yuck!)
+
+Midi TrackName Analysis:
+
+
+Tempo ,Master Volume, Reverb Mode   
+Rhythm&SE                           
+Orchestra Hit                       
+E.Guitar Melody                     
+Analog Synth Solo                   
+Synth Brass                         
+Chorus                              
+Tsu - Ga - Ru Shamisen              
+Synth Melody                        
+Synth Bass                          
+Da Di Da                            
+Synth Bass Sub 1                    
+Da Di Da Sub 1                      
+Da Di Da Sub 2                      
+Synth Melody Sub 1                  
+Synth Melody Sub 2                  
+Synth Bass Sub 2                    
+                                    

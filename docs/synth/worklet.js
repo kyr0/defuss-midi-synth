@@ -763,6 +763,19 @@ var Reader = class {
     return s;
   }
 };
+function metaText(reader, size) {
+  const length = Math.min(size, 2048);
+  const raw = reader.text(length).split(String.fromCharCode(0))[0];
+  reader.at += size - length;
+  if (Array.from(raw).some((char) => char.charCodeAt(0) > 127)) {
+    const encoded = Array.from(raw, (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+    try {
+      return decodeURIComponent(encoded).trim();
+    } catch {
+    }
+  }
+  return raw.trim();
+}
 var ascii = (bytes, at, text2) => text2.split("").every((c, i) => bytes[at + i] === c.charCodeAt(0));
 function parseSong(bytes) {
   if (ascii(bytes, 0, "MThd")) return parseSmf(bytes);
@@ -799,6 +812,7 @@ function parseSmf(bytes) {
     secondsPerTick = (tempo2) => tempo2 / 1e6 / division;
   }
   r.at = 8 + headerLength;
+  const metadata = { format, trackCount: tracks };
   const entries = [];
   let sysexCount = 0;
   let title = "", endTick = 0, track = 0, order = 0;
@@ -866,7 +880,9 @@ function parseSmf(bytes) {
       tick += t.vlq();
       let byte = t.u8();
       if (byte === 255) {
-        const type = t.u8(), size = t.vlq();
+        const type = t.u8();
+        if (type === 47 && t.at + 2 === t.end && t.bytes[t.at] === 255 && t.bytes[t.at + 1] === 0) break;
+        const size = t.vlq();
         t.need(size);
         if (type === 47) {
           t.at += size;
@@ -874,9 +890,16 @@ function parseSmf(bytes) {
         }
         if (type === 81 && size === 3) {
           const tempo2 = t.u8() << 16 | t.u8() << 8 | t.u8();
+          if (tick === 0 && tempo2) metadata.initialBpm = 6e7 / tempo2;
           if (tempo2) entries.push({ tick, track, order: order++, tempo: tempo2, message: 0 });
-        } else if (type === 3 && track === 0 && !title) title = t.text(size).split(String.fromCharCode(0))[0].trimEnd();
-        else t.at += size;
+        } else if (type === 3 && track === 0 && !title) title = metaText(t, size);
+        else if (type === 2 && !metadata.copyright) metadata.copyright = metaText(t, size);
+        else if (type === 1 && !metadata.text) metadata.text = metaText(t, size);
+        else if (type === 88 && tick === 0 && size === 4) {
+          const numerator = t.u8(), exponent = t.u8();
+          if (numerator && exponent < 16) metadata.timeSignature = `${numerator}/${2 ** exponent}`;
+          t.at += 2;
+        } else t.at += size;
         continue;
       }
       if (byte === 240 || byte === 247) {
@@ -920,7 +943,7 @@ function parseSmf(bytes) {
     }
   }
   const duration = seconds + Math.max(0, endTick - lastTick) * secondsPerTick(tempo);
-  return { title, duration, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
+  return { title, duration, metadata, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
 }
 var MUS_CONTROLLERS = [0, 0, 1, 7, 10, 11, 91, 93, 64, 67];
 var MUS_SYSTEM = { 10: 120, 11: 123, 12: 126, 13: 127, 14: 121 };
@@ -1355,7 +1378,7 @@ var Engine = class _Engine {
     this.index = 0;
     this.position = 0;
     this.message(MIDI_RESET);
-    return this.playbackInfo();
+    return song.metadata ? { ...this.playbackInfo(), metadata: song.metadata } : this.playbackInfo();
   }
   requireSong() {
     this.ensure();

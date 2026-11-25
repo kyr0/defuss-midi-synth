@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Neil Voss
+Sequencer: SkyYoshi, Yoshi, Damian Yerrick
+Num of tunes: 4
+Complete: 
+
+*** Game info ***
+Name: New Tetris, The
+Platform: Nintendo 64
+Year: 1999
+Genre: Classic
+Publisher: Nintendo
+Developer: H2O

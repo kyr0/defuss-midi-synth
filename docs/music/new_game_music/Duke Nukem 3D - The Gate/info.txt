@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Pyramid Head
+Type: Game rip
+Format: MID
+Original Composer: Jenna Ramsey, Simon Castles
+Sequencer: Jenna Ramsey, Simon Castles
+Num of tunes: 28
+Complete: 100%
+
+*** Game info ***
+Name: Duke Nukem 3D: The Gate
+Platform: PC Dos
+Year: 19??
+Genre: Modification to Duke Nukem 3D
+Publisher: 
+Developer: 

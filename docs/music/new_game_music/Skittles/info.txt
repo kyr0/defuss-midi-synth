@@ -1,0 +1,18 @@
+Archive created by Dr. SpaIt's nice to be important, but it's more important to be nice
+*** Archive info ***
+Archiver: Dr. Spa
+Type: Game Rip
+Format: MID
+Original Composer: ?
+Tracker: ?
+Num of tunes: 6
+Complete: 100%
+
+*** Game info ***
+Name: Skittles
+Platform: Mac
+Year: 1996
+Genre: Classic Remake
+Publisher: John Stiles
+Developer: John Stiles
+*** additional info ***-The sequel to this game, Skittles 2, used MODules instead of MIDIs

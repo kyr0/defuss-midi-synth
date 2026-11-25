@@ -1,0 +1,24 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-04-30
+
+File URL is http://www.vgmusic.com/new-files/pkgroute30.mid
+
+Uploaded by andrewrl87@yahoo.com (Mew2)
+Originating IP Address: 203.58.15.6
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon Gold
+Song Title: Route 30 (Clean Version)
+Sequenced by: Mew2 <andrewrl87@yahoo.com>
+
+Other Information: 
+ch.4 is noise,
+which isn't implemented in this version of this
+midi
+it can also be caled the percussion
+
+
+Midi TrackName Analysis:
+
+%00%00

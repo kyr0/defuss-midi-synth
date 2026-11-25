@@ -1,0 +1,33 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-08-16
+
+File URL is http://www.vgmusic.com/new-files/turrican2_thewall.mid
+
+Uploaded by c-dodgers@geocities.com (Chuck Dodgers)
+Originating IP Address: 194.197.68.47
+
+File Type: MIDI
+Game System: Commodore Amiga
+Game Name: Turrican 2
+Song Title: Level 4-1
+Sequenced by: Chuck Dodgers <c-dodgers@geocities.com>
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+[V1.1]
+
+
+Midi TrackName Analysis:
+
+
+Bass2
+Bass3
+Lead1
+Lead2
+Lead3
+Drums
+Turrican 2
+The Wall (Stage 4-1)
+Comp. by Chris Huelsbeck
+Seq. by Chuck Dodgers
+c-dodgers@geocities.com

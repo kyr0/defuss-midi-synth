@@ -50,7 +50,7 @@
   "scripts": {
     "build": "node scripts/build.mjs --prepare && pkgroll && node scripts/build.mjs --finish",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/player.js docs/profile-files.js && tsc --noEmit",
+    "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/crates.js docs/vgm-*.js docs/player.js docs/fx.js docs/render.js docs/sound-cards.js docs/profile-files.js && tsc --noEmit",
     "test": "node --experimental-transform-types --test tests/*.test.ts",
     "coverage": "node scripts/coverage.mjs",
     "e2e": "node scripts/e2e.mjs",

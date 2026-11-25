@@ -1,0 +1,40 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, crumby2
+Type: Game rip
+Format: MID
+Original Composer: Lee Jackson, Robert Prince
+Sequencer: Lee Jackson, Robert Prince
+Num of tunes: 42
+Complete: 100%
+
+*** Game info ***
+Name: Duke Nukem 3D
+Platform: PC
+Year: 1995
+Genre: FPS
+Publisher: GT Interactive
+Developer: 3D Realms
+
+*** Additional info ***
+Tracks 01-30 are from original Duke Nukem 3D game.
+Tracks 31-42 are from the "Duke Nukem 3D Atomic Edition" with one additional
+episode, released later on CD.
+
+Thanks to Mark McWane and his Duke Nukem 3D music remakes site 
+http://www.markmcwane.com/music-dukenukem.html I found
+the correct names of the music trakcks.
+
+Info from crumby2:
+
+It should be noted than most of Jackson Lee's .mids (Bobby Prince ones 
+are unaffected) contains additional tracks (meant for non-GM soudcards) 
+which may produce anomalies when played with a regular midi player 
+(outside of the game sound engine).
+
+Like the author of the topic below, i myself edited the incrimined files
+ for my personal collection (the unwanted tracks are easy to locate). 
+Source for the discussion: 
+https://forums.3drealms.com/vb/showthread.php?t=34865 (doesnt work anymore)

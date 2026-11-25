@@ -1,0 +1,36 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2001-02-09
+
+File URL is http://www.vgmusic.com/new-files/Dklpirte.mid
+
+Uploaded by pong64@vgmusic.com (Pong64)
+Originating IP Address: 24.115.158.107
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong Land
+Song Title: Pirate Ship
+Sequenced by: Pong64 <pong64@vgmusic.com>
+Other Information: 
+No, this isn't King K. Rool's theme from DKC.  This song is slightly different.
+It's sounded okay on everything I've tested it on so far.  Still, there's no guarantee that it's not gonna sound awful on whatever you're using to listen to it.  So if it does sound awful, it's your midi device's fault, not mine!  Really.
+
+
+Midi TrackName Analysis:
+
+
+Clarinet
+Accordion
+Strings
+Flute
+Honkey-Tonk
+Bassoon
+Timpani
+Percussion
+Pirite Ship from Donkey Kong Land
+Written by:
+David Wise
+Sequenced by:
+Pong64 (pong64@vgmusic.com)
+Thanks to The Jade Emperor!
+(c) 1995 Rare and Nintendo

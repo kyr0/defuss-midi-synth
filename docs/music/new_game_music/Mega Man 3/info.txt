@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Bunbun
+Sequencer: Various Authors
+Num of tunes: 94
+Complete: 
+
+*** Game info ***
+Name: Mega Man 3
+Platform: NES, Gameboy
+Year: 1990
+Genre: Action
+Publisher: Capcom
+Developer: Capcom

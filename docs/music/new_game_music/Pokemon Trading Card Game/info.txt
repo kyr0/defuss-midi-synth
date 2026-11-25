@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Dr. Fruitcake, ???
+Num of tunes: 14
+Complete: 
+
+*** Game info ***
+Name: Pokemon Trading Card Game
+Platform: Gameboy
+Year: 2000
+Genre: Logical
+Publisher: Nintendo
+Developer: Nintendo

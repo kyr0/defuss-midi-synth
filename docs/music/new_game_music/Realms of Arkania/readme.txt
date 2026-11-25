@@ -1,0 +1,1 @@
+These songs are for Roland MT-32! They don't sound well on General Midi!

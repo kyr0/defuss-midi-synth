@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Xtense
+Type: Converted
+Format: MID (ND!)
+Original Composer: Matthias Steinwachs
+Sequencer: Matthias Steinwachs
+Num of tunes: 25
+Complete: 100%
+
+*** Game info ***
+Name: Albion
+Platform: PC Dos
+Year: 1995
+Genre: Role-Playing (RPG)
+Publisher: Blue Byte
+Developer: Blue Byte
+
+*** Additional info ***
+Spent a whole hour to get to those XMI`s (trying to rip everything that moved ;) ) and then converting them to MIDs. Note that the game had more tunes, but they were, sort of, ambient (probably used as sounds).

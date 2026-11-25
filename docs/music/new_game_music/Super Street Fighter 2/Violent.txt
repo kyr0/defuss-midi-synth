@@ -1,0 +1,24 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/Violent.mid
+
+Uploaded by purpleguppy@yahoo.com (JILost)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Street Fighter II
+Song Title: "Violente Emotional" - Guile (v2.0)
+Sequenced by: JILost <purpleguppy@yahoo.com>
+Other Information: Fixed lots of pitch bend problems (they were all missing :) and changed a few note values from previous version. Now sounds as close to the original as possible.
+
+Midi TrackName Analysis:
+
+
+Bass
+Melody
+Harmony
+Bass/Snare
+Cymbols
+Vibes
+Bass

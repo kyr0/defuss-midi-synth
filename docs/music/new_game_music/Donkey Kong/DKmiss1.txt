@@ -1,0 +1,25 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKmiss1.mid
+Upload Date and Time: 10/03/2001 18:10:40
+
+Uploaded by <syo_axenn@hotmail.com> (Juan Pablo Peloso)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: Miss 1
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+System: Game Boy
+Title: Miss 1
+Secuenced by: FireMario (03/Oct/2001)
+Tempo Track

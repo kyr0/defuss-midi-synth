@@ -1,0 +1,19 @@
+File URL is http://www.vgmusic.com/new-files/Champion.mid
+
+Uploaded by XelAdun@hotmail.com (Ben W.M.)
+Originating IP Address: 65.96.89.106
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Street Fighter 2 Turbo
+Song Title: Champion (Ending Credits Theme)
+Sequenced by: B.W.M. the Evil "XelTec" of the Tainted
+Song Originally Composed by: Capcom
+
+Other Information: 
+Well the midi file was created from SPC Tool v0.61(gotta thank Alpha-2 Prod. :-). Just switched certain instruments and added some minor changes.
+
+
+
+Midi TrackName Analysis:
+

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged, Remix
+Format: MID
+Original Composer: 
+Sequencer: Various Authors
+Num of tunes: 83
+Complete: 
+
+*** Game info ***
+Name: Pokemon
+Platform: Gameboy
+Year: 1998
+Genre: RPG
+Publisher: Nintendo
+Developer: Nintendo

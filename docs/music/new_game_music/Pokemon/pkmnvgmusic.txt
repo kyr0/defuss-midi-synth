@@ -1,0 +1,34 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-18
+
+File URL is http://www.vgmusic.com/new-files/pkmnvgmusic.mid
+
+Uploaded by AquaBlast@aol.com (Dylan Robley)
+Originating IP Address: 152.163.207.186
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Battle a Rival Trainer (8)
+Sequenced by: Dylan Robley <AquaBlast@aol.com>
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Treble Duet
+Treble Duet-2
+Left Hand
+Left Hand-2
+Bass Duet
+Bass Duet-2
+Staff-2
+Staff-2-2
+Staff-1
+Staff-3
+Tempo Track
+Staff-4
+Staff-5
+Staff-6

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Rob Hubbard
+Sequencer: Matze
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Desert Strike
+Platform: Sega Genesis
+Year: 1992
+Genre: Action
+Publisher: Electronic Arts
+Developer: Electronic Arts

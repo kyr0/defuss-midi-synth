@@ -1,0 +1,29 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-18
+
+File URL is http://www.vgmusic.com/new-files/Pokemon_Tower_(Remix).mid
+
+Uploaded by nekotachi@msn.com (Katt Itachi)
+Originating IP Address: 63.11.69.190
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Pokemon Tower (Remix)
+Sequenced by: Katt Itachi <nekotachi@msn.com>
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+%00
+Viola Center%00
+Viola Left%00
+Cello Right%00
+Cello Left%00
+Strings%00
+Harpsichord%00
+Glockenspiel%00
+Gong%00
+Bass%00

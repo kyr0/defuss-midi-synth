@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Soundtrack
+Format: MID
+Original Composer: Nobuo Uematsu
+Sequencer: 
+Num of tunes: 67
+Complete: 100%
+
+*** Game info ***
+Name: Final Fantasy 5 OSV (Piano MIDI)
+Platform: Audio CD
+Year: 1994
+Genre: RPG
+Publisher: Squaresoft
+Developer: Squaresoft

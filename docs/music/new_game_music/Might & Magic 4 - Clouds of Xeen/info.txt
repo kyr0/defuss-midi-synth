@@ -1,0 +1,28 @@
+Archive created by Hadanite Marasek
+
+
+*** Archive info *** 
+Archiver: Hadanite Marasek, EdMan6623
+Type: Game Rip
+Format: MID (GM, GS) 
+Original Composer: Tim Tulley
+Sequencer: Tim Tulley
+Num of tunes: 14
+Complete: 100% 
+
+*** Game info *** 
+Name: Might & Magic IV - Clouds of Xeen
+Platform: PC 
+Year: 1992 
+Genre: RPG 
+Publisher: New World Computing
+Developer: New World Computing 
+
+*** Additional info *** 
+These files were created by recording them from the game, using VDMS 
+(http://sourceforge.net/projects/vdmsound/), Locator, Winjammer and Midi Yoke.
+
+(added 2006) Intro, Ending, Tavern, Blacksmith, Temple, and Training midis 
+recorded by Eddie Mangum (EdMan6623@aol.com) using DOSBox-0.65 (dosbox.sourceforge.net).  
+Also cleaned up the beginning and the ends of the rest so that they loop just 
+like in the game.

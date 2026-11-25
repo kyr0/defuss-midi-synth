@@ -1,23 +1,28 @@
 import { MidiSynth } from './synth/index.js';
+import { coreReader, pciSoundFontLabel } from './sound-cards.js';
 import { createPlayer } from './player.js';
+import { createFx, fxSettings } from './fx.js';
+import { meterOutput } from './audio-meter.js';
 import { createProgress } from './progress.js';
 import { renderWav, save } from './render.js';
 const $ = id => document.getElementById(id);
-// The page starts on the FM engine; the SoundFont engine plays the OPL-3 FM 128M SoundFont, Brotli-compressed
-// (scripts/compress-banks.mjs; the library unpacks it with defuss-brotli). It comes from the Hugging Face model repo of
-// this project's soundbanks: at 104 MB it exceeds GitHub's 100 MB file limit, so neither this repository nor GitHub
-// Pages holds it. The Hub allows cross-origin requests.
-// On this machine's own addresses the demo server (scripts/serve.mjs) also serves files no public copy of the site
-// holds: the AWE cards' local builds and E-mu's 2GMGSMT SoundFont. With that SoundFont the SoundFont engine is the
-// "Sound Blaster 128" and plays it; elsewhere it plays the OPL-3 FM 128M SoundFont.
-const LOCAL = new URL('./local/', import.meta.url);
-const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
-  ? await fetch(new URL('index.json', LOCAL)).then(r => r.ok ? r.json() : [], () => []) : [];
-const PCI128 = local.includes('pci128.sf2') ? new URL('pci128.sf2', LOCAL) : undefined;
-const SOUNDFONT = PCI128 ?? new URL('https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br');
-let synth, starting, analyser, waveform, customFont, customBank, player;
-const soundFontName = () => customFont ? 'Your SoundFont file' : PCI128 ? 'E-mu 2GMGSMT chip (SoundFont, SF2)' : 'OPL-3 FM 128M SoundFont (104 MB)';
+let synth, starting, analyser, waveform, fontSource, customFont = false, customBank, player;
+let cardGain = 1, fx, master;
+function updateFx() {
+  $('fx-auto-level').disabled = !$('fx-compressor').checked;
+  fx?.update(fxSettings());
+}
+$('fx').addEventListener('input', updateFx);
+$('fx').addEventListener('envelope-change', updateFx);
+function applyOutputGain() {
+  if (!master) return;
+  if (synth) synth.output.gain.setTargetAtTime(cardGain, master.context.currentTime, 0.01);
+  master.gain.setTargetAtTime(Number($('gain').value) / 100, master.context.currentTime, 0.01);
+}
+const soundFontName = () => customFont ? 'Your SoundFont file' : pciSoundFontLabel;
 const progress = createProgress($('load-progress'));
+function storageWarning(reason) { $('card-status').textContent = `Browser cache unavailable: ${reason}`; }
+const readWasm = coreReader(progress, storageWarning);
 // Pressed keys by pointer or key code; lit notes by source (a pointer, a key code, a Web MIDI channel); the scope's end.
 const active = new Map(), lit = new Map();
 let scopeUntil = 0;
@@ -46,7 +51,7 @@ const FM_KINDS = ['fm', 'sb16-opl3', 'sb16-cqm'];
 function showEngine(info) {
   $('engine-label').textContent = FM_KINDS.includes(info.kind)
     ? `LIBADLMIDI / NUKED ${info.kind === 'sb16-cqm' ? 'CQM' : 'OPL3'} · ${info.fm.bank < 0 ? 'WOPL FILE' : `BANK ${info.fm.bank}`}`
-    : info.kind === 'soundfont' ? `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : PCI128 ? '2GMGSMT' : 'OPL-3 FM 128M'}` : info.engine.toUpperCase();
+    : info.kind === 'soundfont' ? `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : pciSoundFontLabel}` : info.engine.toUpperCase();
 }
 async function applyPreset() {
   releaseKeys();
@@ -57,47 +62,74 @@ async function applyPreset() {
   $('bank-label').textContent = `Bank ${bank} · ${bankName(bank)} · channel ${channel + 1}`;
 }
 /** What a WAV download plays on: the engine shown, album's FM bank (the piano's bank without an album) or the user's
- *  WOPL file, the SoundFont, and the user's files (pack, module) of the device of the ROMs list that plays. */
+ *  WOPL file, the SoundFont, and the selected card's pack and core. */
 function sound(album) {
   const info = synth.info, own = FM_KINDS.includes(info.kind) && info.fm.bank < 0, pack = player?.packs[info.kind];
-  return { engine: info.kind, fmBank: own ? 0 : album?.fm.bank ?? Math.max(0, info.fm?.bank ?? 0), bank: own ? customBank : undefined, soundfont: customFont ?? SOUNDFONT,
+  return { engine: info.kind, fmBank: own ? 0 : album?.fm?.bank ?? Math.max(0, info.fm?.bank ?? 0), bank: own ? customBank : undefined, soundfont: fontSource, readWasm, cardGain, fx: fxSettings(),
     profileSources: pack ? { [info.kind]: pack } : undefined };
 }
-/** Starts audio once, from a click: the power button or any player control. Resolves with the synthesizer. */
-function start() {
-  starting ??= (async () => {
-    $('power').disabled = true; message('Starting the synthesizer…');
+let outputReady;
+function startOutput() {
+  outputReady ??= (async () => {
     const context = new AudioContext({ latencyHint: 'interactive' });
     try {
       await context.resume();
-      // The SoundFont is fetched only when the SoundFont engine is chosen; 104 MB may take longer than the default 15 s.
-      synth = await MidiSynth.create({ context, baseUrl: new URL('./synth/', import.meta.url), gain: Number($('gain').value) / 100,
-        engine: 'sb16-opl3', soundfont: SOUNDFONT, timeoutMs: 120000, onProgress: progress });
-      analyser = context.createAnalyser(); analyser.fftSize = 1024; waveform = new Float32Array(1024); synth.output.connect(analyser);
+      fx = await createFx(context, fxSettings());
+      fx.update(fxSettings());
+      master = context.createGain();
+      fx.output.connect(master).connect(context.destination);
+      applyOutputGain();
+      analyser = context.createAnalyser(); analyser.fftSize = 1024; waveform = new Float32Array(1024); master.connect(analyser);
+      $('stats-rate').textContent = `${context.sampleRate / 1000} kHz (${context.sampleRate.toLocaleString()} samples/s)`;
+      meterOutput(master, ({ rms, lufs }) => {
+        $('stats-rms').textContent = meterValue(rms);
+        $('stats-lufs').textContent = meterValue(lufs);
+      }).catch(error => message(`Level meter unavailable: ${error.message}`));
+      context.addEventListener('statechange', () => {
+        if (context.state !== 'running') $('stats-rms').textContent = $('stats-lufs').textContent = '—';
+      });
+      return fx.input;
+    } catch (error) {
+      await context.close(); outputReady = undefined; master = undefined; fx = undefined; throw error;
+    }
+  })();
+  return outputReady;
+}
+/** Starts audio once, from a click: the power button or any player control. Resolves with the synthesizer. */
+function startAudio(initial) {
+  starting ??= (async () => {
+    $('power').disabled = true; message('Starting the synthesizer…');
+    try {
+      const { context } = await startOutput();
+      const options = await initial();
+      synth = await MidiSynth.create({ context, baseUrl: new URL('./synth/', import.meta.url), gain: 0,
+        ...options, connect: false, readWasm, timeoutMs: 120000, onProgress: progress });
+      synth.output.connect(fx.input);
+      applyOutputGain();
       listBanks(synth.info); showEngine(synth.info); $('controls').disabled = false; $('led').classList.add('on');
       $('rate').textContent = `${context.sampleRate.toLocaleString()} Hz · STEREO`; $('power').textContent = 'Audio enabled';
-      await applyPreset(); message(`Ready: Sound Blaster 16 (OPL3 FM, ${synth.info.fm.banks.length} banks). Play the keys, a game's music or a file.`); draw();
+      await applyPreset(); message(`Ready: ${synth.info.engine}.`); draw();
       player?.started(synth);
       connectMidi();
       return synth;
     } catch (error) {
-      await context.close(); starting = undefined; synth = undefined; $('power').disabled = false;
+      starting = undefined; synth = undefined; $('power').disabled = false;
       throw error;
     }
   })();
   return starting;
 }
-$('power').onclick = run(start);
 player = await createPlayer({
-  start,
+  startAudio, startOutput, readWasm,
   soundFontName,
-  soundFontEngine: PCI128 ? 'Sound Blaster 128' : 'SoundFont',
-  local: { url: LOCAL, names: local },
+  cardFont(bytes) { fontSource = bytes; customFont = false; },
+  storageWarning,
   sound,
   progress,
   analyser: () => analyser,
   message,
-  setVolume(value) { $('gain').value = String(Math.round(value * 100)); $('gain-value').value = `${$('gain').value}%`; synth?.setGain(value); },
+  setCardGain(value) { cardGain = value; applyOutputGain(); },
+  setVolume(value) { $('gain').value = String(Math.round(value * 100)); $('gain-value').value = `${$('gain').value}%`; applyOutputGain(); },
   async engineChanged(info) {
     showEngine(info);
     listBanks(info, Number($('bank').value), Number($('program').value));
@@ -106,10 +138,12 @@ player = await createPlayer({
     else { const { bank, program } = selected(); $('patch-name').textContent = info.presets.find(p => p.bank === bank && p.program === program).name; }
   },
 });
+$('power').onclick = run(player.start);
+$('power').disabled = false;
 $('bank').onchange = run(async () => { listPrograms(synth.info); await applyPreset(); });
 $('program').onchange = run(applyPreset);
 $('velocity').oninput = () => { $('velocity-value').value = $('velocity').value; };
-$('gain').oninput = () => { $('gain-value').value = `${$('gain').value}%`; synth?.setGain(Number($('gain').value) / 100); player.volumeChanged(Number($('gain').value) / 100); };
+$('gain').oninput = () => { $('gain-value').value = `${$('gain').value}%`; applyOutputGain(); player.volumeChanged(Number($('gain').value) / 100); };
 function demoScore(start, channel) {
   const notes = [60,64,67,72,71,67,64,62,57,60,64,69,67,64,62,60];
   return notes.flatMap((note, i) => [
@@ -118,10 +152,10 @@ function demoScore(start, channel) {
   ]);
 }
 $('demo').onclick = run(async () => {
-  await synth.stop(); await applyPreset(); await synth.schedule(demoScore(synth.context.currentTime + 0.08, selected().channel));
+  await player.stop(); await applyPreset(); await synth.schedule(demoScore(synth.context.currentTime + 0.08, selected().channel));
   scopeUntil = performance.now() + 4500; message('Playing the demo sequence.');
 });
-$('stop').onclick = run(async () => { await synth.stop(); releaseKeys(); scopeUntil = 0; message('Stopped.'); });
+$('stop').onclick = run(async () => { await player.stop(); releaseKeys(); scopeUntil = 0; message('Stopped.'); });
 $('panic').onclick = run(async () => { releaseKeys(); releaseMidi(); scopeUntil = 0; await synth.panic(); message('All notes and scheduled events cleared.'); });
 
 // The keys light while a note sounds from any source: the mouse, the computer keyboard or a Web MIDI keyboard.
@@ -163,16 +197,42 @@ document.addEventListener('keyup', event => release(event.code)); window.addEven
 
 // Web MIDI input: every connected keyboard plays the synthesizer on its own channels, lights the keys and records.
 async function connectMidi() {
-  if (!navigator.requestMIDIAccess) { $('midi-in').textContent = 'WEB MIDI: NOT IN THIS BROWSER'; return; }
-  try {
-    const access = await navigator.requestMIDIAccess();
-    const attach = () => {
-      const inputs = [...access.inputs.values()];
-      for (const input of inputs) input.onmidimessage = event => midiIn(event.data);
-      $('midi-in').textContent = inputs.length ? `WEB MIDI: ${inputs.map(input => input.name).join(', ').toUpperCase()}` : 'WEB MIDI: NO KEYBOARD';
-    };
-    access.onstatechange = attach; attach();
-  } catch { $('midi-in').textContent = 'WEB MIDI: NOT ALLOWED'; }
+  const status = $('midi-in'), button = $('midi-permission');
+  if (!navigator.requestMIDIAccess) { status.textContent = 'WEB MIDI: NOT IN THIS BROWSER'; return; }
+  let permission, access;
+  function attach() {
+    const inputs = [...access.inputs.values()];
+    for (const input of inputs) input.onmidimessage = event => midiIn(event.data);
+    status.textContent = inputs.length ? `WEB MIDI: ${inputs.map(input => input.name || 'Keyboard').join(', ').toUpperCase()}` : 'WEB MIDI: NO KEYBOARD';
+  }
+  async function request() {
+    if (button.disabled) return;
+    button.disabled = true;
+    status.textContent = 'WEB MIDI: REQUESTING ACCESS';
+    try {
+      access = await navigator.requestMIDIAccess();
+      access.onstatechange = attach; attach();
+      button.hidden = true;
+    } catch {
+      status.textContent = permission?.state === 'denied' ? 'WEB MIDI: BLOCKED IN SITE SETTINGS' : 'WEB MIDI: ACCESS UNAVAILABLE';
+      button.hidden = false;
+    } finally { button.disabled = false; }
+  }
+  function updatePermission() {
+    if (permission?.state === 'granted') { if (!access) request(); return; }
+    if (access) {
+      access.onstatechange = null;
+      for (const input of access.inputs.values()) input.onmidimessage = null;
+      access = undefined; releaseMidi();
+    }
+    status.textContent = permission?.state === 'denied' ? 'WEB MIDI: BLOCKED IN SITE SETTINGS' : 'WEB MIDI: PERMISSION NEEDED';
+    button.hidden = false;
+  }
+  button.onclick = request;
+  // Some browsers implement MIDI input without supporting its Permissions API descriptor.
+  try { permission = await navigator.permissions.query({ name: 'midi', sysex: false }); } catch { /* Use the button. */ }
+  if (permission) permission.onchange = updatePermission;
+  updatePermission();
 }
 /** A message from a Web MIDI input (always complete, without running status). System messages (clock, active
  *  sensing, SysEx) are left out. */
@@ -233,11 +293,24 @@ $('take-download').onclick = run(async () => {
 $('file').onchange = run(async () => {
   const file = $('file').files[0]; if (!file) return;
   // A .br file is a Brotli-compressed one; the library unpacks it.
-  const data = await file.arrayBuffer(), name = file.name.toLowerCase().replace(/\.br$/, '');
+  $('file').value = '';
+  const name = file.name.toLowerCase().replace(/\.br$/, ''), reading = file.arrayBuffer();
+  let startedWithFont = false;
+  let audio;
+  if (name.endsWith('.sf2')) {
+    audio = startAudio(async () => {
+      startedWithFont = true;
+      return { engine: 'soundfont', soundfont: await reading };
+    });
+  } else if (name.endsWith('.wopl')) {
+    audio = startAudio(() => ({ engine: 'sb16-opl3' }));
+  } else {
+    return player.playFile(file.name, reading);
+  }
+  const [data] = await Promise.all([reading, audio]);
   if (name.endsWith('.sf2')) {
     message('Loading SoundFont…');
-    if (synth.info.kind !== 'soundfont') await synth.useEngine('soundfont');
-    const info = await synth.loadSoundFont(data); customFont = data;
+    const info = startedWithFont ? synth.info : await synth.useSoundFont(data); fontSource = data; customFont = true;
     listBanks(info); showEngine(info); player.engineShown(synth); await applyPreset(); message(`SoundFont loaded: ${info.presets.length} presets.`);
   } else if (name.endsWith('.wopl')) {
     message('Loading FM bank…');
@@ -245,12 +318,26 @@ $('file').onchange = run(async () => {
     const info = await synth.loadFmBank(data); customBank = data;
     listBanks(info, Number($('bank').value), Number($('program').value)); showEngine(info); player.engineShown(synth);
     message('FM bank loaded from your WOPL file.');
-  } else await player.playFile(file.name, data);
-  $('file').value = '';
+  }
 });
+$('file').disabled = false;
+function meterValue(db) {
+  if (db === -Infinity) return '−∞';
+  return db < -120 ? '< −120' : db.toFixed(1);
+}
 setInterval(async () => {
-  if (!synth) return;
-  try { const status = await synth.status(); $('queue').textContent = `${status.queuedEvents} EVENTS · ${status.voices} VOICES · ${status.lateEvents} LATE`; }
+  if (!master) return;
+  try {
+    const { voices, queuedEvents, lateEvents } = synth ? await synth.status() : { voices: 0, queuedEvents: 0, lateEvents: 0 };
+    $('queue').textContent = `${queuedEvents} EVENTS · ${voices} VOICES · ${lateEvents} LATE`;
+    $('stats-activity').textContent = `${voices} voices`;
+    const { baseLatency, outputLatency } = master.context;
+    const hasBase = Number.isFinite(baseLatency), hasOutput = Number.isFinite(outputLatency);
+    if (hasBase || hasOutput) {
+      const ms = 1000 * ((hasBase ? baseLatency : 0) + (hasOutput ? outputLatency : 0));
+      $('stats-delay').textContent = `Delay ≈ ${ms.toFixed(1)} ms`;
+    } else $('stats-delay').textContent = 'Delay unavailable';
+  }
   catch (error) { message(error.message); }
 }, 500);
 /** The scope: the waveform while keys sound (and the demo plays), a flat line while only the player plays. */

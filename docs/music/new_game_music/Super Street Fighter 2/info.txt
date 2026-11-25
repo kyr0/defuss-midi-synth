@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Jarel Jones, JILost, Thom Stearns, Marc Concepcion
+Num of tunes: 11
+Complete: 
+
+*** Game info ***
+Name: Super Street Fighter 2
+Platform: SNES
+Year: 1994
+Genre: Beat'em up
+Publisher: Capcom
+Developer: Capcom

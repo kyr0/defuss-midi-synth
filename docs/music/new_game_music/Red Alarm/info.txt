@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Action
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Red Alarm
+Platform: VirtualBoy
+Year: 19??
+Genre: Shooter
+Publisher: T&E Soft
+Developer: 

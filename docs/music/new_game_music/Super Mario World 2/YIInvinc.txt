@@ -1,0 +1,34 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/YIInvinc.mid
+
+Uploaded by jarronwoodsorrel@hotmail.com (Jarron Woodsorrel)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario World 2: Yoshi's Island
+Song Title: Invincibility
+Sequenced by: Jarron Woodsorrel <jarronwoodsorrel@hotmail.com>
+Song Originally Composed by: Koji Kondo
+
+Other Information: Optimised for AWE64 Wavetable Playback
+
+Midi TrackName Analysis:
+
+
+SynthStringMain
+SynthStringR
+SynthStringL
+SteelStringR
+SteelStringL
+SlapBass
+StandardKit
+"Invincibility"
+Super Mario World 2: Yoshi's Island
+Original Score by Koji Kondo
+Sequenced to MIDI by Jarron Woodsorrel
+Started on 17 October 1999
+jarronwoodsorrel@hotmail.com
+All Comments Welcome...
+Optimised for AWE64 Wavetable Playback

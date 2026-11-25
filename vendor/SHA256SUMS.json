@@ -61,6 +61,7 @@
   "native/profiles/vintage_math.h": "8832302d2d5212fb984eadf38f7ad69d4d9537b4590b5d545f0de4ea2ae16e98",
   "native/synth.c": "5c1179f1ec905d5ffc5b972566b61578e76b55bc25e564d756c1ef1634f7c085",
   "native/tsf.h": "70d55963c98f60ebb81518eaa1f25d46888d5180eb5f5289fd6b74ffc177d197",
+  "native/vgm-opl.c": "d1981a802fa0fc874f72a9c32be285f5eb1f56f2cfa799510272bdd9712ca138",
   "vendor/runtime/fm-synth.wasm": "ec1e97e9454283cae12e7f7d75dc7db3de0cc6d55143eda901eea7eab41199ea",
   "vendor/runtime/midi-synth.wasm": "d4a6816f29dad280d2c7d15fa71936dfe029497cb89074ca59718aa613cd6263",
   "vendor/runtime/profiles/gus-gf1.LICENSE.txt": "ae4f438005eba0e9189b43c16176ef8da1f76be09a4f19f8df8b70409566afb6",

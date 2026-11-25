@@ -1,0 +1,32 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-23
+
+File URL is http://www.vgmusic.com/new-files/DG_MM3_Boss.mid
+
+Uploaded by dan.g@debitel.net (Daniel Genz)
+Originating IP Address: 62.54.138.196
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Boss Battle
+Sequenced by: Daniel Genz <dan.g@debitel.net>
+
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+"Boss"
+Sequenced,
+arranged and
+mixed by
+Daniel Genz
+dan.g@debitel.net
+Bass 2
+Kicks
+Snare
+Snake Hi Hat
+Drums 3
+Drums 4

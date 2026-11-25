@@ -8,6 +8,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { archiveAlbums, archiveFolder, playbackFolder } from './index-game-archive.mjs';
+import { computerFolder, indexComputerMusic } from './index-computer-music.mjs';
 import { parseSong } from '../src/midifile.ts';
 
 const root = new URL('../docs/music/', import.meta.url);
@@ -36,6 +38,7 @@ const FM = {
   'Heroes of Might and Magic II - The Succession Wars (1996)': [0, 'default'],
   'Heretic (1994)': [15, 'game', null, 'Heretic'],
   'Hexen - Beyond Heretic (1995)': [15, 'game', null, 'Hexen'],
+  'Lost Vikings (1993)': [75, 'game', null, 'The Lost Vikings'],
   'Q-Pop - Evolution im Weltraum (1993)': [0, 'default'],
   'Raptor - Call of the Shadows (1994)': [64, 'game', null, 'Raptor'],
   'Settlers II (1996)': [0, 'game', null, 'Settlers 2'],
@@ -62,15 +65,11 @@ const TITLES = {
 };
 /** Platforms where the .txt's "Platform:" line is wrong: Age of Empires and its expansion ran on Windows 95. */
 const PLATFORMS = { 'Age of Empires (1997)': 'Windows', 'Age of Empires - The Rise Of Rome (1998)': 'Windows' };
-/** Albums whose files state a clock their game did not run at: tempo scales it (src/types.ts MidiLoadOptions). Raptor's
- *  MIDI files have Doom's MUS conversion header (89 ticks per quarter at 631,578 microseconds: 140.9 ticks per second),
- *  but Raptor's music driver ran at 70 Hz, so they play twice too fast. */
-const TEMPO = {
-  'Raptor - Call of the Shadows (1994)': [0.5, "Raptor's music driver ran at 70 Hz; these files were converted at the 140 Hz of Doom's."],
-};
 /** Album folders without a .txt: their album fields here. The composers are the ones the files' own text events credit
  *  ("Copyright 1999 by Stephen Rippy", "By Stephen Rippy."; "Q - P O P by K.-L. von Wendt", "by Lars Hammer"). */
 const FIELDS = {
+  'Lost Vikings (1993)': { game: 'The Lost Vikings', year: 1993, platform: 'DOS', cover: 'cover.png',
+    'composed by': 'Charles Deenen', 'midi versions': 'XMI conversion' },
   AgeOfEmpires2: { game: 'Age of Empires II: The Age of Kings', year: 1999, 'composed by': 'Stephen Rippy', platform: 'Windows', cover: 'AoE2.png' },
   AgeOfEmpires2Conquerors: { game: 'Age of Empires II: The Conquerors', year: 2000, 'composed by': 'Stephen Rippy', platform: 'Windows', cover: 'AoE2_Conquerors.png' },
   'Q-Pop - Evolution im Weltraum (1993)': { game: 'Q-Pop: Evolution im Weltraum', year: 1993, 'composed by': 'K.-L. von Wendt, Lars Hammer', platform: 'Windows', cover: 'qpop.jpg' },
@@ -129,6 +128,7 @@ const slug = text => text.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,
  *  "Track 01.mid" -> 1, "Track 1"; "un21-f.mid" -> 21, "Unreleased 21 (F)"; an all-capital word is set in title case. */
 function trackName(file, position) {
   const base = file.replace(/\.(mid|midi|rmi|mus)$/i, '');
+  if (/^\d+$/.test(base)) return [position, `Track ${base}`];
   let m = base.match(/^(\d+)\s*-\s*(.+)$/);
   if (m || (m = base.match(/^[A-Za-z-]+-(\d+)-(.+)$/))) return [Number(m[1]), tidy(m[2])];
   if ((m = base.match(/^Track\s*(\d+)$/i))) return [Number(m[1]), `Track ${Number(m[1])}`];
@@ -139,7 +139,7 @@ function tidy(title) {
   return title.split(' ').map(word => SPELLING[word] ?? (/^[A-Z][A-Z0-9]{3,}$/.test(word) ? word[0] + word.slice(1).toLowerCase() : word))
     .join(' ').replace(/^(\w)/, c => c.toUpperCase());
 }
-async function tracks(album, folder, tempo = 1) {
+async function tracks(album, folder) {
   const dir = folder ? `${album}/${folder}` : album;
   const files = (await readdir(new URL(`${dir}/`, root))).filter(f => /\.(mid|midi|rmi|mus)$/i.test(f)).sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   const out = [];
@@ -148,9 +148,28 @@ async function tracks(album, folder, tempo = 1) {
     if (EXCLUDE[path]) { console.log(`left out ${path}: ${EXCLUDE[path]}`); continue; }
     const song = parseSong(new Uint8Array(await readFile(new URL(path, root))));
     const [number, title] = file.match(/^Dune - GS - Complete/) ? [1, 'The Complete Soundtrack'] : trackName(file, i + 1);
-    out.push({ number, title, file: path, duration: Math.round(song.duration / tempo * 10) / 10 });
+    out.push({ number, title, file: path, duration: Math.round(song.duration * 10) / 10 });
   }
   return out;
+}
+// Raptor's two GLB archives identify the cue and edition in each extracted filename.
+function raptorEditions(tracks) {
+  const cues = new Map([
+    ['APOGEE', 'Apogee Fanfare'], ['RINTRO', 'Raptor Intro'], ['MAINMENU', 'Main Menu'], ['HANGAR', 'Hangar'],
+    ...Array.from({ length: 8 }, (_, i) => [`RAP${i + 1}`, `Wave Music ${i + 1}`]),
+    ...Array.from({ length: 4 }, (_, i) => [`BOSS${i + 1}`, `Boss ${i + 1}`]),
+  ]);
+  const editions = { MUS: [], MDS: [] };
+  for (const track of tracks) {
+    const match = track.file.match(/__([A-Z0-9]+)_(MUS|MDS)\.mid$/i);
+    if (!match || !cues.has(match[1])) throw new Error(`Unknown Raptor cue: ${track.file}`);
+    editions[match[2]].push({ ...track, title: cues.get(match[1]) });
+  }
+  const order = [...cues.values()];
+  return Object.entries(editions).map(([name, list]) => ({
+    name, tracks: list.sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title))
+      .map((track, i) => ({ ...track, number: i + 1 })),
+  }));
 }
 function thumbnail(album, cover, id) {
   const out = `covers/${id}.jpg`;
@@ -195,7 +214,7 @@ await mkdir(new URL('covers/', root), { recursive: true });
 const albums = [];
 const isDir = async path => (await stat(new URL(path, root))).isDirectory();
 for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'))) {
-  if (!(await isDir(album)) || album === 'covers') continue;
+  if (!(await isDir(album)) || ['covers', computerFolder, archiveFolder, playbackFolder].includes(album)) continue;
   if (PROJECTS[album]) { albums.push(...await projectAlbums(album, PROJECTS[album])); continue; }
   const names = await readdir(new URL(`${album}/`, root));
   const fields = FIELDS[album], txt = names.find(n => n.endsWith('.txt'));
@@ -208,11 +227,11 @@ for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'
   // The album folder holds the versions its .txt names that have no folder of their own.
   const rootLabel = versions.filter(v => !folders.includes(v)).join(', ') || 'GM';
   const editions = [];
-  const [tempo, tempoNote] = TEMPO[album] ?? [1];
-  const main = await tracks(album, '', tempo);
-  if (main.length) editions.push({ name: rootLabel, tracks: main });
+  const main = await tracks(album, '');
+  if (album === 'Raptor - Call of the Shadows (1994)') editions.push(...raptorEditions(main));
+  else if (main.length) editions.push({ name: rootLabel, tracks: main });
   for (const folder of folders) {
-    const list = await tracks(album, folder, tempo);
+    const list = await tracks(album, folder);
     if (list.length) editions.push({ name: folder, tracks: list });
   }
   const rank = name => { const i = EDITION_ORDER.indexOf(name); return i < 0 ? EDITION_ORDER.length : i; };
@@ -232,7 +251,6 @@ for (const album of (await readdir(root)).sort((a, b) => a.localeCompare(b, 'en'
     cover: jpg ? `${album}/${jpg}` : null,
     thumbnail: jpg ? thumbnail(album, `${album}/${jpg}`, id) : null,
     fm: { bank, name: entry.name, file: entry.file, match, ...(note ? { note } : {}) },
-    ...(tempo !== 1 ? { tempo, tempoNote } : {}),
     editions,
   });
 }
@@ -252,6 +270,9 @@ for (const [id, engine] of Object.entries(ENGINE)) {
 const rank = album => { const at = FIRST.indexOf(album.id); return at < 0 ? FIRST.length : at; };
 for (const id of FIRST) if (!albums.some(a => a.id === id)) throw new Error(`FIRST names ${id}, which is not indexed`);
 albums.sort((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title, 'en'));
+const bank = banks.get(0);
+albums.push(...await archiveAlbums(fileURLToPath(root), albums, { bank: 0, name: bank.name, file: bank.file, match: 'default' }));
 const count = albums.reduce((n, a) => n + a.editions.reduce((m, e) => m + e.tracks.length, 0), 0);
 await writeFile(new URL('index.json', root), JSON.stringify({ format: 1, source: SOURCE, albums }, null, 2) + '\n');
 console.log(`index.json: ${albums.length} albums, ${count} tracks`);
+await indexComputerMusic(fileURLToPath(root));

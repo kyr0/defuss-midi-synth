@@ -1,0 +1,10 @@
+<html>File URL is http://www.vgmusic.com/snes/sf2balro.mid
+
+
+Game System: snes
+Game Name: Street Fighter 2
+
+Song Title: Balrog
+
+Sequenced by: Markus Hein <heinm@cs.tu-berlin.de>
+

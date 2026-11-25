@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Converted
+Format: MID (GM)
+Original Composer: Robert King
+Sequencer: Robert King
+Num of tunes: 21
+Complete: 100%
+
+*** Game info ***
+Name: Heroes of Might & Magic 2 Gold
+Platform: PC
+Year: 1998
+Genre: Strategy
+Publisher: 3DO
+Developer: New World Computing

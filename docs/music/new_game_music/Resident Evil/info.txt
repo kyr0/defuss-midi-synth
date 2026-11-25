@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Masami Ueda
+Sequencer: Albert Wesker, Roar Furnes, ANti MaN
+Num of tunes: 5
+Complete: 
+
+*** Game info ***
+Name: Resident Evil
+Platform: Sony PSX
+Year: 1996
+Genre: Mix
+Publisher: Virgin
+Developer: Capcom
+
+*** Additional info ***
+In Japan is this game known under name "Biohazard"

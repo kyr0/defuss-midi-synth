@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Meezo
+Num of tunes: 26
+Complete: 
+
+*** Game info ***
+Name: Godzilla
+Platform: NES
+Year: 1988
+Genre: Adventure
+Publisher: Compile
+Developer: Toho

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 5
+Complete:
+
+*** Game info ***
+Name: TFX EF2000
+Platform: PC
+Year: 1996
+Genre: Simulator
+Publisher: Ocean
+Developer: Digital Image Design

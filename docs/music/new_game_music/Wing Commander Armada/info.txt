@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID
+Original Composer: Aaron Martin
+Sequencer: Aaron Martin
+Num of tunes: 45
+Complete: 
+
+*** Game info ***
+Name: Wing Commander Armada
+Platform: PC
+Year: 1993
+Genre: Simulator
+Publisher: Origin
+Developer: Origin

@@ -73,7 +73,7 @@ button:where(:not(.btn, .toggle, .key)), .file-button {
   padding: 0.45rem 0.9rem; font: 1rem/1.1 var(--font-sans); cursor: pointer; box-shadow: 3px 3px 0 #000;
   text-transform: uppercase;
 }
-button:where(:not(.btn, .toggle, .key)):hover:not(:disabled), .file-button:hover { background: var(--primary); color: var(--primary-foreground); }
+button:where(:not(.btn, .toggle, .key, .card-cover)):hover:not(:disabled), .file-button:hover { background: var(--primary); color: var(--primary-foreground); }
 button:where(:not(.btn, .toggle, .key)):active:not(:disabled), .file-button:active { translate: 3px 3px; box-shadow: none; }
 button:disabled { opacity: 0.45; cursor: default; }
 .accent { color: var(--dos-yellow); border-color: var(--dos-yellow); }
@@ -134,15 +134,18 @@ input[type=range]:where(:not(.slider)) { width: 100%; margin: 0.9rem 0 0; accent
 .key.active, .key.active:hover { background: var(--primary); box-shadow: inset -3px -4px 0 #0b8a36; }
 .key.black.active { background: #0b8a36; }
 .key-hints { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.3rem 1rem; margin-top: 0.5rem; color: var(--muted-foreground); }
+.midi-input { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+#midi-permission { padding: 0.2rem 0.5rem; }
 #midi-in { color: var(--dos-cyan); }
 
-/* Your MIDI: two windows side by side, to open a file and to download what was played */
-.your-midi { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.6rem; scroll-margin-top: 1rem; }
+#your-midi { scroll-margin-top: 1rem; }
+.take-panel { margin-top: 1.6rem; }
 .file-panel { display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; padding: 1rem; box-shadow: 4px 4px 0 #0b3d1a; }
 .file-panel h3 { margin: 0 0 0.6rem; font-size: 16px; line-height: 1.6; color: var(--dos-yellow); }
 .file-panel p { margin: 0; color: var(--foreground); line-height: 1.25; }
-.file-button { align-self: flex-start; }
-.file-button input { display: none; }
+.file-button { align-self: flex-start; position: relative; }
+.file-button input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.file-button:focus-within { outline: 2px solid var(--dos-yellow); outline-offset: 3px; }
 #take-info { color: var(--dos-cyan); }
 
 /* The footer: four columns on a panel */
@@ -166,7 +169,6 @@ input[type=range]:where(:not(.slider)) { width: 100%; margin: 0.9rem 0 0; accent
   .display-main { min-height: 6.5rem; }
   #scope { width: 38%; }
   #patch-name { font-size: 12px; }
-  .tempo, .key-hints span:last-child { display: none; }
+  .tempo, .key-hints > span:last-child { display: none; }
   .keyboard { height: 7rem; }
-  .your-midi { grid-template-columns: 1fr; }
 }

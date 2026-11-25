@@ -1,0 +1,21 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-12-18
+
+File URL is http://www.vgmusic.com/new-files/DYTetris100.mid
+
+Uploaded by vgmusic@pineight.8m.com (Damian Yerrick)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Tetris
+Song Title: Music A (Techno Remix)
+Sequenced by: Damian Yerrick <vgmusic@pineight.8m.com>
+
+Other Information: A 3-minute song loop. You are welcome to use this in your GPLed game.
+
+Midi TrackName Analysis:
+
+
+soundtrack
+bass
+drums

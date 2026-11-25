@@ -1,0 +1,25 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/m1-remix.mid
+
+Uploaded by blazemore@earthlink.net (blazemore)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Metroid
+Song Title: Kraid's Hideout (Remix)
+Sequenced by: Tom Kim <tdkim@umich.edu>
+Other Information: 
+
+Midi TrackName Analysis:
+
+
+e. guitar
+e. guitar-echo
+e.guitar2-echo
+e.guitar2-echo
+bass
+bass2
+drums
+violin

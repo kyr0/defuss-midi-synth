@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Remix
+Format: MID
+Original Composer: Lee Jackson, Robert Prince
+Sequencer: ICE
+Num of tunes: 1
+Complete:
+
+*** Game info ***
+Name: Duke Nukem 3D (Arranged)
+Platform: PC
+Year: 1995
+Genre: FPS
+Publisher: GT Interactive
+Developer: 3D Realms

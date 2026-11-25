@@ -1,0 +1,36 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/MM2-Flashmans_Stage_-_Conducted.mid
+
+Uploaded by bobafett@metropolis.de (Georg Vallant)
+Originating IP Address: 212.185.251.134
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Flash Man's Stage (Remix)
+Sequenced by: Trevor Kuprel
+Song Originally Composed by: 
+
+Other Information: 
+Famicon
+
+
+Midi TrackName Analysis:
+
+
+Remixed - Original by Konami
+
+Famicon
+
+Remixed with Cakewalk Pro Audio 6.0
+
+1st Piano
+Heavy Drums
+Light Drums
+2nd Piano
+Striker
+Clap Hands
+Support Piano
+Bass Lead

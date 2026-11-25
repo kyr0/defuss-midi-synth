@@ -1,0 +1,23 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-03-06
+
+File URL is http://www.vgmusic.com/new-files/sm3fortress.mid
+
+Uploaded by markjansen@uswest.net (Mark Jansen)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Super Mario Bros. 3
+Song Title: Fortress
+Sequenced by: Mark Jansen <markjansen@uswest.net>
+Other Information: This will probably be the final edit. I've got the instruments right this time.
+
+Midi TrackName Analysis:
+
+
+Channel 1
+Channel 2
+Channel 3
+Percussion
+Fretless Bass
+Fretless Bass

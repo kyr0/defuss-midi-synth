@@ -1,0 +1,32 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/mario.mid
+
+Uploaded by nook@spray.se (Martin Udden)
+Originating IP Address: 130.236.234.98
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Super Mario Bros.
+Song Title: Theme Song (Remix)
+Sequenced by: Martin Udden <nook@spray.se>
+Other Information: 
+Somewhat rearranged
+
+
+Midi TrackName Analysis:
+
+
+Org 2
+Org 3
+Bass
+Drums
+Death
+Whistle 1
+Whistle 2
+Whistle 3
+Org 3
+Org 1
+Org 2
+Bas

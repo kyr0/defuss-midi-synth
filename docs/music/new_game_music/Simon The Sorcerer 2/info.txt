@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID (FM, GM)
+Original Composer: Dave Punshon
+Sequencer: Dave Punshon
+Num of tunes: 173
+Complete:
+
+*** Game info ***
+Name: Simon The Sorcerer 2
+Platform: PC
+Year: 1995
+Genre: Adventure
+Publisher: Adventuresoft
+Developer: Head First Productions

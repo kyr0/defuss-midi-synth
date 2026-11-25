@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Tony Thai
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Super Bomberman 2
+Platform: SNES
+Year: 1994
+Genre: Classic
+Publisher: Hudson
+Developer: Hudson

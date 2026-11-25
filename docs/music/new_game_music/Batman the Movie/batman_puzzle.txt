@@ -1,0 +1,32 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2001-04-19
+
+File URL is http://www.vgmusic.com/new-files/batman_puzzle.mid
+
+Uploaded by lilvas@hut.fi (Chuck Dodgers)
+Originating IP Address: 193.229.72.75
+
+File Type: MIDI
+Game System: Commodore 64
+Game Name: Batman: The Movie
+Song Title: The Puzzle
+Sequenced by: Chuck Dodgers <lilvas@hut.fi>
+Song Originally Composed by: Matthew Cannon
+
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+Lead
+Bass
+SawBass
+Chords
+Zoh
+Drums
+Batman: the Movie
+Puzzle
+Orig. by Matthew Cannon
+Seq. by Chuck Dodgers
+lilvas@hut.fi

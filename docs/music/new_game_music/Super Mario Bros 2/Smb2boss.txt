@@ -1,0 +1,21 @@
+<html>Added by: Princess Peach Toadstool <toadstool@csnsys.com>
+Date Added: 1998-09-11
+
+File URL is http://www.vgmusic.com/new-files/Smb2boss.mid
+
+Uploaded by nklind@wolf.co.net (Nathanial Lind)
+
+Game System: Nintendo
+Game Name: Super Mario Bros. 2
+Song Title: Boss Theme
+Sequenced by: Nathaniel Lind <nklind@wolf.co.net>
+Other Information: I tried to make it sound the most like the Nintendo version,the song that plays when you fight Birdo.
+
+Midi TrackName Analysis:
+
+
+Bass
+Super Mario Bros. 2: Boss
+Nathaniel Lind
+Use with Sounf Canvas/SCC1
+for best results.

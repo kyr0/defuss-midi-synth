@@ -1,0 +1,25 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/Mario_Party_Adventure.mid
+
+Uploaded by stuartcole@home.com (Michael Cole [Luigi])
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mario Party
+Song Title: "Adventure Begins" (General Version)
+Other Information: There is an instrument that will not sound good if you do not have an AWE64 on the highest setting.  I'm not sure, but LIVE! PROBABLY WORKS with the other one too.  This omits this instrument, so use this for older sound cards.<Note to updater: You do not need to add this if you think it is unnessecary>
+
+Midi TrackName Analysis:
+
+
+The Adventure Begins
+Mario Party
+Sequenced by
+Michael Cole (Luigi)
+2nd theme
+Mysterious fade
+Percussion!
+Tuba
+Bass

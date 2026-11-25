@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Rhystic_One
+Type: Arranged
+Format: MID
+Original Composer: Kaertsy Hatakka, Kimmo Kajasto
+Sequencer: 
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Max Payne
+Platform: PC Windows
+Year: 2001
+Genre: FPS
+Publisher: Take 2 Interactive
+Developer: 3D Realms

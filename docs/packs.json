@@ -137,6 +137,12 @@
     "model": "UltraSound, 768 KiB",
     "sha256": "8c1b560b2bdb54956309046cb3b9324ec0d39e5c96da890fc3d75a35470aea81"
   },
+  "pci128.sf2": {
+    "manufacturer": "Creative",
+    "year": "1998",
+    "model": "Sound Blaster PCI 128, 2GMGSMT SoundFont",
+    "sha256": "cfa4b5899f118208b2a98b5cc0dd35a81d94b5ac4b44e4652308c2d5aa0d646f"
+  },
   "roland-mt32--mt-32-control-1-04-pcm.dspack": {
     "manufacturer": "Roland",
     "year": "1987",

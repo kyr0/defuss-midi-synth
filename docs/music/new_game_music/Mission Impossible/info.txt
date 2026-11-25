@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Anne Wallace, Strider Yokoshima
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Mission Impossible
+Platform: Nintendo 64
+Year: 1998
+Genre: Shooter
+Publisher: Ocean
+Developer: Infogrames

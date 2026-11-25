@@ -1,0 +1,29 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2001-01-20
+
+File URL is http://www.vgmusic.com/new-files/Visitor_Center.mid
+
+Uploaded by XelAdun@hotmail.com (Ben M.W.)
+Originating IP Address: 24.218.68.59
+
+File Type: MIDI
+Game System: Sega Genesis
+Game Name: Jurassic Park
+Song Title: Visitor Center
+Sequenced by: Ben M.W. <XelAdun@hotmail.com>
+
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+guitar_distortion XEL
+bass_synth XEL
+bass_slap XEL
+drums XEL
+guitar_overdrive XEL
+guitar_distortion XEL
+orchestra_hit XEL
+bass_electric XEL
+bass_electric XEL

@@ -1,0 +1,46 @@
+
+                         SIERRA ON-LINE, INC.
+            3-D Animated Adventure Game Soundtrack Series
+         ====================================================
+                             RED BARON          
+
+
+                          "INTRODUCTION"                 
+                           Cayanie Music
+         ====================================================
+                     Copyright (c)1990 Dynamix, Inc.         
+         ====================================================
+
+               G E N E R A L   M I D I   V E R S I O N
+
+
+System Requirements:
+
+- MIDI File player capable of reading Type 1 Standard MIDI file format
+- General MIDI sound device (Wave Table or SC-55 compatible recommeded)
+
+
+
+This Standard MIDI File was recorded directly from Dynamix's "Red Baron"
+simulation game.  It has been converted from the MT-32 version for playback
+on General MIDI sound cards.  A Wave Table or Sound Canvas compatible device
+is highly recommended.
+
+
+Recorded/converted to General MIDI File format by Tom Lewandowski.
+Address E-Mail questions or comments to:
+
+      tom+di@netnet.net
+
+
+      Visit us on the Internet!
+
+      QUEST STUDIOS
+      http://bayland.net/~tom+di/
+
+      THE ROLAND MT-32 SOUND MODULE RESOURCE CENTER
+      http://bayland.net/~tom+di/quest/roland.html
+
+
+
+

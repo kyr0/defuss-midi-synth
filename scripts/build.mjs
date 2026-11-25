@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
@@ -43,6 +44,15 @@ if (process.argv.includes('--prepare')) {
   await build({ entryPoints: ['src/worklet.ts'], outfile: 'dist/worklet.js', format: 'esm', bundle: true, target: 'es2022', sourcemap: true });
   await rm('docs/synth', { recursive: true, force: true });
   await cp('dist', 'docs/synth', { recursive: true });
+  // The gallery caches cores by checksum, including local AWE builds supplied under soundcards/.
+  const hashes = {};
+  for (const dir of ['docs/synth/assets', 'docs/synth/assets/profiles', 'docs/soundcards']) {
+    for (const name of await readdir(dir)) {
+      if (name.endsWith('.wasm')) hashes[name] = createHash('sha256').update(await readFile(`${dir}/${name}`)).digest('hex');
+    }
+  }
+  await build({ entryPoints: ['demo/card-cache.js'], outfile: 'docs/card-cache.js', format: 'esm', bundle: true, minify: true,
+    target: 'es2022', define: { CARD_CORE_HASHES: JSON.stringify(hashes) } });
   await cp('README.md', 'docs/llms.txt');
   await cp('LICENSE', 'docs/LICENSE.txt');
   await writeFile('docs/roms.json', `${JSON.stringify(await romTable())}\n`);
@@ -52,6 +62,7 @@ if (process.argv.includes('--prepare')) {
   await rm('docs/shadcn', { recursive: true, force: true });
   await mkdir('docs/shadcn', { recursive: true });
   for (const file of ['core.min.css', 'core.min.js', 'shaders.min.css', 'shaders.min.js', 'button/button.min.css', 'slider/slider.min.css',
+    'virtual-list/virtual-list.min.css', 'virtual-list/virtual-list.min.js', 'knob/knob.min.css', 'knob/knob.min.js', 'envelope/envelope.min.css', 'envelope/envelope.min.js',
     'slider/slider.min.js', 'select/select.min.css', 'toggle/toggle.min.css', 'toggle-group/toggle-group.min.css', 'audio/audio.min.css', 'playlist-item/playlist-item.min.css', 'progress/progress.min.css',
     'site-header/site-header.min.css', 'site-footer/site-footer.min.css', 'navigation-menu/navigation-menu.min.css']) {
     const text = (await readFile(`${shadcn}/${file}`, 'utf8')).replace(/\n?\/[*/]# sourceMappingURL=\S+( \*\/)?\s*$/, '\n');

@@ -1,0 +1,33 @@
+<html>Added by: Mike Newman <newman@vgmusic.com>
+Date Added: 2000-07-08
+
+File URL is http://www.vgmusic.com/new-files/turrican2_factory.mid
+
+Uploaded by c-dodgers@geocities.com (Chuck Dodgers)
+Originating IP Address: 194.197.68.45
+
+File Type: MIDI
+Game System: Commodore Amiga
+Game Name: Turrican 2
+Song Title: Level 4-2
+Sequenced by: Chuck Dodgers
+Song Originally Composed by: Chris Huelsbeck
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Calliope
+Tech1
+Tech2
+Saw
+BLead
+PSynth
+Turrican II
+Dr. Walker's Factory
+Orig. by Chris Huelsbeck
+Seq. by Chuck Dodgers
+c-dodgers@geocities.com

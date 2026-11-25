@@ -12,6 +12,8 @@ export interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
   baseUrl?: string | URL;
   /** SoundFont 2 bytes or URL (relative to baseUrl) for the soundfont engine; defaults to the bundled TimGM6mb.sf2. */
   soundfont?: SoundFontSource;
+  /** Optional reader for engine WASM URLs, for instance from an application cache. */
+  readWasm?(url: URL, timeoutMs?: number, onProgress?: ProgressListener): Promise<Uint8Array>;
   /** Hears each download and decompression of the files this synthesizer loads: modules, SoundFonts, banks. */
   onProgress?: ProgressListener;
   /** Connect to context.destination automatically; disable for custom graphs. */
@@ -67,7 +69,7 @@ export class MidiSynth {
     try {
       const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile), sampleRate: context.sampleRate });
       const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL('./', import.meta.url);
-      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress, options.profileSources), context.audioWorklet.addModule(new URL('worklet.js', base))]);
+      const [part] = await Promise.all([MidiSynth.part(settings.engine, base, options.soundfont, timeout, true, options.onProgress, options.profileSources, true, options.readWasm), context.audioWorklet.addModule(new URL('worklet.js', base))]);
       node = new AudioWorkletNode(context, 'defuss-midi-synth', {
         numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2],
         processorOptions: { part, settings, capacity },
@@ -93,9 +95,9 @@ export class MidiSynth {
   /** Fetches kind's module (unless withWasm is false: the worklet holds it), with the SoundFont for the soundfont
    *  engine and the pack for a native profile, and compiles it off the audio thread when compile is true. Structured
    *  cloning copies the buffers into the audio thread; slices keep a caller's untouched. */
-  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener, sources?: ProfileSourceMap, withWasm = true): Promise<EnginePart> {
-    if (isNativeProfile(kind)) return nativePart(kind, base, sources, compile, timeout, onProgress, withWasm);
-    const [wasm, font] = await Promise.all([withWasm ? readBytes(new URL(kind === 'fm' || kind === 'sb16-opl3' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress) : undefined,
+  private static async part(kind: EngineKind, base: URL, soundfont: SoundFontSource | undefined, timeout: number, compile: boolean, onProgress?: ProgressListener, sources?: ProfileSourceMap, withWasm = true, readWasm = readBytes): Promise<EnginePart> {
+    if (isNativeProfile(kind)) return nativePart(kind, base, sources, compile, timeout, onProgress, withWasm, readWasm);
+    const [wasm, font] = await Promise.all([withWasm ? readWasm(new URL(kind === 'fm' || kind === 'sb16-opl3' ? FM_WASM_ASSET : WASM_ASSET, base), timeout, onProgress) : undefined,
       kind === 'soundfont' ? soundFontBytes(soundfont, base, SOUNDFONT_ASSET, timeout, onProgress) : undefined]);
     const copy = (bytes: Uint8Array) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
     const part: Extract<EnginePart, { kind: 'soundfont' | 'fm' | 'sb16-opl3' }> = { kind, key: moduleKey(kind) };
@@ -125,10 +127,11 @@ export class MidiSynth {
   }
   /** Loads kind again on its profileSources, in place of the loaded engine; the worklet keeps the compiled module
    *  unless a new one comes (withWasm), so a new pack costs no new fetch or compile of its core. The previous sources
-   *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses. */
-  private reload(kind: SynthProfile, withWasm: boolean): Promise<void> {
+   *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses.
+   *  useSoundFont also uses this path to install the first SF2 directly or replace one during playback. */
+  private reload(kind: SynthProfile, withWasm: boolean, soundfont = this.options.soundfont): Promise<void> {
     const load = (async () => {
-      const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, withWasm);
+      const part = await MidiSynth.part(kind, this.base, soundfont, this.timeout, false, this.options.onProgress, this.sources, withWasm, this.options.readWasm);
       this.current = await this.request<SynthInfo>('addEngine', [part, true]);
     })().finally(() => this.loading.delete(kind));
     this.loading.set(kind, load);
@@ -188,6 +191,13 @@ export class MidiSynth {
     this.current = await this.request<SynthInfo>('loadSoundFont', [bytes]);
     return this.current;
   }
+  /** Opens a SoundFont and selects it in one operation. A playing MIDI keeps its position across the change. */
+  async useSoundFont(source: SoundFontSource): Promise<SynthInfo> {
+    if (this.disposed) throw new Error('Synth is disposed');
+    if (this.loading.has('soundfont')) throw new Error('The soundfont engine is loading');
+    await this.reload('soundfont', !this.current.engines.includes('soundfont'), source);
+    return this.useEngine('soundfont');
+  }
   /** Makes kind's engine play, fetching and compiling it first when needed, and resolves with the new info. A loaded
    *  file keeps its position and plays on; scheduled events are cleared. */
   async useEngine(kind: EngineKind): Promise<SynthInfo> {
@@ -199,7 +209,7 @@ export class MidiSynth {
         const key = moduleKey(kind), shared = this.modules.get(key);
         load = (async () => {
           const held = shared ? await shared : false;
-          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, !held);
+          const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, !held, this.options.readWasm);
           this.current = await this.request<SynthInfo>('addEngine', [part]);
         })().finally(() => this.loading.delete(kind));
         this.loading.set(kind, load);

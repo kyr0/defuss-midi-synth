@@ -1,0 +1,45 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-23
+
+File URL is http://www.vgmusic.com/new-files/DG_SMB_Main.mid
+
+Uploaded by dan.g@debitel.net (Daniel Genz)
+Originating IP Address: 62.54.138.196
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Super Mario Bros.
+Song Title: Theme Song (Arranged)
+Sequenced by: Daniel Genz <dan.g@debitel.net>
+Song Originally Composed by: Koji Kondo
+
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+"Main Theme"
+Sequenced,
+arranged and
+mixed by
+Daniel Genz
+dan.g@debitel.net
+Guitar
+Piano
+Flute
+Flute Echo
+Music Box Hi
+Music Box Lo
+Orch Hit
+Bass
+Kick
+Snare
+Clap
+Hi Hat
+Ride
+Percussion
+Toms
+Scratch
+Zap
+Crash & Cymbal

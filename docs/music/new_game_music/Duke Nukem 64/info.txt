@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Lee Jackson, Robert Prince
+Sequencer: The Barrier
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Duke Nukem 64
+Platform: Nintendo 64
+Year: 1997
+Genre: FPS
+Publisher: GT Interactive
+Developer: Eurocom

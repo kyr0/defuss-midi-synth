@@ -1,5 +1,5 @@
-import { k as MidiParser, u as dataBytes, v as MIDI_RESET, x as packMessage, y as SYSEX_MAX, q as isReset, i as integer, h as inputBytes, z as MAX_BANK_BYTES, G as GM_PROGRAMS, A as isResetMessage, B as MAX_SOUNDFONT_BYTES, C as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, D as FM_BANKS, j as MAX_SONG_BYTES, f as finite, E as OP, H as OP_COUNT, I as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, J as instantiateProfile, m as moduleKey } from './profile-store-D7-fELbx.js';
-export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, t as openProfileStore } from './profile-store-D7-fELbx.js';
+import { k as MidiParser, u as dataBytes, v as MIDI_RESET, x as packMessage, y as SYSEX_MAX, q as isReset, i as integer, h as inputBytes, z as MAX_BANK_BYTES, G as GM_PROGRAMS, A as isResetMessage, B as MAX_SOUNDFONT_BYTES, C as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, D as FM_BANKS, j as MAX_SONG_BYTES, f as finite, E as OP, H as OP_COUNT, I as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, J as instantiateProfile, m as moduleKey } from './profile-store-DcWn1JWP.js';
+export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, t as openProfileStore } from './profile-store-DcWn1JWP.js';
 
 const FM_BANK_NAMES = Object.freeze([
   "AIL (The Fat Man 2op set, default AIL)",
@@ -139,6 +139,19 @@ class Reader {
     return s;
   }
 }
+function metaText(reader, size) {
+  const length = Math.min(size, 2048);
+  const raw = reader.text(length).split(String.fromCharCode(0))[0];
+  reader.at += size - length;
+  if (Array.from(raw).some((char) => char.charCodeAt(0) > 127)) {
+    const encoded = Array.from(raw, (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+    try {
+      return decodeURIComponent(encoded).trim();
+    } catch {
+    }
+  }
+  return raw.trim();
+}
 const ascii = (bytes, at, text) => text.split("").every((c, i) => bytes[at + i] === c.charCodeAt(0));
 function parseSong(bytes) {
   if (ascii(bytes, 0, "MThd")) return parseSmf(bytes);
@@ -175,6 +188,7 @@ function parseSmf(bytes) {
     secondsPerTick = (tempo2) => tempo2 / 1e6 / division;
   }
   r.at = 8 + headerLength;
+  const metadata = { format, trackCount: tracks };
   const entries = [];
   let sysexCount = 0;
   let title = "", endTick = 0, track = 0, order = 0;
@@ -242,7 +256,9 @@ function parseSmf(bytes) {
       tick += t.vlq();
       let byte = t.u8();
       if (byte === 255) {
-        const type = t.u8(), size = t.vlq();
+        const type = t.u8();
+        if (type === 47 && t.at + 2 === t.end && t.bytes[t.at] === 255 && t.bytes[t.at + 1] === 0) break;
+        const size = t.vlq();
         t.need(size);
         if (type === 47) {
           t.at += size;
@@ -250,9 +266,16 @@ function parseSmf(bytes) {
         }
         if (type === 81 && size === 3) {
           const tempo2 = t.u8() << 16 | t.u8() << 8 | t.u8();
+          if (tick === 0 && tempo2) metadata.initialBpm = 6e7 / tempo2;
           if (tempo2) entries.push({ tick, track, order: order++, tempo: tempo2, message: 0 });
-        } else if (type === 3 && track === 0 && !title) title = t.text(size).split(String.fromCharCode(0))[0].trimEnd();
-        else t.at += size;
+        } else if (type === 3 && track === 0 && !title) title = metaText(t, size);
+        else if (type === 2 && !metadata.copyright) metadata.copyright = metaText(t, size);
+        else if (type === 1 && !metadata.text) metadata.text = metaText(t, size);
+        else if (type === 88 && tick === 0 && size === 4) {
+          const numerator = t.u8(), exponent = t.u8();
+          if (numerator && exponent < 16) metadata.timeSignature = `${numerator}/${2 ** exponent}`;
+          t.at += 2;
+        } else t.at += size;
         continue;
       }
       if (byte === 240 || byte === 247) {
@@ -296,7 +319,7 @@ function parseSmf(bytes) {
     }
   }
   const duration = seconds + Math.max(0, endTick - lastTick) * secondsPerTick(tempo);
-  return { title, duration, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
+  return { title, duration, metadata, times: Float64Array.from(times), messages: Uint32Array.from(messages), sysex };
 }
 const MUS_CONTROLLERS = [0, 0, 1, 7, 10, 11, 91, 93, 64, 67];
 const MUS_SYSTEM = { 10: 120, 11: 123, 12: 126, 13: 127, 14: 121 };
@@ -733,7 +756,7 @@ class Engine {
     this.index = 0;
     this.position = 0;
     this.message(MIDI_RESET);
-    return this.playbackInfo();
+    return song.metadata ? { ...this.playbackInfo(), metadata: song.metadata } : this.playbackInfo();
   }
   requireSong() {
     this.ensure();
@@ -1125,25 +1148,27 @@ class RenderSession {
 
 const MAX_WAV_FRAMES = Math.floor((4294967295 - 36) / 4);
 class EngineLoader {
-  constructor(settings, base, soundfont, onProgress, sources) {
+  constructor(settings, base, soundfont, onProgress, sources, readWasm = readBytes) {
     this.settings = settings;
     this.base = base;
     this.soundfont = soundfont;
     this.onProgress = onProgress;
     this.sources = sources;
+    this.readWasm = readWasm;
   }
   settings;
   base;
   soundfont;
   onProgress;
   sources;
+  readWasm;
   modules = /* @__PURE__ */ new Map();
   /** The compiled module of a built-in engine; a failed read or compile is tried again next time. */
   module(kind) {
     const key = moduleKey(kind);
     let module = this.modules.get(key);
     if (!module) {
-      module = readBytes(new URL(key, this.base), void 0, this.onProgress).then((bytes) => WebAssembly.compile(bytes));
+      module = this.readWasm(new URL(key, this.base), void 0, this.onProgress).then((bytes) => WebAssembly.compile(bytes));
       this.modules.set(key, module);
       module.catch(() => this.modules.delete(key));
     }
@@ -1154,7 +1179,7 @@ class EngineLoader {
   async voices(kind, fmBank = () => this.settings.fmBank) {
     const { settings } = this;
     if (isNativeProfile(kind)) {
-      const part = await nativePart(kind, this.base, this.sources, true, void 0, this.onProgress);
+      const part = await nativePart(kind, this.base, this.sources, true, void 0, this.onProgress, true, this.readWasm);
       return new NativeProfileVoices(kind, instantiateProfile(part.module), new Uint8Array(part.assets), settings.sampleRate, fmBank());
     }
     if (kind === "fm" || kind === "sb16-opl3") {
@@ -1182,7 +1207,7 @@ class OfflineSynth {
     const settings = normalizeOptions({ ...options, engine: selectEngine(options.engine, options.profile) });
     const capacity = integer(options.queueCapacity ?? 8192, 1, 1048576, "queueCapacity");
     const base = options.baseUrl ? new URL(options.baseUrl, import.meta.url) : new URL("./", import.meta.url);
-    const loader = new EngineLoader(settings, base, options.soundfont, options.onProgress, options.profileSources);
+    const loader = new EngineLoader(settings, base, options.soundfont, options.onProgress, options.profileSources, options.readWasm);
     return new OfflineSynth(new Engine(await loader.voices(settings.engine), settings), capacity, loader);
   }
   get info() {

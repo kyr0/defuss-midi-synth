@@ -1,0 +1,24 @@
+<html>Added by: Michael Newman <newman@snet.net>
+Date Added: 1998-07-02
+
+File URL is http://www.vgmusic.com/new-files/woodma~1.mid
+
+Uploaded by reiny@mail.tcbi.com (rollin' sixes)
+
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Wood Man's Stage (2)
+Other Information: different than the one already on your site
+
+Midi TrackName Analysis:
+
+
+Melody = Ocarina 80
+Bass2 = Woodblock 116
+Bass1 = Fretless Bass 36
+Solo = Choir Aahs 53
+Accomp. = Bright Aco Piano 2
+Tempo 164 Rythm = Hard Rock
+"Woodman" from Capcom's "Mega Man 2" by
+'Mingo' Games, Ltd.
+Assem. 11/17/1995

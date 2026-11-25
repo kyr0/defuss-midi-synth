@@ -1,0 +1,24 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Converted
+Format: MID (Converted from XMI using Winamp)
+Original Composer: Jason Rinaldi, Jeremy Bell
+Sequencer: Jason Rinaldi, Jeremy Bell
+Num of tunes: 5
+Complete: 
+
+*** Game info ***
+Name: Caesar 2
+Platform: PC Dos
+Year: 1995
+Genre: Strategy
+Publisher: Sierra
+Developer: Impressions
+
+*** Additional info ***
+I'm sure there are more Midi tunes in the game, but only these were stored
+in standard XMI format. If someone will be able to rip the other tunes,
+let me know.

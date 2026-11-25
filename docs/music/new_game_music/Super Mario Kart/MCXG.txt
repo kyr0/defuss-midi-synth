@@ -1,0 +1,19 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/MCXG.mid
+
+Uploaded by none@no.email (Mj3)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario Kart
+Song Title: Mario Circuit (XG)
+Sequenced by: Mew2 (Unreality)
+
+Other Information: it's SMK-CircciutXG Versionit's better than my older versionit works on non xg stuff toounless you have a yamaha keyboard, ch. 9 will sound like junkcause it's drumsor yamaha other stuffxg alsoin xg, you can put drums on any channel using bank MSB 127fx sounds in MSB 126
+
+(I'll take your word for it since I don't have a cable for my Yamaha keyboard.  -Peach)
+
+Midi TrackName Analysis:
+

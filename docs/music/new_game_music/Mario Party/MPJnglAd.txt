@@ -1,0 +1,53 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-04-18
+
+File URL is http://www.vgmusic.com/new-files/MPJnglAd.mid
+
+Uploaded by toadstool@csnsys.com (Princess Peach Toadstool)
+
+File Type: MIDI
+Game System: Nintendo 64
+Game Name: Mario Party
+Song Title: DK's "Jungle Adventure"
+Sequenced by: Princess Peach Toadstool <toadstool@csnsys.com>
+Song Originally Composed by: Yasunori Mitsuda
+
+Other Information: 
+
+Dear N64 Fans:
+
+    I'm taking a little break from Zelda 64 MIDIs.
+I'd like to introduce my first Mario Party MIDI:
+DK's "Jungle Adventure". I am not too pleased with
+this MIDI mainly because the drums cannot be as
+well-made as the original song. Why?  MIDI is
+limited, and only has basic drums, and none of that
+techno stuff.  But, I did what I could with what I
+had.  I strongly recommend wave synthesis with this.
+FM Synth users will not be able to hear the "monkey"
+sound (possibly a cuica, like I used for the sound).
+In addition, this is the second version uploaded.
+I have fixed a small problem with the drums that
+shows on some sound fonts.  I honestly dislike making
+new versions of MIDIs, so my apologies to anyone who
+has already downloaded my first version.  This will
+*hopefully* be the final on this MIDI.  Oh, and a
+slight change on the information which is basically
+to help people know which Boards belong to which
+characters.  Also changed name from "Princess
+Toadstool" to "Peach".
+
+Comments are welcome.  Please enjoy.
+
+         Yours truly - -
+                        Princess Toadstool (Peach)
+
+Midi TrackName Analysis:
+
+
+Tenor Saxophone
+Orchestral Harp
+Kalimba
+Acoustic Bass
+Drums
+Mario Party - DK's "Jungle Adventure" by Peach (toadstool@csnsys.com)

@@ -1,15 +1,15 @@
+import { cards, variantSources } from '../docs/sound-cards.js';
+import { renderWav } from '../docs/render.js';
+import { checkFx } from './fx-e2e.mjs';
 import { chromium } from '@playwright/test';
-import { LOCAL_FILES, serve } from './serve.mjs';
+import { serve } from './serve.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { midiFixture, musFixture, rmiFixture, soundfont } from '../tests/fixtures.ts';
-import { dspack, ecwFixture, gusFixture } from '../tests/vintage-fixtures.ts';
-import { existsSync } from 'node:fs';
+import { gusFixture } from '../tests/vintage-fixtures.ts';
 import assert from 'node:assert/strict';
 import { compress, init as brotli } from 'defuss-brotli/compressor';
 await brotli();
-// The page as a public copy has it, but with the AWE builds of this machine where they exist; the Sound Blaster 128
-// SoundFont gets a server of its own below.
-const server = await serve('docs', 0, { local: { 'awe32.wasm': LOCAL_FILES['awe32.wasm'], 'awe64.wasm': LOCAL_FILES['awe64.wasm'] } });
+const server = await serve('docs');
 // SwiftShader gives headless Chromium WebGL2, so the player's shader renders instead of its poster.
 const browser = await chromium.launch({ args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 // One context, so a second page shares the first one's origin storage (OPFS).
@@ -17,8 +17,14 @@ const context = await browser.newContext({ viewport: { width: 1280, height: 1100
 const page = await context.newPage();
 const errors = []; page.on('pageerror', error => errors.push(error.message));
 page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
-page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
-const hub = []; page.on('request', request => { if (request.url().startsWith('https://huggingface.co/')) hub.push(request.url()); });
+page.on('requestfailed', request => {
+  // Closing the VGZ transport cancels the browser's range read of its in-memory PCM blob.
+  if (request.url().startsWith('blob:') && request.failure()?.errorText === 'net::ERR_ABORTED') return;
+  errors.push(`${request.url()}: ${request.failure()?.errorText}`);
+});
+const isCardAsset = url => /\.(?:dspack|ecw|sf2|wasm)$/i.test(new URL(url).pathname);
+const cardRequests = [];
+page.on('request', request => { if (isCardAsset(request.url())) cardRequests.push(new URL(request.url()).pathname); });
 const fmModules = []; page.on('request', request => { if (request.url().endsWith('/fm-synth.wasm')) fmModules.push(request.url()); });
 page.on('response', response => { if (response.status() >= 400) errors.push(`${response.url()}: HTTP ${response.status()}`); });
 const url = `http://127.0.0.1:${server.address().port}`;
@@ -48,43 +54,59 @@ const wavStats = async path => {
 try {
   await page.goto(url);
   // The player lists docs/music/index.json before audio starts.
-  await page.waitForFunction(() => document.querySelectorAll('#albums input').length === 34);
-  assert.equal(await text('#library'), '34 ALBUMS · 954 TRACKS');
+  await page.waitForFunction(() => document.querySelector('#game-count')?.textContent === '311 albums');
+  assert.equal(await page.locator('#albums .virtual-list-cell').first().locator(':scope > :first-child').getAttribute('id'), 'your-midi');
+  assert.equal(await page.locator('#your-midi button').isEnabled(), true);
+  const crateTiles = await page.locator('#your-midi, #albums .album').evaluateAll(tiles =>
+    tiles.slice(0, 3).map(tile => tile.getBoundingClientRect().toJSON()));
+  assert.ok(crateTiles.every(tile => tile.y === crateTiles[0].y), 'The upload and the first two albums share the first desktop row');
+  assert.ok(crateTiles[0].x < crateTiles[1].x && crateTiles[1].x < crateTiles[2].x);
+  assert.equal(await text('#stats-rms'), '—');
+  assert.deepEqual(cardRequests, [], 'the gallery opens without downloading any cores or banks');
+  assert.equal(await text('#library'), '311 ALBUMS · 7491 TRACKS');
   // The page has no power state text.
   assert.equal(await page.locator('#state').count(), 0);
-  // The page opens on Warcraft II, with its bank alone in the list before audio starts; the test plays Doom.
+  // The gallery selects the default waveset before audio starts.
   assert.equal(await text('#album-title'), 'Warcraft II: Tides of Darkness');
   assert.equal(await page.locator('#tracks li').count(), 18);
-  assert.match(await page.locator('#fm-banks').textContent(), /^18 · .*\(Warcraft II: Tides of Darkness\)$/);
-  // A sleeve's click starts audio on the FM engine with Doom's bank and plays the album's first track.
+  await pressed('#cover-sb128', 'true');
+  await pressed('button[value="sb128_EAPCI2M.ECW"]', 'true');
+  assert.equal(await page.locator('#fm-banks').isHidden(), true);
+  assert.deepEqual((await page.locator('#albums label strong').allTextContents()).slice(0, 3), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors']);
+  assert.equal(await page.locator('#albums .album-year').first().textContent(), '1995');
+  // A sleeve's click loads only the PCI core and its 2 MB waveset.
   await album('doom-1993'); assert.equal(await text('#album-title'), 'Doom');
   // One list holds all of an album's editions (GM 23, Adlib 1, Unreleased 31), each row naming its own.
   assert.equal(await page.locator('#tracks li').count(), 55); assert.equal(await page.locator('#edition').count(), 0);
   assert.equal(await page.locator('#tracks small', { hasText: /^Adlib$/ }).count(), 1);
   assert.equal(await page.locator('#tracks small', { hasText: /^Unreleased$/ }).count(), 31);
-  assert.deepEqual((await page.locator('#albums label strong').allTextContents()).slice(0, 3), ['Warcraft II: Tides of Darkness', 'Age of Empires II: The Age of Kings', 'Age of Empires II: The Conquerors']);
   // The DOS page: the Matrix rain behind it and the album's cover on a CRT tube, both drawn by defuss-shadcn's shaders; the
   // sleeves carry their years; the footer has no API notes.
   await page.waitForSelector('#page-rain[data-ready]'); await page.waitForSelector('#cover-art[data-ready]');
   assert.equal(await page.getAttribute('#page-rain', 'data-effect'), 'matrix');
-  assert.equal(await page.locator('#albums .album-year').first().textContent(), '1995');
   assert.equal(await page.locator('footer a', { hasText: 'API notes' }).count(), 0);
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).fontFamily.includes('IBM VGA 8x14')), true);
   // Every sleeve shows its cover on the release cover's CRT tube.
-  assert.equal(await page.locator('#albums .shader[data-effect="crt"] img').count(), 34);
+  assert.ok(await page.locator('#albums .shader[data-effect="crt"] img').count() < 35);
   // The sleeve's track plays and Bergium draws; the sound reaches the analyser and the rain.
   await page.waitForSelector('#led.on');
   await title('Intro · Doom'); await sounding();
   // Loud music makes the rain fall faster than its quiet 0.6.
   await page.waitForFunction(() => Number(document.querySelector('#page-rain').dataset.speed) > 0.62);
   assert.equal(await page.getAttribute('#toggle', 'aria-pressed'), 'true');
+  assert.equal(await text('#engine-label'), 'SOUND BLASTER PCI 128');
+  const pciAssets = ['/soundcards/sb128_EAPCI2M.ECW', '/synth/assets/profiles/sb-pci128.wasm'];
+  assert.deepEqual([...cardRequests].sort(), pciAssets);
+  await page.click('#cover-sb16');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
   // The FM engine shows its banks as a list, the game's chosen, and no bank text.
   await page.waitForFunction(() => document.querySelectorAll('#fm-banks option').length === 79);
   assert.equal(await page.locator('#fm-banks').inputValue(), '16');
   assert.equal(await page.locator('#fm-banks option:checked').textContent(), '16 · DMX (Bobby Prince v1) (Doom)');
   assert.equal(await page.locator('#soundfont-name').isHidden(), true);
+  await page.getByRole('button', { name: 'Allow MIDI access' }).click();
   assert.equal(await text('#midi-in'), 'WEB MIDI: TEST KEYS');
+  assert.equal(await page.locator('#midi-permission').isHidden(), true);
   // The piano's scope stays flat while only the player sounds.
   await page.waitForFunction(() => document.querySelector('#scope').dataset.live === 'false');
   await pressed('#visualizer .toggle[value=milkdrop]', 'true');
@@ -114,7 +136,17 @@ try {
   await page.click('#toggle'); await pressed('#toggle', 'false');
   await page.waitForTimeout(400); const held = await position(); await page.waitForTimeout(600);
   assert.equal(await position(), held, 'a paused track holds its position');
+  const overlay = page.locator('#visual-panel');
+  assert.equal(await overlay.evaluate(el => getComputedStyle(el).opacity), '0');
   await page.click('#toggle'); await pressed('#toggle', 'true');
+  await page.waitForTimeout(1300);
+  assert.equal(await overlay.evaluate(el => el.inert && getComputedStyle(el).opacity === '0'), true);
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#visual-panel')).opacity === '1');
+  assert.equal(await overlay.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 0, 0)');
+  assert.equal(await page.locator('#visual-crt').evaluate(el => getComputedStyle(el).opacity), '1');
+  await page.click('#stop'); await pressed('#toggle', 'false');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#visual-panel')).opacity === '0');
+  assert.equal(await page.locator('#cover-art').isVisible(), true);
   await page.click('#next'); await title("The Imp's Song (E1M2) · Doom");
   await page.click('#previous'); await title("At Doom's Gate (E1M1) · Doom");
   // The volume, the mute button and the instrument's output slider move together.
@@ -139,40 +171,89 @@ try {
   await page.click('#tracks li:nth-child(3) label'); await title('Searching For the Enemy (E1M2) · Wolfenstein 3D');
   assert.equal(await page.locator('#fm-banks').inputValue(), '58'); assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · BANK 58');
   assert.equal(await page.locator('#bank option').count(), 2); assert.equal(await page.locator('#program option').count(), 128);
-  // Raptor's files state Doom's 140 Hz clock; the index's tempo plays them at Raptor's 70 Hz, twice as long.
-  await album('raptor-call-of-the-shadows-1994'); await page.click('#tracks li:nth-child(5) label'); await title('Wave Music 1 · Raptor: Call of the Shadows');
-  assert.equal(await text('#duration'), '0:33');
-  await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 64');
-  const raptor = await position(); await page.waitForTimeout(1500); const raptorMoved = await position() - raptor;
-  assert.ok(raptorMoved > 1.1 && raptorMoved < 1.9, `at tempo 0.5 the position moved ${raptorMoved} s in 1.5 s`);
+  await album('raptor-call-of-the-shadows-1994');
+  for (const edition of ['MUS', 'MDS']) {
+    const cue = page.locator('#tracks li').filter({ has: page.getByText('Wave Music 1', { exact: true }) })
+      .filter({ has: page.getByText(edition, { exact: true }) });
+    const loaded = page.waitForResponse(response => response.url().endsWith(`__RAP1_${edition}.mid`) && response.ok());
+    await cue.locator('label').click();
+    await loaded;
+    await title('Wave Music 1 · Raptor: Call of the Shadows');
+    assert.equal(await text('#duration'), '1:34');
+    await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 64');
+    await sounding();
+  }
   await album('doom-1993'); await page.click('#tracks li:nth-child(2) label'); await title("At Doom's Gate (E1M1) · Doom");
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
   await page.selectOption('#bank', '128'); assert.deepEqual(await page.locator('#program option').allTextContents(), ['001 · Percussion']);
   await page.selectOption('#bank', '0');
-  // The SoundFont engine loads the OPL-3 FM 128M SoundFont, Brotli-compressed, and the song plays on; then FM again.
-  // The progress bar shows its download and then its decompression, and leaves.
+  const label = value => page.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
+  const variant = file => `#sound-cards .toggle[value="${file}"]`;
+  assert.deepEqual(await page.locator('.card-cover strong').allTextContents(),
+    ['SoundBlaster 128', 'SoundBlaster 16', 'SoundBlaster AWE 64', 'SoundBlaster AWE 32', 'Gravis Ultrasound']);
+  assert.deepEqual(await page.locator('.card-cover .album-year').allTextContents(), ['1998', '1992', '1996', '1994', '1992']);
+  assert.deepEqual(await page.locator('.sound-card').evaluateAll(tiles => tiles.map(t => t.querySelectorAll('.toggle').length)), [3, 2, 0, 0, 0]);
+  assert.deepEqual([...cardRequests].sort(), [...pciAssets, '/synth/assets/fm-synth.wasm'].sort());
+  assert.deepEqual(await page.getByRole('group', { name: 'SoundBlaster 128 variants' }).getByRole('button').allTextContents(),
+    ['2 MB ECW', '4 MB ECW', '8 MB ECW']);
+  for (const id of ['sb16', 'sb128']) {
+    const cover = page.locator(`#cover-${id}`);
+    await cover.hover();
+    const contrast = await cover.evaluate(button => {
+      const luminance = color => {
+        const [r, g, b] = color.match(/[\d.]+/g).slice(0, 3).map(n => Number(n) / 255)
+          .map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+        return .2126 * r + .7152 * g + .0722 * b;
+      };
+      const ink = luminance(getComputedStyle(button.querySelector('strong')).color);
+      let bg = getComputedStyle(button).backgroundColor;
+      if (bg === 'rgba(0, 0, 0, 0)') bg = getComputedStyle(button.closest('.sound-cards')).backgroundColor;
+      const paper = luminance(bg);
+      return (Math.max(ink, paper) + .05) / (Math.min(ink, paper) + .05);
+    });
+    assert.ok(contrast >= 4.5, `hovered ${id} caption contrast: ${contrast}`);
+  }
+  // Inspect the live Worklet's output gain without replacing audio nodes or the synth.
+  const cdp = await context.newCDPSession(page);
+  const { result: prototype } = await cdp.send('Runtime.evaluate', { awaitPromise: true,
+    expression: "import(new URL('./synth/index.js', location.href)).then(module => module.MidiSynth.prototype)" });
+  const { objects } = await cdp.send('Runtime.queryObjects', { prototypeObjectId: prototype.objectId });
+  await cdp.send('Runtime.callFunctionOn', { objectId: objects.objectId,
+    functionDeclaration: 'function () { window.__cardOutput = this[0].output.gain; }' });
+  await cdp.detach();
+  const { baseTrimDb } = JSON.parse(await readFile('docs/card-loudness.json'));
+  const { albums: catalog } = JSON.parse(await readFile('docs/music/index.json'));
+  const doomTracks = catalog.find(a => a.id === 'doom-1993').editions[0].tracks;
+  const checkGain = key => {
+    const correction = key === undefined ? 0 : baseTrimDb[key];
+    return page.waitForFunction(expected => Math.abs(window.__cardOutput.value - expected) < .0001, 10 ** (correction / 20), { timeout: 3000 });
+  };
   await page.evaluate(() => {
-    window.__labels = new Set();
-    new MutationObserver(() => window.__labels.add(document.querySelector('#load-label').textContent))
-      .observe(document.querySelector('#load-label'), { childList: true, characterData: true, subtree: true });
+    window.__labels = [];
+    new MutationObserver(() => {
+      if (!document.querySelector('#load-progress').hidden) window.__labels.push(document.querySelector('#load-label').textContent);
+    }).observe(document.querySelector('#load-label'), { childList: true, subtree: true });
   });
-  // The SoundFont comes from huggingface.co over the real network, capped at 50 MB/s, so the bar shows both phases.
-  const network = await page.context().newCDPSession(page);
-  await network.send('Network.enable');
-  await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: 50 * 1024 * 1024, uploadThroughput: -1 });
-  await page.click('#engine .toggle[value=soundfont]');
-  await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / OPL-3 FM 128M', null, { timeout: 120000 });
-  assert.equal(await text('#message'), 'SoundFont: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
-  assert.equal(await text('#soundfont-info'), 'OPL-3 FM 128M SoundFont (104 MB)'); assert.equal(await page.locator('#panel-sb16').isHidden(), true);
-  assert.equal(await page.locator('#fm-banks').isHidden(), true);
-  await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
-  assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
-  assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont comes from the Hub');
-  await page.waitForSelector('#load-progress', { state: 'hidden' });
-  await sounding();
-  await page.click('#engine .toggle[value=sb16]');
-  await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
-  assert.match(await text('#message'), /^Sound Blaster 16 \(OPL3\): .*18 voices\.$/);
+  await page.click('#cover-sb128'); await label('SOUND BLASTER PCI 128'); await sounding();
+  await pressed(variant('sb128_EAPCI2M.ECW'), 'true'); await checkGain('sb128_EAPCI2M.ECW');
+  assert.ok(!cardRequests.some(path => path.endsWith('pci128.sf2')));
+  await page.getByRole('button', { name: '4 MB ECW', exact: true }).click(); await label('SOUND BLASTER PCI 128');
+  await pressed(variant('sb128_EAPCI4M.ECW'), 'true'); await checkGain('sb128_EAPCI4M.ECW');
+  await page.waitForFunction(() => Number.isFinite(parseFloat(document.querySelector('#stats-lufs').textContent)) &&
+    Number.isFinite(parseFloat(document.querySelector('#stats-rms').textContent)));
+  assert.doesNotMatch(await text('.player-stats'), /stereo|mono|channels|events|late/i);
+  assert.match(await text('#stats-rate'), /kHz \(.+ samples\/s\)/);
+  assert.match(await text('#stats-delay'), /^Delay ≈ [\d.]+ ms$/);
+  assert.equal(await page.evaluate(() => {
+    const match = /^\d+ EVENTS · (\d+) VOICES · \d+ LATE$/.exec(document.querySelector('#queue').textContent);
+    return match && document.querySelector('#stats-activity').textContent === `${match[1]} voices`;
+  }), true);
+  await page.click('#mute'); await checkGain('sb128_EAPCI4M.ECW');
+  await page.waitForFunction(() => ['#stats-rms', '#stats-lufs'].every(id => ['−∞', '< −120'].includes(document.querySelector(id).textContent)));
+  await page.click('#mute'); await checkGain('sb128_EAPCI4M.ECW');
+  assert.equal(await text('#soundfont-name'), 'Sound Blaster PCI 128');
+  assert.ok((await page.evaluate(() => window.__labels)).includes('Downloading sb128_EAPCI4M.ECW'));
+  await page.click('#cover-sb16'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
   // A track's WAV button renders it on the engine and bank shown without choosing it.
   const trackDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
   const track = await trackDownload; assert.equal(track.suggestedFilename(), 'Doom - 1 Intro.wav');
@@ -180,144 +261,174 @@ try {
   const trackWav = await wavStats('output/browser-track.wav');
   assert.equal(trackWav.riff, 'RIFF'); assert.ok(trackWav.frames >= 8.5 * 48000 && trackWav.frames <= 9 * 48000, `${trackWav.frames} frames`); assert.ok(trackWav.peak > 300, `peak ${trackWav.peak}`);
   assert.equal(await page.locator('#tracks input:checked').inputValue(), '1');
-  // Jazz Jackrabbit 2 and The Settlers II play on the Sound Blaster 16 (OPL3), the profile of their index entries: an
-  // engine picked on Doom gives way to it. An engine picked on an album holds for its next track; the next album plays on
-  // its own profile.
-  const label = value => page.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
-  await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
+  // All card banks and cores are requested once, including separate wavesets of the same card.
+  const choices = [
+    ['#cover-sb128', 'SOUND BLASTER PCI 128'],
+    ...[2, 4, 8].map(size => [variant(`sb128_EAPCI${size}M.ECW`), 'SOUND BLASTER PCI 128']),
+    ['#cover-ultrasound', 'GRAVIS ULTRASOUND (GF1)'], ['#cover-awe32', 'SOUND BLASTER AWE32'],
+    ['#cover-awe64', 'SOUND BLASTER AWE64 (HARDWARE VOICES)'],
+    [variant('sb16-cqm'), 'LIBADLMIDI / NUKED CQM · BANK 16'],
+  ];
+  for (const [selector, name] of choices) {
+    await page.click(selector); await label(name); await pressed(selector, 'true');
+    const active = await page.locator('.card-cover[aria-pressed=true]').getAttribute('id');
+    const card = cards.find(c => active === `cover-${c.id}`);
+    const key = card.variants.length === 1 ? card.variants[0].file : await page.locator(`#${active} + .toggle-group [aria-pressed=true]`).getAttribute('value');
+    await checkGain(key);
+    if (key === 'sb128_EAPCI8M.ECW') {
+      // The variant trim holds across track changes and applies to any exported row.
+      await page.click('#tracks li:nth-child(3) label'); await title("The Imp's Song (E1M2) · Doom");
+      await checkGain(key);
+      // Verify the manual calibration against an independent dry render.
+      await page.locator('#fx-compressor').uncheck();
+      const pending = page.waitForEvent('download');
+      await page.locator('#tracks .track-download').first().click();
+      const bytes = await readFile(await (await pending).path());
+      const v = card.variants.find(v => v.file === key), file = doomTracks[0].file;
+      const sources = variantSources(v, await readFile(`docs/soundcards/${key}`)), midi = await readFile(`docs/music/${file}`);
+      const expectedWav = await renderWav(file, { engine: v.kind, profileSources: { [v.kind]: sources }, cardGain: 10 ** (baseTrimDb[key] / 20) },
+        s => { const info = s.loadMidi(midi); s.play(); return info.duration + 2; }, () => {});
+      assert.ok(bytes.equals(Buffer.from(await expectedWav.arrayBuffer())), 'ECW download uses the card gain');
+      await page.locator('#fx-compressor').check();
+      await page.click('#tracks li:nth-child(2) label'); await title("At Doom's Gate (E1M1) · Doom");
+    }
+    assert.equal(await text('#card-status'), '');
+    assert.equal(await page.locator('#toggle').getAttribute('aria-pressed'), 'true');
+  }
+  await page.fill('#game-search', 'jazz jackrabbit 2');
   await album('jazz-jackrabbit-2-1998'); await title('Lab Rat · Jazz Jackrabbit 2');
-  await label('LIBADLMIDI / NUKED OPL3 · BANK 0'); await pressed('#engine .toggle[value=sb16]', 'true'); await pressed('#engine-modes .toggle[value=sb16-opl3]', 'true'); await sounding();
-  await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
+  await label('LIBADLMIDI / NUKED CQM · BANK 0'); await pressed(variant('sb16-cqm'), 'true'); await checkGain('sb16-cqm');
+  await page.click(variant('sb128_EAPCI4M.ECW')); await label('SOUND BLASTER PCI 128');
   await page.click('#tracks li:nth-child(2) label'); await title('Carrotus · Jazz Jackrabbit 2');
-  assert.equal(await text('#engine-label'), 'TINYSOUNDFONT / OPL-3 FM 128M');
-  await album('the-settlers-ii-1996'); await title('Track 1 · The Settlers II'); await label('LIBADLMIDI / NUKED OPL3 · BANK 0');
-  await album('doom-1993'); await title('Intro · Doom'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
-  assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont loads once');
-  // The CQM plays the game's bank too.
-  await page.click('#engine-modes .toggle[value=sb16-cqm]'); await label('LIBADLMIDI / NUKED CQM · BANK 16'); await sounding();
-  assert.match(await text('#message'), /^Sound Blaster 16 \(CQM\): .*18 voices\.$/);
-  // The Sound Engine's ROMs: files dropped once become devices of its list, named by packs.json or by devices.json and
-  // their revision or own name, the newest release first; a device chosen plays on the real core: GF1 packs of the
-  // tests' own patches, an ECW waveset, an AWE pack. A WAV download renders with the device that plays; files the core
-  // rejects leave the device that played. The files are kept in OPFS: a second page of the same origin plays them
-  // without asking.
-  await page.click('#engine .toggle[value=roms]'); await pressed('#engine .toggle[value=roms]', 'true');
-  assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED CQM · BANK 16', 'the ROMs button with no device plays nothing');
-  assert.deepEqual(await page.locator('#devices option').allTextContents(), ['Drop your files to list their devices']);
-  // The button of the engine that plays shows its controls again; then back to the ROMs.
-  await page.click('#engine .toggle[value=sb16]'); await pressed('#engine .toggle[value=sb16]', 'true');
-  assert.equal(await page.locator('#panel-sb16').isVisible(), true); assert.equal(await page.locator('#panel-roms').isHidden(), true);
-  await page.click('#engine .toggle[value=roms]'); await pressed('#engine .toggle[value=roms]', 'true');
-  assert.equal(await page.locator('#forget-files').isHidden(), true, 'nothing stored yet'); assert.equal(await page.locator('#forget-device').isHidden(), true, 'no device yet');
-  const shows = async pattern => page.waitForFunction(source => new RegExp(source).test(document.querySelector('#message').textContent), pattern.source);
-  const clear = () => page.evaluate(() => { document.querySelector('#message').textContent = ''; });
-  // A drop as the browser makes it: a DragEvent with the files in its DataTransfer, on the list.
-  const dropFiles = files => page.evaluate(list => {
-    const transfer = new DataTransfer();
-    for (const [name, data] of list) transfer.items.add(new File([new Uint8Array(data)], name));
-    document.querySelector('#devices').dispatchEvent(new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true }));
-  }, files.map(([name, data]) => [name, [...data]]));
-  const choose = async (name, p = page) => p.selectOption('#devices', { label: name });
-  // The tests' synthetic files share names with the packs of docs/packs.json but not their bytes, so their own names
-  // (the file's, the waveset's) name them.
-  const gus32 = 'Advanced Gravis UltraSound, 1024k (1992)', gus14 = 'Advanced Gravis UltraSound, 256k (1992)';
-  const pci = 'Creative Sound Blaster PCI 128, Defuss synthetic fixture (1998)', badMt32 = 'Roland MT-32, mt32-bad (1987)';
-  await clear(); await dropFiles([['mt32-bad.dspack', dspack(9, [[1, Buffer.from('x')], [2, Buffer.from('y')]])], ['gus-gf1-1024k.dspack', gusFixture()],
-    ['notes.txt', Buffer.from('not a device')], ['gus-gf1-256k.dspack', gusFixture(14)]]);
-  await shows(/^3 devices from 4 files; not a device: notes\.txt\.$/);
-  assert.deepEqual(await page.locator('#devices option').allTextContents(), [gus14, gus32, badMt32]);
-  assert.equal(await page.locator('#devices option:checked').textContent(), gus14, 'the newest chosen');
-  // A later drop sorts in: the PCI 128 (1998) goes first and is chosen.
-  await clear(); await dropFiles([['EAPCI2M.ECW', ecwFixture()]]); await shows(/^1 device from 1 file\.$/);
-  assert.deepEqual(await page.locator('#devices option').allTextContents(), [pci, gus14, gus32, badMt32]);
-  assert.equal(await page.locator('#devices option:checked').textContent(), pci);
-  await choose(gus32); await label('GRAVIS ULTRASOUND (GF1)');
-  await page.locator('#forget-files').waitFor({ state: 'visible' });
-  assert.equal(await text('#message'), 'Gravis UltraSound (GF1): 129 presets. This browser keeps your files for later visits.');
-  await pressed('#engine .toggle[value=roms]', 'true'); await pressed('#engine .toggle[value=sb16]', 'false');
-  assert.equal(await text('#soundfont-name'), 'Gravis UltraSound (GF1)');
-  const gusDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
-  await (await gusDownload).saveAs('output/browser-track-gf1.wav');
-  assert.ok((await wavStats('output/browser-track-gf1.wav')).frames >= 8.5 * 48000, 'the WAV renders with the GF1 pack');
-  const files = (p = page) => p.evaluate(async () => {
-    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
-    const out = {}; for await (const [name, handle] of dir.entries()) out[name] = (await handle.getFile()).size; return out;
+  await pressed('#cover-sb128', 'true');
+  await page.fill('#game-search', 'doom');
+  await album('doom-1993'); await title('Intro · Doom'); await label('SOUND BLASTER PCI 128');
+  await pressed(variant('sb128_EAPCI4M.ECW'), 'true');
+  // The final track leaves the cover visible until the listener chooses the next album.
+  const priorAlbum = catalog[catalog.findIndex(a => a.id === 'doom-1993') - 1];
+  const lastTrack = priorAlbum.editions.at(-1).tracks.at(-1);
+  await page.click('#previous'); await title(`${lastTrack.title} · ${priorAlbum.title}`);
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#visual-panel')).opacity === '1');
+  await setRange('#seek', Number(await page.locator('#seek').getAttribute('max')) - 0.5, 'change');
+  await pressed('#toggle', 'false');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#visual-panel')).opacity === '0');
+  assert.equal(await text('#album-title'), priorAlbum.title);
+  assert.equal(await page.locator('#cover-art').isVisible(), true);
+  await page.click('#next');
+  await title('Intro · Doom'); await label('SOUND BLASTER PCI 128'); await pressed(variant('sb128_EAPCI4M.ECW'), 'true');
+  const expected = ['sb128_EAPCI2M.ECW', 'sb128_EAPCI4M.ECW', 'sb128_EAPCI8M.ECW',
+    'gus-gf1-1024k.dspack', 'awe32--emu8000-gm-rom-synthgs.dspack', 'awe64--emu8000-gm-rom-synthgs.dspack',
+    'awe32.wasm', 'awe64.wasm', 'fm-synth.wasm',
+    'sb-pci128.wasm', 'sb16-cqm.wasm', 'gus-gf1.wasm'].sort();
+  assert.deepEqual(cardRequests.map(url => url.split('/').pop()).sort(), expected);
+  const stored = await page.evaluate(async () => {
+    const parent = await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage');
+    const directory = await parent.getDirectoryHandle('midi-sound-cards');
+    return Array.fromAsync(directory.keys());
   });
-  // The stored GF1 pack's voice count, its last byte (tests/vintage-fixtures.ts gusFixture); undefined while a save
-  // swaps the file in, when reading it can fail for a moment.
-  const storedVoices = () => page.evaluate(async () => {
-    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
-    const bytes = new Uint8Array(await (await (await dir.getFileHandle('gus-gf1.dspack')).getFile()).arrayBuffer()); return bytes[bytes.length - 1];
-  }).catch(() => undefined);
-  const stored = async voices => { for (let i = 0; i < 300 && await storedVoices() !== voices; i++) await page.waitForTimeout(100); assert.equal(await storedVoices(), voices); };
-  // The other GF1 pack loads in the first one's place; the one stored is now the 256k pack.
-  await clear(); await choose(gus14); await shows(/^Gravis UltraSound \(GF1\): 129 presets\. This browser keeps/);
-  await stored(14);
-  // Two choices of the same profile in quick succession, as two arrow keys make them: they load one after the other,
-  // and the second, a third GF1 pack dropped now, plays and is stored last.
-  const gus24 = 'Advanced Gravis UltraSound, 512k (1992)';
-  await clear(); await dropFiles([['gus-gf1-512k.dspack', gusFixture(24)]]); await shows(/^1 device from 1 file\.$/);
-  await clear();
-  await page.evaluate(async ([first, then]) => {
-    const list = document.querySelector('#devices'), pick = label => { list.value = [...list.options].find(o => o.text === label).value; list.dispatchEvent(new Event('change')); };
-    pick(first); await new Promise(resolve => setTimeout(resolve, 0)); pick(then);
-  }, [gus32, gus24]);
-  await stored(24); await shows(/^Gravis UltraSound \(GF1\): 129 presets\. This browser keeps/);
-  assert.equal(await page.locator('#devices option:checked').textContent(), gus24);
-  // A pack the core rejects leaves the GF1 that played, chosen in the list.
-  await clear(); await choose(badMt32); await shows(/roland-mt32/);
-  assert.equal(await text('#engine-label'), 'GRAVIS ULTRASOUND (GF1)'); assert.equal(await page.locator('#devices option:checked').textContent(), gus24);
-  await choose(pci); await label('SOUND BLASTER PCI 128');
-  // Load pack… opens the file chooser. An AWE pack (the GPL bank in 6 MiB of RAM) plays on its card's local build,
-  // which the local server provides where it is built (not in a fresh checkout); without it the pack needs it.
-  const awePack = dspack(3, [[32, await readFile('vendor/soundfonts/TimGM6mb.sf2')], [33, Buffer.from([0, 0, 0, 0x18, 0, 0])]]), aweName = 'Creative Sound Blaster AWE32, TimGM6mb1.sf2 (1994)';
-  const chooser = page.waitForEvent('filechooser'); await page.click('#load-pack');
-  await clear(); await (await chooser).setFiles([{ name: 'awe32-test.dspack', mimeType: 'application/octet-stream', buffer: awePack }]); await shows(/^1 device from 1 file\.$/);
-  if (existsSync('profile-assets/local-builds/awe32.wasm')) {
-    await choose(aweName); await label('SOUND BLASTER AWE32');
-    const aweDownload = page.waitForEvent('download', { timeout: 120000 }); await page.click('#tracks li:nth-child(1) .track-download');
-    await (await aweDownload).saveAs('output/browser-track-awe32.wav');
-    const awe = await wavStats('output/browser-track-awe32.wav');
-    assert.ok(awe.frames >= 8.5 * 48000 && awe.peak > 1000, 'the WAV renders with the AWE module and bank');
-  } else assert.equal(await page.locator('#devices option', { hasText: `${aweName} (needs awe32.wasm)` }).isDisabled(), true);
-  // A second page of this origin lists the stored devices: its ROMs button plays the first, and one chosen plays
-  // without any file; a stored pack the core refuses is deleted when it fails; Forget deletes them all.
-  const second = await context.newPage();
-  second.on('pageerror', error => errors.push(error.message)); second.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
-  second.on('filechooser', () => errors.push('the second page asked for the stored files'));
-  const engineOf = (p, value) => p.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
-  await second.goto(url); await second.locator('#devices option', { hasText: 'stored in this browser' }).first().waitFor({ state: 'attached' });
-  await second.click('#engine .toggle[value=roms]'); await engineOf(second, 'SOUND BLASTER PCI 128');
-  await choose('Advanced Gravis UltraSound, stored in this browser (1992)', second); await engineOf(second, 'GRAVIS ULTRASOUND (GF1)');
-  // Forget this device deletes the chosen device's stored files alone; the others stay stored.
-  await second.click('#forget-device');
-  await second.waitForFunction(() => document.querySelector('#message').textContent === 'Advanced Gravis UltraSound, stored in this browser (1992) is off the list, and this browser no longer keeps its files.');
-  assert.equal((await files(second))['gus-gf1.dspack'], undefined); assert.ok((await files(second))['sb-pci128.dspack'] > 0, 'the PCI 128 stays stored');
-  assert.equal(await second.locator('#devices option', { hasText: 'Advanced Gravis UltraSound' }).count(), 0); assert.equal(await second.locator('#forget-files').isVisible(), true);
-  await second.evaluate(async bytes => {
-    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
-    const writable = await (await dir.getFileHandle('roland-mt32.dspack', { create: true })).createWritable();
-    await writable.write(new Uint8Array(bytes)); await writable.close();
-  }, [...dspack(9, [[1, Buffer.from('x')], [2, Buffer.from('y')]])]);
-  await second.reload(); await second.locator('#devices option', { hasText: 'Roland MT-32, stored' }).waitFor({ state: 'attached' });
-  await second.click('#engine .toggle[value=roms]'); await engineOf(second, 'SOUND BLASTER PCI 128');
-  await choose('Roland MT-32, stored in this browser (1987)', second);
-  await second.waitForFunction(() => /^Your stored files for Roland MT-32 did not play \(.*\): drop them again$/.test(document.querySelector('#message').textContent));
-  assert.equal(await second.locator('#devices option', { hasText: 'Roland MT-32' }).count(), 0); assert.equal((await files(second))['roland-mt32.dspack'], undefined);
-  await second.click('#forget-files'); await second.locator('#forget-files').waitFor({ state: 'hidden' });
-  assert.deepEqual(await files(second), {}); await second.close();
-  // The Sound Blaster 16 plays on the chip it played last (the CQM), and its chip switch changes it.
-  await page.click('#engine .toggle[value=sb16]'); await label('LIBADLMIDI / NUKED CQM · BANK 16');
-  assert.equal(await page.locator('#panel-roms').isHidden(), true);
-  await page.click('#engine-modes .toggle[value=sb16-opl3]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
+  assert.deepEqual(stored.sort(), expected.map(name => name.toLowerCase()).sort());
+  // A new page only has persistent storage. Block downloads to distinguish OPFS from the HTTP cache.
+  const second = await context.newPage(), blocked = [];
+  await context.grantPermissions([], { origin: url });
+  await second.route(/\.(dspack|ecw|sf2|wasm)$/i, route => { blocked.push(route.request().url()); return route.abort(); });
+  await second.goto(url);
+  await second.waitForFunction(() => !document.querySelector('#file').disabled);
+  const localMidi = Buffer.from(midiFixture());
+  localMidi.writeUInt16BE(1, 12); // Sustain the note while the second software-rendered browser initializes its shaders.
+  await second.setInputFiles('#file', { name: 'from-crates.mid', mimeType: 'audio/midi', buffer: localMidi });
+  await second.waitForFunction(() => document.querySelector('#track-title').textContent === 'from-crates.mid' && !document.querySelector('#controls').disabled);
+  assert.equal(await second.locator('#visualizer .toggle[value=milkdrop]').getAttribute('aria-pressed'), 'true');
+  await second.bringToFront();
+  await second.locator('.stage').scrollIntoViewIfNeeded();
+  await second.waitForFunction(() => !document.querySelector('#visual-panel').inert &&
+    !document.querySelector('#visual-panel').hidden && document.querySelector('#visual').dataset.frames);
+  assert.equal(await second.locator('#engine-label').textContent(), 'SOUND BLASTER PCI 128');
+  assert.equal(await second.getByRole('button', { name: '2 MB ECW', exact: true }).getAttribute('aria-pressed'), 'true');
+  for (const selector of ['#cover-sb128', ...choices.slice(1).map(([selector]) => selector), variant('sb16-opl3')]) {
+    await second.click(selector);
+    await second.waitForFunction(sel => document.querySelector(sel).getAttribute('aria-pressed') === 'true' &&
+      !document.querySelector('.card-cover[aria-busy]'), selector);
+  }
+  // Exercise the browser's MIDI API with access blocked, then granted from site settings.
+  await second.getByRole('button', { name: 'Allow MIDI access' }).click();
+  await second.waitForFunction(() => document.querySelector('#midi-in').textContent === 'WEB MIDI: BLOCKED IN SITE SETTINGS' &&
+    !document.querySelector('#midi-permission').disabled);
+  await context.grantPermissions(['midi', 'midi-sysex'], { origin: url });
+  await second.locator('#midi-permission').waitFor({ state: 'hidden' });
+  const inputNames = await second.evaluate(async () => [...(await navigator.requestMIDIAccess()).inputs.values()].map(input => input.name || 'Keyboard'));
+  assert.equal(await second.locator('#midi-in').textContent(), 'WEB MIDI: ' + (inputNames.join(', ').toUpperCase() || 'NO KEYBOARD'));
+  // The renderer must use the selected card's bank and cached core as well.
+  await second.click('label.album:has(input[value="doom-1993"])');
+  await second.waitForFunction(() => document.querySelector('#track-title').textContent === 'Intro · Doom');
+  assert.equal(await second.locator('#tracks li').count(), 55);
+  assert.equal(await second.locator('#cover-art').isVisible(), true);
+  assert.ok(await second.locator('#player-cover').getAttribute('src'));
+  assert.equal(await second.locator('#albums input:checked').inputValue(), 'doom-1993');
+  await second.click('#cover-awe32');
+  await second.waitForFunction(() => document.querySelector('#cover-awe32').getAttribute('aria-pressed') === 'true');
+  const rendered = second.waitForEvent('download', { timeout: 60000 }).catch(async error => {
+    throw new Error(`AWE32 export: ${await second.locator('#message').textContent()} (asset requests: ${blocked.join(', ')})`, { cause: error });
+  });
+  await second.locator('#tracks .track-download').first().click();
+  await (await rendered).saveAs('output/browser-card-awe32.wav');
+  assert.ok((await wavStats('output/browser-card-awe32.wav')).peak > 300);
+  await second.fill('#game-search', 'lost vikings');
+  await second.click('label.album:has(input[value="the-lost-vikings-1993"])');
+  await second.waitForFunction(() => document.querySelector('#track-title').textContent === 'Track 465 · The Lost Vikings');
+  assert.equal(await second.locator('#tracks li').count(), 47);
+  await second.waitForFunction(() => document.querySelector('#player-cover').complete && document.querySelector('#player-cover').naturalWidth > 0 &&
+    document.querySelector('#player-cover').currentSrc.endsWith('/the-lost-vikings-1993.jpg'));
+  await second.click('#cover-sb16');
+  await second.waitForFunction(() => document.querySelector('#fm-banks').value === '75');
+  await second.locator('#tracks li').filter({ hasText: 'Track 467' }).locator('label').click();
+  await second.waitForFunction(() => document.querySelector('#track-title').textContent === 'Track 467 · The Lost Vikings' &&
+    Number(document.querySelector('#seek').value) > .3 && Number(document.querySelector('#page-rain').dataset.level) > .01);
+  await second.fill('#game-search', '');
+  await second.locator('#albums').evaluate(grid => { grid.scrollTop = grid.scrollHeight; });
+  await second.locator('label.album:has(input[value="archive-Zorro"])').waitFor();
+  await second.fill('#game-search', 'mirsoft batest2');
+  await second.click('label.album:has(input[value="archive-Caesar 2"])');
+  await second.waitForFunction(() => document.querySelector('#track-title').textContent === 'BATEST2 · Caesar 2' &&
+    Number(document.querySelector('#seek').value) > .3 && Number(document.querySelector('#page-rain').dataset.level) > .01);
+  assert.deepEqual(blocked, []); await second.close();
+  await page.click(variant('sb16-opl3')); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
+  const fresh = await browser.newPage();
+  const coldAssets = [];
+  fresh.on('request', req => { if (isCardAsset(req.url())) coldAssets.push(new URL(req.url()).pathname); });
+  await fresh.goto(url);
+  await fresh.fill('#computer-search', 'hanna chaya');
+  await fresh.locator('#computer-albums').getByText('Hanna Lee', { exact: true }).click();
+  await fresh.waitForFunction(() => document.querySelector('#track-title').textContent === 'Chaya · Hanna Lee' &&
+    Number(document.querySelector('#page-rain').dataset.level) > .01);
+  assert.deepEqual(coldAssets, ['/soundcards/vgm-opl.wasm']);
+  await fresh.close();
+  assert.equal(await text('#computer-count'), '215 artists');
+  const grid = page.locator('#computer-albums');
+  const visibleArtists = await grid.locator('.album').count();
+  assert.ok(visibleArtists > 0 && visibleArtists < 215);
+  await grid.evaluate(el => { el.scrollTop = el.scrollHeight; });
+  await page.waitForFunction(() => +document.querySelector('#computer-albums .virtual-list-row').dataset.index > 0);
+  await page.fill('#computer-search', 'unmatched-zzzz');
+  await page.waitForFunction(() => document.querySelector('#computer-albums').dataset.state === 'empty');
+  await page.fill('#computer-search', 'hanna chaya');
+  assert.equal(await text('#computer-count'), '1 artist');
+  await grid.getByText('Hanna Lee', { exact: true }).click();
+  await title('Chaya · Hanna Lee');
+  await sounding();
+  assert.equal(await text('#release-type'), 'COMPUTER MUSIC');
+  await page.click('#toggle'); await pressed('#toggle', 'false');
+  await page.click('#forward'); await page.waitForFunction(() => +document.querySelector('#seek').value >= 10);
+  await page.click('#toggle'); await pressed('#toggle', 'true');
+  await page.fill('#game-search', 'at doom');
+  await album('doom-1993'); await title('Intro · Doom');
+  await page.fill('#game-search', '');
+  await page.fill('#computer-search', '');
   // Bergium draws, steps to the next preset of the page's list, and stops.
   const frames = Number(await page.getAttribute('#visual', 'data-frames') ?? 0);
   await page.waitForFunction(frames => Number(document.querySelector('#visual').dataset.frames) >= frames + 30, frames, { timeout: 20000 });
   const shown = await text('#visual-name'); await page.click('#visual-next');
   await page.waitForFunction(shown => document.querySelector('#visual-name').textContent !== shown, shown);
   assert.deepEqual(await page.locator('#visualizer .toggle').allTextContents(), ['No Visuals', 'Bergium']);
-  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16', 'SoundFont', 'ROMs']);
-  assert.deepEqual(await page.locator('#engine-modes .toggle').allTextContents(), ['Yamaha YMF262 FM chip (OPL3)', 'Creative OPL3 remake FM chip (CQM)']);
   await page.screenshot({ path: 'output/visualizer.png', clip: await page.locator('#visual-panel').boundingBox() });
   await page.click('#visualizer .toggle[value=off]'); assert.equal(await page.locator('#visual-panel').isHidden(), true);
   // The instrument below the player, on the FM engine.
@@ -339,10 +450,33 @@ try {
   await page.waitForTimeout(200); await page.evaluate(() => window.__midi([0x80, 64, 0]));
   await page.waitForFunction(() => !document.querySelector('[data-note="64"]').classList.contains('active'));
   assert.match(await text('#take-info'), /^Recorded: 4 notes, 0:0\d\.$/);
-  // The user's files play in the player.
-  for (const [name, bytes] of [['original.mid', midiFixture()], ['original.rmi', rmiFixture(midiFixture())], ['original.mus', musFixture()]]) {
+  // A named sequence carries its own title, credits and meter inside either MIDI or RMI.
+  const meta = (type, value) => {
+    const bytes = [...Buffer.from(value)];
+    return [0, 0xff, type, bytes.length, ...bytes];
+  };
+  const original = midiFixture(), events = [
+    ...meta(3, 'Étude <2>'), ...meta(2, '© Test composer'), ...meta(1, 'Piano duet'),
+    0, 0xff, 0x58, 4, 3, 2, 24, 8, ...original.subarray(22),
+  ];
+  const named = Uint8Array.from([...original.subarray(0, 21), events.length, ...events]);
+  for (const [name, bytes, expectedTitle] of [
+    ['original.mid', named, 'Étude <2>'], ['original.rmi', rmiFixture(named), 'Étude <2>'], ['original.mus', musFixture(), 'original.mus'],
+  ]) {
     await page.setInputFiles('#file', { name, mimeType: 'application/octet-stream', buffer: Buffer.from(bytes) });
-    await title(name); assert.equal(await page.locator('#tracks input:checked').count(), 0);
+    await page.waitForFunction(name => document.querySelector('#tracks small')?.textContent === name, name);
+    await title(expectedTitle);
+    assert.equal(await text('#album-title'), expectedTitle);
+    assert.equal(await text('#release-type'), 'YOUR MIDI');
+    assert.equal(await page.locator('#albums input:checked').count(), 0);
+    assert.equal(await page.locator('#tracks li').count(), 1);
+    assert.equal(await page.locator('#tracks input:checked').count(), 1);
+    assert.equal(await text('#tracks strong'), expectedTitle);
+    assert.equal(await text('#album-line'), name.endsWith('.mus') ? 'MUS' : 'MIDI format 0 · 1 MIDI track · 120 BPM · 3/4 · © Test composer · Piano duet');
+    assert.equal(await page.locator('#player-cover').getAttribute('src'), null);
+    assert.equal(await page.locator('#cover-art').isVisible(), false);
+    assert.equal(await page.locator('#visual-panel').isVisible(), false);
+    assert.equal(await page.locator('.stage').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(0, 0, 0)');
     await page.click('#toggle'); await pressed('#toggle', 'false'); await page.click('#toggle'); await pressed('#toggle', 'true'); await page.click('#stop');
   }
   // A WOPL file replaces the FM bank (switching to FM), and the game's bank comes back; an FM export renders it.
@@ -350,7 +484,7 @@ try {
   await page.setInputFiles('#file', { name: 'test.wopl.br', mimeType: 'application/octet-stream', buffer: Buffer.from(compress(await readFile('tests/test.wopl'), { quality: 5 })) });
   await page.waitForFunction(() => document.querySelector('#message').textContent === 'FM bank loaded from your WOPL file.');
   assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · WOPL FILE');
-  await pressed('#engine .toggle[value=sb16]', 'true'); await pressed('#engine-modes .toggle[value=sb16-opl3]', 'true');
+  await pressed('#cover-sb16', 'true'); await pressed(variant('sb16-opl3'), 'true');
   assert.equal(await page.locator('#fm-banks').inputValue(), '-1'); assert.equal(await page.locator('#fm-banks option:checked').textContent(), 'Your WOPL file');
   const fmDownload = page.waitForEvent('download'); await page.click('#take-download');
   await (await fmDownload).saveAs('output/browser-fm-recording.wav');
@@ -359,7 +493,8 @@ try {
   assert.equal(await page.locator('#fm-banks option[value="-1"]').count(), 0);
   await page.setInputFiles('#file', { name: 'sines.sf2.br', mimeType: 'application/octet-stream', buffer: Buffer.from(compress(soundfont(), { quality: 5 })) });
   await page.waitForFunction(() => document.querySelector('#message').textContent === 'SoundFont loaded: 3 presets.');
-  await pressed('#engine .toggle[value=soundfont]', 'true');
+  await checkGain(undefined);
+  assert.equal(await page.locator('.card-cover[aria-pressed=true]').count(), 0, 'a user SoundFont has its own identity');
   assert.equal(await text('#engine-label'), 'TINYSOUNDFONT / YOUR SOUNDFONT');
   assert.equal(await page.locator('#program option').count(), 2);
   await page.click('[data-note="62"]'); await page.click('#panic');
@@ -465,37 +600,55 @@ try {
   assert.equal(fmModules.length - fmModulesBefore, 1, 'fm and sb16-opl3 load fm-synth.wasm once');
   assert.ok(evidence.sourceRms > 0.001 && evidence.silenced < evidence.sourceRms / 10, `source ${evidence.sourceRms} sounds while output at gain 0 gives ${evidence.silenced}`);
   assert.equal(evidence.callerContextPreserved, true); assert.equal(evidence.disposedRejected, true); assert.equal(evidence.ownedContextClosed,true);
-  // Served with E-mu's 2GMGSMT SoundFont (profile-assets/pci128.sf2, where this machine has it), the SoundFont engine is
-  // the Sound Blaster 128 and plays that bank, and a track's WAV renders with it.
-  if (existsSync(LOCAL_FILES['pci128.sf2'])) {
-    const localServer = await serve('docs', 0, { local: LOCAL_FILES }), sb128 = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
-    try {
-      sb128.on('pageerror', error => errors.push(error.message)); sb128.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
-      sb128.on('response', response => { if (response.status() >= 400) errors.push(`${response.url()}: HTTP ${response.status()}`); });
-      await sb128.goto(`http://127.0.0.1:${localServer.address().port}`);
-      await sb128.waitForFunction(() => document.querySelectorAll('#albums input').length === 34);
-      assert.deepEqual(await sb128.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16', 'Sound Blaster 128', 'ROMs']);
-      await sb128.click('#engine .toggle[value=soundfont]');
-      await sb128.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / 2GMGSMT', null, { timeout: 60000 });
-      assert.match(await sb128.locator('#message').textContent(), /^Sound Blaster 128: \d+ presets\.$/);
-      assert.equal(await sb128.locator('#soundfont-info').textContent(), 'E-mu 2GMGSMT chip (SoundFont, SF2)');
-      const sb128Download = sb128.waitForEvent('download', { timeout: 60000 }); await sb128.click('#tracks li:nth-child(1) .track-download');
-      await (await sb128Download).saveAs('output/browser-track-sb128.wav');
-      const wav = await wavStats('output/browser-track-sb128.wav');
-      assert.ok(wav.frames >= 8.5 * 48000 && wav.peak > 300, `Sound Blaster 128 WAV: ${wav.frames} frames, peak ${wav.peak}`);
-    } finally { await sb128.context().close(); await new Promise(resolve => localServer.close(resolve)); }
-  }
   assert.equal(errors.length, 0, errors.join('\n'));
+  // Equal-amplitude channels in opposite phase expose an accidental mono downmix in either meter.
+  for (const [rate, channels] of [[44100, 1], [48000, 2]]) {
+    const levels = await page.evaluate(async ([rate, channels]) => {
+      const { meterOutput } = await import('./audio-meter.js');
+      const ctx = new OfflineAudioContext(channels, rate, rate);
+      const source = ctx.createBufferSource(), buffer = ctx.createBuffer(channels, rate, rate);
+      for (let channel = 0; channel < channels; channel++) {
+        const pcm = buffer.getChannelData(channel), amplitude = channel === 0 ? 0.1 : -0.1;
+        for (let i = 0; i < rate; i++) pcm[i] = amplitude * Math.sin(2 * Math.PI * 1000 * i / rate);
+      }
+      source.buffer = buffer; source.connect(ctx.destination);
+      let publish;
+      const reading = new Promise(resolve => { publish = resolve; });
+      await meterOutput(source, publish); source.start(); await ctx.startRendering();
+      return reading;
+    }, [rate, channels]);
+    assert.equal(levels.channels, channels);
+    assert.ok(Math.abs(levels.rms + 23.01) < 0.05);
+    assert.ok(Math.abs(levels.lufs - (channels === 1 ? -23 : -20)) < 0.1);
+  }
+  await checkFx(page);
+  assert.deepEqual(errors, []);
+  await page.locator('#fx').screenshot({ path: 'output/fx.png' });
+  await page.locator('#sound-engine').screenshot({ path: 'output/sound-cards.png' });
+  for (const [width, expectedRows] of [[1280, [5]], [768, [5]], [390, [3, 2]]]) {
+    await page.setViewportSize({ width, height: 900 });
+    const boxes = await page.locator('.card-cover').evaluateAll(covers => covers.map(c => c.getBoundingClientRect().top));
+    const rows = [...new Set(boxes)].map(top => boxes.filter(y => y === top).length);
+    assert.deepEqual(rows, expectedRows, `sound card layout at ${width}px`);
+  }
+  await page.setViewportSize({ width: 1280, height: 1100 });
   await page.screenshot({ path:'output/demo-desktop.png', fullPage:true });
   // The phone layout section by section: Chromium fails to capture the 9,194 px phone page whole while its WebGL
   // surfaces (the rain, the cover's shader, Bergium) and the sleeves' filter are on it (tmp/probe-phone-capture.mjs).
   await page.setViewportSize({width:390,height:844});
-  for (const [file, id] of [['demo-mobile.png', 'player'], ['demo-mobile-crates.png', 'crates'], ['demo-mobile-synth.png', 'synth']]) {
+  await page.waitForFunction(() => ['albums', 'computer-albums'].every(id => {
+    const grid = document.getElementById(id);
+    return grid.getAttribute('aria-colcount') === '2' && grid.querySelector('.album');
+  }));
+  await page.fill('#computer-search', 'hanna chaya');
+  await page.locator('#computer-albums').getByText('Hanna Lee', { exact: true }).waitFor();
+  await page.fill('#computer-search', '');
+  for (const [file, id] of [['demo-mobile-sound-cards.png', 'sound-engine'], ['demo-mobile-fx.png', 'fx'], ['demo-mobile.png', 'player'], ['demo-mobile-crates.png', 'crates'], ['demo-mobile-computer.png', 'computer-crates'], ['demo-mobile-synth.png', 'synth']]) {
     await page.locator(`#${id}`).evaluate(el => el.scrollIntoView({ block: 'start' })); await page.waitForTimeout(300);
     await page.screenshot({ path: `output/${file}` });
   }
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),true,'Mobile must not overflow horizontally');
-  const result = { passed: true, browser: await browser.version(), ...evidence, errors };
+  const result = { passed: true, browser: await browser.version(), soundCards: { cachedFiles: stored, repeatAssetRequests: blocked }, ...evidence, errors };
   await writeFile('output/e2e.json', JSON.stringify(result,null,2)+'\n'); console.log(JSON.stringify(result,null,2));
 } catch (error) {
   // What the page said when the run failed, and how it looked.

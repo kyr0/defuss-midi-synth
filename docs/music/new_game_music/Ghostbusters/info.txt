@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Ray Parker Jr.
+Sequencer: WAKman
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Ghostbusters
+Platform: Sega Genesis
+Year: 1990
+Genre: Action
+Publisher: Sega
+Developer: Sega

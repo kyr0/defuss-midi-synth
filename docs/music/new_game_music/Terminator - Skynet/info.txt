@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID (Converted from HMI)
+Original Composer: Andy Warr
+Sequencer: Andy Warr
+Num of tunes: 21
+Complete: 100%
+
+*** Game info ***
+Name: Terminator: SkyNet
+Platform: PC
+Year: 1996
+Genre: FPS
+Publisher: Bethesda Softworks
+Developer: Bethesda Softworks

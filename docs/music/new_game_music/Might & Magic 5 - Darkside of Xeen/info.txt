@@ -1,0 +1,48 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Barkman27
+Type: Game rip
+Format: MID (Recorded from DosBox)
+Original Composer: Todd Hendrix, Tim Tully
+Sequencer: Todd Hendrix, Tim Tully
+Num of tunes: 26
+Complete: 100%
+
+*** Game info ***
+Name: Might & Magic 5: Darkside of Xeen
+Platform: PC Dos
+Year: 1993
+Genre: RPG
+Publisher: New World Computing
+Developer: CATware
+
+
+*** Additional info ***
+
+Here is a bunch of music from Swords of Xeen. It's the same as Darkside of Xeen, and since more people probably know about Darkside, I'll call it that :). 
+To record the music, I just installed the game to play with the Roland Canvas soundcard (general midi), then played in Dosbox, and then recorded the midi commands, making all of the files here. 
+I edited Town_theme1.mid and Town_theme2.mid with a free program called Midget (www.silverblade.co.uk), simply just changing some of the instruments around. 
+
+The Roland Canvas card made things sound a little unusual compared to what most gamers might remember (probably Soundblaster Pro), so I tried 
+to change the instruments around for the songs that seemed a little "off." After making this archive, I found a way to rip the Soundblaster 
+music ... unfortunately, that was a little while ago, and the few files that I did re-record in Soundblaster style are on my old computer. 
+However, if anyone would like the mp3s, just email me (see below).
+
+First Update: Some of the files here are the same as when they were first recorded. Many, however were edited (mainly by changing the instruments around) with two programs- Midget 3.5 and NoteWorthy Composer. 
+Recent update (Apr 24 2010): Thanks to Greg C for sending me "Corak's Theme/Escape Pod Music", which I missed originally! It's been a couple of years since I made this archive but I'm glad people still enjoy the music and help out :)
+
+If you would like to contact me, feel free to email me at Roychipoqua@yahoo.com.
+
+Thanks to: 
+
+Robert Meakins -- showed me the way of recording midi from DosBox.
+Andrew Greenwood -- creator of Midget 
+Greg C -- sending me "Corak's Theme/Escape Pod Music," which I missed originally.
+The makers of NoteWorthy Composer
+Tim Tully- supreme creator of all Xeen music
+The people who made DosBox (http://dosbox.sourceforge.net)
+New World Computing 
+
+Completion: 100%- recently added "Corak's Theme/Escape Pod Music"

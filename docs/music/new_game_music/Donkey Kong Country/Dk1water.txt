@@ -1,0 +1,33 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/Dk1water.mid
+
+Uploaded by conker_64@yahoo.com.au (Conker_64)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Donkey Kong Country
+Song Title: Aquatic Ambiance (2)
+Sequenced by: Conker_64 <conker_64@yahoo.com.au>
+Song Originally Composed by: D. Wise
+Other Information: I can only hear it on my AWE64 and SBLIVE.  It might not come out right on other cards, I don't know.
+
+Midi TrackName Analysis:
+
+%00
+Whine%00
+Harmony%00
+Melody%00
+Melody Echo%00
+Clung%00
+Dong-Dong%00
+Background%00
+conker_64%00
+@yahoo.com.au%00
+Track 11%00
+Track 12%00
+Track 13%00
+Harp%00
+Harp echo%00
+Tock tock%00

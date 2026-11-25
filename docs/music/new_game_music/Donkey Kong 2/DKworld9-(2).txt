@@ -1,0 +1,28 @@
+File URL is http://www.vgmusic.com/new-files/DKworld9-(2).mid
+Upload Date and Time: 10/09/2001 11:41:08
+
+Uploaded by syo_axenn@hotmail.com (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: World-9 Map (2)
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+Updated and final version of this file.
+Please forget the old version as this one sounds much better :)
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+System: Game Boy
+Title: World-9 Map
+Original Composer: Taisuke Araki
+Secuenced by:
+FireMario (06/Oct/2001)
+This *IS* the final version of this midi. Sorry.

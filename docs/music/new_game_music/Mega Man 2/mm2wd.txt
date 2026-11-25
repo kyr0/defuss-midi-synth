@@ -1,0 +1,22 @@
+File URL is http://www.vgmusic.com/new-files/mm2wd.mid
+Upload Date and Time: 09/30/2001 21:32:35
+
+Uploaded by The_Domo@hotmail.com (Dominic Nater)
+Originating IP Address: 216.142.233.105
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Wily Stage 1
+Sequenced by: John Kuzma
+Other Information: 
+This is an edited version of the mm2w1rm.mid file that I got from vgmusic.com.  I completely changed the drums based on the drums from mm2w1m.mid, and I also changed one of the key instruments to the alto sax which is also based on mm2w1m.mid
+
+
+Midi TrackName Analysis:
+
+
+Dr. Wily Stage 1 Remix
+Sequenced by:
+John Kuzma
+TogoXtreme@aol.com

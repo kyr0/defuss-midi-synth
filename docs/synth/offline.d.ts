@@ -1,5 +1,5 @@
-import { f as EngineKind, i as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, t as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './profile-store-D88E0Koc.js';
-export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileStorage, m as ProfileStorageFile, n as ProfileStore, o as ProfileUserAssets, p as SYNTH_PROFILES, q as StoredProfileSources, e as SynthEvent, r as createProfileStore, s as openProfileStore } from './profile-store-D88E0Koc.js';
+import { f as EngineKind, j as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, u as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './profile-store-8LHTX7sj.js';
+export { F as FmInfo, L as LoadProgress, i as PROFILE_DESCRIPTORS, k as ProfileAvailability, l as ProfileDescriptor, m as ProfileStorage, n as ProfileStorageFile, o as ProfileStore, p as ProfileUserAssets, q as SYNTH_PROFILES, r as StoredProfileSources, e as SynthEvent, s as createProfileStore, t as openProfileStore } from './profile-store-8LHTX7sj.js';
 
 /** A synthesizer the engine drives: complete MIDI channel messages in, planar Float32 PCM out. */
 interface Voices {
@@ -210,6 +210,8 @@ interface OfflineOptions extends EngineOptions {
     queueCapacity?: number;
     /** SoundFont 2 bytes or URL; defaults to the bundled TimGM6mb.sf2. */
     soundfont?: SoundFontSource;
+    /** Optional reader for engine WASM URLs, for instance from an application cache. */
+    readWasm?(url: URL, timeoutMs?: number, onProgress?: ProgressListener): Promise<Uint8Array>;
     /** Hears each download and decompression of the files this synthesizer loads. */
     onProgress?: ProgressListener;
 }

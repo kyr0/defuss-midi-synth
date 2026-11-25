@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Ryan Bury
+Num of tunes: 1
+Complete: 
+
+*** Game info ***
+Name: Alien 3
+Platform: Sega Genesis
+Year: 1993
+Genre: Action
+Publisher: Arena
+Developer: Probe

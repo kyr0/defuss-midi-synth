@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Alberto Jose Gonzalez
+Sequencer: Alberto Jose Gonzalez
+Num of tunes: 24
+Complete: 100%
+
+*** Game info ***
+Name: Asterix & Obelix
+Platform: PC
+Year: 1994
+Genre: Jump'n'run
+Publisher: Infogrames
+Developer:

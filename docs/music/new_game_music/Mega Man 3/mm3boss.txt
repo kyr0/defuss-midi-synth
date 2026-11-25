@@ -1,0 +1,25 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-04-30
+
+File URL is http://www.vgmusic.com/new-files/mm3boss.mid
+
+Uploaded by BiFeeter@aol.com (Andre Riess)
+Originating IP Address: 205.188.195.27
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 3
+Song Title: Boss Battle (2)
+Sequenced by: Andre Riess <BiFeeter@aol.com>
+Other Information: 
+this is the music played during the battle with any robot. it uses the original instruments (2 square waves and one sawtooth wave, the noise ain't very good, though)  -Andre
+(Just so you know, a two-footer is called a biped.  -Peach)
+"I am not just an insect!  I am Roach Coach!  I am the future ruler of this planet!  You stuuupid biped!"
+
+
+Midi TrackName Analysis:
+
+%00
+Square 2 (Bg)%00
+Saw (Bass)%00
+"Noise" (Drum)%00

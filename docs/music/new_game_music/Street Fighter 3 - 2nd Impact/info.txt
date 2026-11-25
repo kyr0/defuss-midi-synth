@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Hideki Okugawa, Yuki Iwai
+Sequencer: S.C.T., SinclairC, Shin Hibiki
+Num of tunes: 14
+Complete: 
+
+*** Game info ***
+Name: Street Fighter 3 - 2nd Impact
+Platform: Arcade
+Year: 1997
+Genre: Beat'em up
+Publisher: Capcom
+Developer: Capcom

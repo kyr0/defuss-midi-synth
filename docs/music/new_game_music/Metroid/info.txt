@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Hiro "Hip" Tanaka
+Sequencer: Various Authors
+Num of tunes: 33
+Complete: 
+
+*** Game info ***
+Name: Metroid
+Platform: NES
+Year: 1986
+Genre: Adventure
+Publisher: Nintendo
+Developer: 

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Alpha23
+Type: Game rip
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 25
+Complete: 100%
+
+*** Game info ***
+Name: Capitalism
+Platform: PC Dos
+Year: 1995
+Genre: Strategy
+Publisher: Interactive Magic
+Developer: Enlight Software

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 3
+Complete: 
+
+*** Game info ***
+Name: Lost Vikings
+Platform: SNES
+Year: 1992
+Genre: Mix
+Publisher: Interplay
+Developer: Silicon & Synapse

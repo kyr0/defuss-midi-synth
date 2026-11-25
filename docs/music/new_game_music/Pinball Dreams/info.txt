@@ -1,0 +1,25 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Borg No. One, Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Dave Lowe
+Sequencer: Dave Lowe
+Num of tunes: 10
+Complete:
+
+*** Game info ***
+Name: Pinball Dreams
+Platform: PC Dos
+Year: 1993
+Genre: Pinball
+Publisher: 21st Century
+Developer: Digital Illusions
+
+*** Game info ***
+The game features near Midi music also the Mod music from Olof Gustafsson
+MT32 - MT32 Music ripped from the game
+GM - General Midi version, converted from MT32 tunes using MT2GM tool
+GMV - General Midi version, converted from MT32 tunes using MT2GM tool with different sound bank used by VGMSound

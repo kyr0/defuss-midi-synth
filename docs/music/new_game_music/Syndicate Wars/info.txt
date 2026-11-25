@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Converted
+Format: MID (GM)
+Original Composer: Russell Shaw, Adrian Moore
+Sequencer: Russell Shaw, Adrian Moore
+Num of tunes: 8
+Complete: 100%
+
+*** Game info ***
+Name: Syndicate Wars
+Platform: PC Dos
+Year: 1996
+Genre: Action
+Publisher: Electronic Arts, Bullfrog, EA
+Developer: Bullfrog
+
+*** Additional info ***
+It seems there are multiple versions of songs for different sound cards,
+they should be categorized better.

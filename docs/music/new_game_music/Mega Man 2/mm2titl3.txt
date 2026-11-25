@@ -1,0 +1,25 @@
+<html>Added by: Michael Newman <newman@snet.net>
+Date Added: 1998-07-22
+
+File URL is http://www.vgmusic.com/new-files/mm2title.mid
+Uploaded to the Videogame Music Archive by Jeremy "MIDIeval" Gilbert (jigman@gte.net)
+
+Game Name: Mega Man 2
+Song Title: Title Screen (3)
+Sequenced by: MIDIeval <jigman@gte.net>
+Game System: Nintendo
+
+Other Information: Dunno, I just wasn't pleased with all the MIDI's of this song so I wrote my own MIDI of it.  I'm quite satisfied.
+
+Midi TrackName Analysis:
+
+
+sequenced by MIDIeval
+Lead
+Bass
+SynthStrings
+Drums
+Twirly
+Sweep
+Woodblock
+BrassLead

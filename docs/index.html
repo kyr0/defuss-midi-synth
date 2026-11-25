@@ -18,7 +18,10 @@
   <link rel="stylesheet" href="shadcn/playlist-item.min.css">
   <link rel="stylesheet" href="shadcn/shaders.min.css">
   <link rel="stylesheet" href="shadcn/progress.min.css">
+  <link rel="stylesheet" href="shadcn/knob.min.css">
+  <link rel="stylesheet" href="shadcn/envelope.min.css">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shadcn/virtual-list.min.css">
   <link rel="stylesheet" href="player.css">
 </head>
 <body>
@@ -36,44 +39,88 @@
           <li class="nav-menu-item"><a class="nav-menu-link" href="#your-midi">Your MIDI</a></li>
         </ul>
       </nav>
-      <div class="mk-header-actions"><span class="badge">v0.3.0</span><button id="power" class="btn" type="button" data-size="sm">Start audio</button></div>
+      <div class="mk-header-actions"><span class="badge">v0.3.0</span><button id="power" disabled class="btn" type="button" data-size="sm">Start audio</button></div>
     </div>
   </header>
 
   <main>
-    <!-- The sound engine: a button per engine, and under it the controls that engine needs: the Sound Blaster 16's chip,
-         the SoundFont engine's SoundFont, the devices of the user's files (dropped once, chosen by name). -->
-    <section class="sound-engine" id="sound-engine" aria-labelledby="sound-engine-title">
+    <section class="sound-cards" id="sound-engine" aria-labelledby="sound-card-title">
       <div class="section-head">
-        <h2 id="sound-engine-title">Sound Engine</h2>
+        <h2 id="sound-card-title">Sound Card</h2>
+        <p>Authentic live virtual hardware chip emulation in WebAssembly (ROM/Wavetable based):</p>
       </div>
-      <div class="engine-body">
-        <div class="engine-devices">
-          <div class="toggle-group" role="group" aria-label="Sound engine" data-variant="outline" id="engine">
-            <button class="toggle" type="button" aria-pressed="true" value="sb16">Sound Blaster 16</button>
-            <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundFont</button>
-            <button class="toggle" type="button" aria-pressed="false" value="roms">ROMs</button>
-          </div>
-          <div class="engine-panel" id="panel-sb16">
-            <div class="toggle-group" role="group" aria-label="Chip" data-variant="outline" data-size="sm" id="engine-modes">
-              <button class="toggle" type="button" aria-pressed="true" value="sb16-opl3">Yamaha YMF262 FM chip (OPL3)</button>
-              <button class="toggle" type="button" aria-pressed="false" value="sb16-cqm">Creative OPL3 remake FM chip (CQM)</button>
+      <div class="card-grid" id="sound-cards" role="group" aria-labelledby="sound-card-title"></div>
+      <p id="card-status" role="status"></p>
+    </section>
+
+    <section class="fx window" id="fx" aria-labelledby="fx-title">
+      <div class="section-head"><h2 id="fx-title">FX</h2></div>
+      <div class="fx-grid">
+        <div class="fx-module">
+          <div class="fx-heading"><h3>Compressor</h3><label><input id="fx-compressor" type="checkbox" checked> Enable</label></div>
+          <label class="fx-level-option"><input id="fx-auto-level" type="checkbox" checked> Auto level (−16 LUFS)</label>
+          <div class="fx-knobs">
+            <div class="knob" data-unit="dB">
+              <input class="knob-input" type="range" id="fx-threshold" min="-60" max="0" step="0.5" value="-18">
+              <label class="knob-label" for="fx-threshold">Threshold</label>
+              <output class="knob-value" for="fx-threshold">−18 dB</output>
             </div>
-          </div>
-          <div class="engine-panel" id="panel-soundfont" hidden><p id="soundfont-info"></p></div>
-          <!-- Files dropped on the list, or anywhere on this section, add their devices to it. -->
-          <div class="engine-panel" id="panel-roms" hidden>
-            <select id="devices" size="5" aria-label="Your devices"></select>
-            <div class="engine-actions">
-              <button class="btn" type="button" data-size="sm" id="load-pack">Load pack…</button>
-              <button class="btn" type="button" data-variant="outline" data-size="sm" id="forget-device" hidden>Forget this device</button>
-              <button class="btn" type="button" data-variant="outline" data-size="sm" id="forget-files" hidden>Forget your files</button>
+            <div class="knob" data-unit=":1">
+              <input class="knob-input" type="range" id="fx-ratio" min="1" max="20" step="0.5" value="2">
+              <label class="knob-label" for="fx-ratio">Ratio</label>
+              <output class="knob-value" for="fx-ratio">2:1</output>
             </div>
-            <input id="device-files" type="file" multiple hidden>
+            <div class="knob" data-scale="exponential" data-format="time">
+              <input class="knob-input" type="range" id="fx-attack" min="0.001" max="1" step="0.001" value="0.01">
+              <label class="knob-label" for="fx-attack">Attack</label>
+              <output class="knob-value" for="fx-attack">10 ms</output>
+            </div>
+            <div class="knob" data-scale="exponential" data-format="time">
+              <input class="knob-input" type="range" id="fx-release" min="0.01" max="1" step="0.01" value="0.25">
+              <label class="knob-label" for="fx-release">Release</label>
+              <output class="knob-value" for="fx-release">250 ms</output>
+            </div>
           </div>
         </div>
-        <div class="device-drop" id="device-drop">
-          <strong>Drop your files on the list or here</strong>
+        <div class="fx-module">
+          <div class="fx-heading"><h3>EQ</h3><button class="btn" data-size="sm" data-variant="ghost" type="button" data-envelope-for="fx-eq" data-envelope-action="reset">Reset EQ</button></div>
+          <div class="envelope" id="fx-eq" data-kind="filter" data-range="24" data-size="sm" aria-label="Equalizer response">
+            <script type="application/json" class="envelope-source">
+              {"bands":[{"id":"low","label":"Low","type":"lowshelf","frequency":180,"gain":0},{"id":"mid","label":"Mid","type":"peaking","frequency":1200,"Q":1,"gain":0},{"id":"high","label":"High","type":"highshelf","frequency":6000,"gain":0}]}
+            </script>
+          </div>
+          <div class="fx-knobs">
+            <div class="knob" data-envelope-for="fx-eq" data-envelope-param="low.gain" data-format="signed" data-unit="dB">
+              <input class="knob-input" type="range" id="fx-low" min="-24" max="24" step="0.5" value="0">
+              <label class="knob-label" for="fx-low">Low</label>
+              <output class="knob-value" for="fx-low">0 dB</output>
+            </div>
+            <div class="knob" data-envelope-for="fx-eq" data-envelope-param="mid.gain" data-format="signed" data-unit="dB">
+              <input class="knob-input" type="range" id="fx-mid" min="-24" max="24" step="0.5" value="0">
+              <label class="knob-label" for="fx-mid">Mid</label>
+              <output class="knob-value" for="fx-mid">0 dB</output>
+            </div>
+            <div class="knob" data-envelope-for="fx-eq" data-envelope-param="high.gain" data-format="signed" data-unit="dB">
+              <input class="knob-input" type="range" id="fx-high" min="-24" max="24" step="0.5" value="0">
+              <label class="knob-label" for="fx-high">High</label>
+              <output class="knob-value" for="fx-high">0 dB</output>
+            </div>
+          </div>
+        </div>
+        <div class="fx-module">
+          <div class="fx-heading"><h3>Reverb</h3></div>
+          <div class="fx-knobs">
+            <div class="knob" data-format="percent">
+              <input class="knob-input" type="range" id="fx-mix" min="0" max="1" step="0.01" value="0">
+              <label class="knob-label" for="fx-mix">Mix</label>
+              <output class="knob-value" for="fx-mix">0%</output>
+            </div>
+            <div class="knob" data-scale="exponential" data-format="time">
+              <input class="knob-input" type="range" id="fx-decay" min="0.2" max="4" step="0.1" value="1.5">
+              <label class="knob-label" for="fx-decay">Decay</label>
+              <output class="knob-value" for="fx-decay">1.5 s</output>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -85,7 +132,7 @@
           <div class="shader cover-art" id="cover-art" data-effect="crt" data-curve="0.25" data-scanlines="300" data-glow="0.4" data-fps="30" role="img" aria-label="The album's cover">
             <img class="player-cover" id="player-cover" alt="" width="480" height="600">
           </div>
-          <div class="player-visual" id="visual-panel">
+          <div class="player-visual" id="visual-panel" inert>
             <!-- Bergium draws #visual at a quarter of the resolution; player.js copies each frame into #visual-blocks as
                  hard-edged blocks, which the CRT shader shows on its tube. -->
             <canvas id="visual" aria-label="Music visualizer"></canvas>
@@ -94,7 +141,7 @@
           </div>
         </div>
         <div class="release-meta">
-          <p class="cat"><span>GAME MUSIC</span> · <span id="library">—</span></p>
+          <p class="cat"><span id="release-type">GAME MUSIC</span> · <span id="library">—</span></p>
           <h1 id="album-title">Loading the albums…</h1>
           <p id="album-line" class="artist"></p>
           <div class="player-options">
@@ -102,8 +149,8 @@
               <button class="toggle" type="button" aria-pressed="false" value="off">No Visuals</button>
               <button class="toggle" type="button" aria-pressed="true" value="milkdrop">Bergium</button>
             </div>
-            <select class="select" data-size="sm" id="fm-banks" aria-label="FM bank"></select>
-            <span id="soundfont-name" class="player-bank" hidden></span>
+            <select class="select" data-size="sm" id="fm-banks" hidden aria-label="FM bank"></select>
+            <span id="soundfont-name" class="player-bank">Sound Blaster PCI 128</span>
           </div>
           <ol class="mk-playlist tracks" id="tracks" role="radiogroup" aria-label="Tracks"></ol>
         </div>
@@ -128,15 +175,39 @@
         <button class="btn" type="button" data-variant="ghost" data-size="icon-sm" id="mute" data-audio-action="mute" aria-pressed="false" aria-label="Mute"><i data-icon="volume-2"></i><i data-icon="volume-x"></i></button>
         <input class="slider" data-size="xs" type="range" min="0" max="1" step="0.05" value="0.6" id="volume" aria-label="Volume">
       </div>
+      <div class="player-stats" role="group" aria-label="Audio statistics">
+        <span>RMS <b id="stats-rms">—</b> dBFS</span>
+        <span title="Momentary loudness over 400 ms"><b id="stats-lufs">—</b> LUFS (M)</span>
+        <span id="stats-rate">— kHz (— samples/s)</span>
+        <span id="stats-delay">Delay — ms</span>
+        <span id="stats-activity">0 voices</span>
+      </div>
     </section>
 
     <!-- The crates: every album as a sleeve, pinned askew, its year on a sticker. -->
     <section class="crates" id="crates" aria-labelledby="crates-title">
       <div class="section-head">
-        <h2 id="crates-title">In the crates</h2>
-        <p>General MIDI from DOS and Windows games, collected by <a href="https://www.karlsitretro.com/game_midi">Karl's Retro</a>; the rights stay with the composers and publishers.</p>
+        <h2 id="crates-title">Gaming Crates</h2>
       </div>
-      <div class="albums" id="albums" role="radiogroup" aria-label="Albums"></div>
+      <div class="crate-filter"><input type="search" id="game-search" aria-label="Search gaming albums and tracks" placeholder="Search albums, artists, tracks…"><output id="game-count" for="game-search"></output></div>
+      <div id="albums" class="virtual-list" data-columns="4" data-empty-text="No matching albums" aria-label="Gaming albums"></div>
+      <input hidden id="file" type="file" disabled accept=".mid,.midi,.rmi,.mus,.sf2,.wopl,.br">
+      <div hidden>
+        <div class="window file-panel" id="your-midi">
+          <div>
+            <h3>Your MIDI</h3>
+            <p>Files stay on your device. A MIDI, RMI or MUS file plays here.</p>
+          </div>
+          <button class="file-button" type="button" id="open-file">Open file</button>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="crates" id="computer-crates" aria-labelledby="computer-title">
+      <div class="section-head"><h2 id="computer-title">Computer Music Creates</h2></div>
+      <div class="crate-filter"><input type="search" id="computer-search" aria-label="Search computer music artists and tracks" placeholder="Search artists, tracks…"><output id="computer-count" for="computer-search"></output></div>
+      <div id="computer-albums" class="virtual-list" data-columns="4" data-empty-text="No matching artists" aria-label="Computer music artists"></div>
     </section>
 
     <!-- The instrument: a DOS window with the display, the controls and the keys. -->
@@ -144,7 +215,7 @@
       <div class="window-title"><h2 id="synth-title">General MIDI, in the browser.</h2><span id="led" class="led" aria-hidden="true"></span></div>
       <p class="window-lead">Two synthesizers in WebAssembly: an emulated OPL3 FM chip and SoundFont samples. Every General MIDI program, on the audio clock.</p>
       <div class="display">
-        <div class="display-meta"><span id="engine-label">LIBADLMIDI / NUKED OPL3</span><span id="rate">— Hz · STEREO</span></div>
+        <div class="display-meta"><span id="engine-label">SOUND BLASTER PCI 128</span><span id="rate">— Hz · STEREO</span></div>
         <div class="display-main"><div><div class="patch-label">SELECTED PROGRAM</div><div id="patch-name">Piano 1</div><div id="bank-label">Bank 0 · General MIDI</div></div><canvas id="scope" width="520" height="120" aria-label="Live waveform"></canvas></div>
         <div class="display-bottom"><span id="message" role="status" aria-live="polite">Start audio to play.</span><span id="queue">0 EVENTS</span></div>
       </div>
@@ -157,11 +228,8 @@
         </div>
         <div class="transport"><button id="demo" class="accent" type="button">▶ Play demo sequence</button><button id="stop" type="button">■ Stop</button><button id="panic" type="button">Panic</button><span class="tempo">120 BPM · 16 NOTES</span></div>
         <div class="keyboard" id="keyboard" aria-label="Piano keyboard"></div>
-        <div class="key-hints"><span>PLAY WITH A S D F G H J K · W E T Y U FOR SHARPS</span><span id="midi-in">WEB MIDI: STARTS WITH AUDIO</span><span>C4 — C6</span></div>
-        <div class="your-midi" id="your-midi">
-          <div class="window file-panel"><div><h3>Bring your MIDI.</h3><p>Files stay on your device. A MIDI, RMI or MUS file plays in the player above, on either engine; an SF2 file replaces the SoundFont, a WOPL file the FM bank, either also Brotli-compressed (.br).</p></div><label class="file-button">Open file<input id="file" type="file" accept=".mid,.midi,.rmi,.mus,.sf2,.wopl,.br"></label></div>
-          <div class="window file-panel take-panel"><div><h3>Download your synthesized MIDI.</h3><p>Everything you play on these keys or on a Web MIDI keyboard is recorded. Download renders the recording as a WAV file (48 kHz, stereo, 16-bit) with the engine and instruments selected now; a pause of more than two seconds with no note held shrinks to two seconds. <span id="take-info">Nothing recorded yet.</span></p></div><div class="take-actions"><button id="take-clear" type="button" disabled>Start over</button><button id="take-download" type="button" class="accent" disabled>Download WAV</button></div></div>
-        </div>
+        <div class="key-hints"><span>PLAY WITH A S D F G H J K · W E T Y U FOR SHARPS</span><span class="midi-input"><span id="midi-in" role="status">WEB MIDI: STARTS WITH AUDIO</span><button type="button" id="midi-permission" hidden>Allow MIDI access</button></span><span>C4 — C6</span></div>
+        <div class="window file-panel take-panel"><div><h3>Download your synthesized MIDI.</h3><p>Everything you play on these keys or on a Web MIDI keyboard is recorded. Download renders the recording as a WAV file (48 kHz, stereo, 16-bit) with the engine and instruments selected now; a pause of more than two seconds with no note held shrinks to two seconds. <span id="take-info">Nothing recorded yet.</span></p></div><div class="take-actions"><button id="take-clear" type="button" disabled>Start over</button><button id="take-download" type="button" class="accent" disabled>Download WAV</button></div></div>
       </fieldset>
     </section>
   </main>
@@ -172,22 +240,20 @@
         <div class="mk-footer-col">
           <h3 class="mk-footer-heading">Engines</h3>
           <dl class="engines">
-            <dt>Sound Blaster 16 (OPL3)</dt><dd>One emulated Yamaha YMF262 (Nuked OPL3), driven by libADLMIDI game banks. Not an analog board model.</dd>
+            <dt>Sound Blaster 16 (OPL3)</dt><dd>One emulated Yamaha YMF262 (Nuked OPL3), driven by libADLMIDI game banks.</dd>
             <dt>Sound Blaster 16 (CQM)</dt><dd>One emulated Creative CQM, the OPL3-compatible chip of later Sound Blaster 16 cards (Nuked CQM), with the same game banks.</dd>
-            <dt>SoundFont</dt><dd>Sample-based TinySoundFont, not hardware emulation.</dd>
-            <dt>Your hardware files</dt><dd>The ROMs of the Sound Engine section run emulators of their chips with your own files, which stay on your device. Drop them all at once: packs (.dspack, which scripts/profile-assets.py makes), the ECW wavesets of the Sound Blaster PCI 128 (EAPCI2M.ECW, EAPCI4M.ECW or EAPCI8M.ECW, 2 to 8 MB: the wavetable sample bank of its Ensoniq AudioPCI drivers), and the Roland SC-55, SC-55mkII and MT-32 ROM files themselves, which the page identifies by their hashes. The list names each device by maker, model and year, newest first. An AWE pack plays on its card's local build, which only the local demo server provides. The page keeps the files you play in this browser's storage, so a later visit plays them without asking; Forget this device deletes the chosen device's files, Forget your files deletes them all.</dd>
+            <dt>SoundFont</dt><dd>Sample-based TinySoundFont.</dd>
           </dl>
         </div>
         <div class="mk-footer-col">
           <h3 class="mk-footer-heading">On the audio clock</h3>
-          <p>Synthesis in an AudioWorklet: notes and file messages act at their output frame, and a song switches engines without losing its place. No account, upload or remote processing; the instrument runs here.</p>
+          <p>Synthesis in an AudioWorklet: notes and file messages act at their output frame, and a song switches engines without losing its place.</p>
         </div>
         <div class="mk-footer-col">
           <h3 class="mk-footer-heading">Sources</h3>
           <ul class="mk-footer-list">
-            <li><a href="https://github.com/Wohlstand/libADLMIDI">libADLMIDI</a> · <a href="https://github.com/nukeykt/Nuked-OPL3">Nuked OPL3</a></li>
-            <li><a href="https://github.com/schellingb/TinySoundFont">TinySoundFont</a> · <a href="https://deb.debian.org/debian/pool/main/t/timgm6mb-soundfont/">TimGM6mb</a></li>
-            <li><a href="https://github.com/Mindwerks/opl3-soundfont/">OPL-3 FM 128M SoundFont</a> (<a href="https://huggingface.co/kyr0/midi-synth/blob/main/soundfonts/OPL-3_FM_128M/LICENSE">CC BY-SA 4.0</a>)</li>
+            <li>Based on parts of <a href="https://github.com/Wohlstand/libADLMIDI">libADLMIDI</a> · <a href="https://github.com/nukeykt/Nuked-OPL3">Nuked OPL3</a></li>
+            <li><a href="https://github.com/schellingb/TinySoundFont">TinySoundFont</a></li>
             <li><a href="https://github.com/kyr0/bergium">Bergium</a> by Aron Homberg (kyr0), after Butterchurn and MilkDrop (<a href="visualizer/LICENSES.txt">licences</a>)</li>
             <li><a href="https://shadcn.defuss.org">defuss-shadcn</a> · <a href="fonts/LICENSE.txt">IBM VGA 8x14 by VileR (CC BY-SA 4.0), Press Start 2P</a></li>
           </ul>
@@ -196,8 +262,10 @@
           <h3 class="mk-footer-heading">Music</h3>
           <ul class="mk-footer-list">
             <li><a href="https://www.karlsitretro.com/game_midi">Karl's Retro</a>: the game MIDI collection</li>
+            <li>Private Collection of Aron Homberg</li>
+            <li>Mirsoft and the Game MIDI archive contributors</li>
+            <li><a href="https://opl.wafflenet.com">The OPL Archive</a></li>
             <li>MaliceX and Team ChaoS: the Jazz Jackrabbit arrangements</li>
-            <li>Each game plays with the FM bank of its own sound driver where libADLMIDI has it.</li>
           </ul>
         </div>
       </nav>
@@ -214,7 +282,10 @@
   <progress class="progress" id="load-bar" max="100" aria-labelledby="load-label"></progress>
 </div>
 <script type="module" src="shadcn/core.min.js"></script>
+<script type="module" src="shadcn/virtual-list.min.js"></script>
 <script type="module" src="shadcn/slider.min.js"></script>
+<script type="module" src="shadcn/knob.min.js"></script>
+<script type="module" src="shadcn/envelope.min.js"></script>
 <script type="module" src="shadcn/shaders.min.js"></script>
 <script type="module" src="app.js"></script>
 </body>

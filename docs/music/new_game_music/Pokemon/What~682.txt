@@ -1,0 +1,16 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-03-06
+
+File URL is http://www.vgmusic.com/new-files/What~682.mid
+
+Uploaded by happy_chocobo@werewolf.net (David Shimanski)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon
+Song Title: Battle a Rival Trainer (3)
+Other Information: 
+(This is a good MIDI, but the music box is not properly set.  There have been problems before with music boxes on SB cards, but there's a way around that problem.  Anyone care to fix this (hopefully the sequencer of this)?  -Peach)
+
+Midi TrackName Analysis:
+

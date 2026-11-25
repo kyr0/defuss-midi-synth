@@ -1,0 +1,26 @@
+<html>Added by: The Jade Emperor <jade_emperor@vgmusic.com>
+Date Added: 2000-11-05
+
+File URL is http://www.vgmusic.com/new-files/gold-silver-gym-improved.mid
+
+Uploaded by coolmario100@cs.com (Coolmario)
+Originating IP Address: 205.188.200.28
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Pokemon Gold
+Song Title: Gym Theme (3)
+Sequenced by: Coolmario <coolmario100@cs.com>
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+Square wave
+Square bass
+drums 3
+drums-2
+bass 25
+synthesizer
+Tempo Track

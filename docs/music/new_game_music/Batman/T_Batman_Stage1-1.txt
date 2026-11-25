@@ -1,0 +1,39 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2001-09-20
+
+File URL is http://www.vgmusic.com/new-files/T_Batman_Stage1-1.mid
+Upload Date and Time: 08/28/2001 15:01:49
+
+Uploaded by Kane_Blueriver@Linainverse.com (Tsu Ryu)
+Originating IP Address: 66.108.16.197
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Batman
+Song Title: Stage 1: Streets of Desolation (2)
+Sequenced by: Tsu Ryu <Kane_Blueriver@Linainverse.com>
+Song Originally Composed by: Nobuyuki-kun and Kodaka-san
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+tk1 - Analog Velo Brass
+tk2 - Velo Brass Echoed
+tk3 - Finger Dark
+tk4 - Bass Slap
+tk5 - Synth Snare [ Electric Percussion SYXG50 Wave Emu ]
+tk10 - Rock Drum Kit
+"Streets of Desolation"
+[ Stage 1-1 Theme ]
+Batman
+Famicom/Nintendo System
+Originally Composed by Nobuyuki-Kun and Kodaka-San, Sunsoft 1989
+Sequenced to MIDI by Tsu Ryu - Kibegami
+Email, tsu_ryu@sailormoon.com
+TheJupiterFan@Chibiusa.org
+Kane_Blueriver@Linainverse.com
+SailluneKnight@Naga.Linainverse.com

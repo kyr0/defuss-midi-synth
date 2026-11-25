@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Masahiro Ando, Isamu Ohira
+Sequencer: NYOU, Matze
+Num of tunes: 5
+Complete: 
+
+*** Game info ***
+Name: Gran Turismo
+Platform: Sony PSX
+Year: 1998
+Genre: Cars
+Publisher: Sony
+Developer: Polyphony Digital

@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Rogue ##11927
+Type: Arranged
+Format: MID
+Original Composer: Michiel van den Bos
+Sequencer: Per Kristian Risvik, Sam Wolff
+Num of tunes: 4
+Complete: 14%
+
+*** Game info ***
+Name: Unreal Tournament
+Platform: PC Windows
+Year: 1999
+Genre: FPS
+Publisher: GT Interactive
+Developer: Epic Megagames

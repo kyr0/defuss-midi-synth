@@ -1,0 +1,22 @@
+Archive created by Dr. Spa
+It's nice to be important, but it's more important to be nice
+*** Archive info ***
+Archiver: Dr. Spa
+Type: Arranged/Remixed Tunes
+Format: MID
+Original Composer: Ian Stoker, Mark Mothersbaugh
+Sequencer: Philipp Strahl, Gold Jinjo
+Num of tunes: 2
+Complete: 3%
+
+*** Game info ***
+Name: The Sims 2
+Platform: Nintendo DS, PC, Mac
+Year: 2004
+Genre: Simulation, God game, RPG
+Publisher: EA Games, Aspyr Media
+Developer: Maxis
+
+*** additional info ***
+-The tune "sims2ds-RatMan.mid" is from the Nintendo DS version
+-The tune "sims2_simbuilder.mid" is from the PC/Mac version

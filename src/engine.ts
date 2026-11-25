@@ -169,7 +169,7 @@ export class Engine {
     this.index = 0;
     this.position = 0;
     this.message(MIDI_RESET);
-    return this.playbackInfo();
+    return song.metadata ? { ...this.playbackInfo(), metadata: song.metadata } : this.playbackInfo();
   }
   private requireSong(): Song {
     this.ensure();

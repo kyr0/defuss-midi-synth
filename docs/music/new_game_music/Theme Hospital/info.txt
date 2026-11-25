@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Jeremy Longley, Adrian Moore, Russell Shaw, Andy Wood
+Sequencer: Jeremy Longley, Adrian Moore, Russell Shaw, Andy Wood
+Num of tunes: 8
+Complete: 100%
+
+*** Game info ***
+Name: Theme Hospital
+Platform: PC
+Year: 1997
+Genre: Strategy
+Publisher: Electronic Arts
+Developer: Bullfrog

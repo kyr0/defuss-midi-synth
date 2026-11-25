@@ -1,0 +1,25 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-06-27
+
+File URL is http://www.vgmusic.com/new-files/smkrainbow.mid
+
+Uploaded by markjansen@uswest.net (Mark Jansen)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario Kart
+Song Title: Rainbow Road
+Sequenced by: Mark Jansen <markjansen@uswest.net>
+Other Information: I've heard this song has problems with AWE64. I made it for WinGroove, and I've heard it works fine with AWE32 also. If it is not to your liking, change the charang instruments to a different sample you choose. 
+
+Midi TrackName Analysis:
+
+
+Channel 1
+Channel 3
+Channel 5
+Channel 6
+Channel 7
+XylophoneC3
+XylophoneC7
+Percussion

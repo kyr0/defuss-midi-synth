@@ -1,0 +1,72 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/(GilL2).mid
+
+Uploaded by sct@hotmail.com (Brandon Lee Ritter)
+
+File Type: MIDI
+Game System: Arcade
+Game Name: Street Fighter III: 2nd Impact
+Song Title: Gil's Stage (3)
+Sequenced by: S.C.T. <sct@hotmail.com>
+
+Other Information: This is my first midi in which I PAINFULLYlearned to use the patch change function. It sounded better on my old 64bit card so goodfor you if you still have one. I now have "SBlive" and it doesn't seem to sound as well.
+
+Midi TrackName Analysis:
+
+
+MIDI file publishers and hardware manufacturers, such as Roland Corp. and Tune 1000 have introduced more detailed conventions fo
+Song Tempo should remain within the range of 30-240bpm
+
+MIDI Channel          Recommended Instrumentation
+
+1                              Piano Solo (Left & Right Hand)
+
+2                              Bass Instrument
+
+3                              Primary Accompaniment (or for Left-hand part when using split Piano parts)
+
+4                              Primary Melodic Instrument* (or for Right-hand part when using split Piano parts)
+
+5                              Secondary Accompaniment
+
+6                              Secondary Melodic Instrument
+
+7                              Alternative 1
+
+8                              Alternative 2
+
+9                              Alternative 3
+
+10                            Drums & Percussion
+
+11                           --Reserved-- 
+
+12                           --Reserved--
+
+13                           --Reserved--
+
+14                           --Reserved--
+
+15                           --Reserved--
+
+16                           --Reserved--
+
+*Lyrics should be placed on Channel 4
+
+Piano
+Bass
+Primary Accompaniment
+Primary Melodic
+Secondary Accompaniment
+Secondary Melodic
+Alternative 1
+Alternative 2
+Drums & Percussion
+--Reserved--
+--Reserved--
+--Reserved--
+--Reserved--
+--Reserved--
+--Reserved--

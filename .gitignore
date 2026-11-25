@@ -27,11 +27,7 @@ defuss-midi-synth-v0.4.0-integration-r2/
 .env.local
 !.env.example
 
-# Proprietary ROMs and private profile packs
 /profile-assets/
-# vendor/runtime/profiles/ holds only distributable cores; the local-only AWE builds go to profile-assets/local-builds/.
-# Profile packs hold original ROMs, wavesets and patches: never tracked, wherever a local build copies them.
-*.dspack
 
 # Build output directories (the gate expects them ignored)
 bin/

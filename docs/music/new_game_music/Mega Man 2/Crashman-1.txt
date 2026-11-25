@@ -1,0 +1,25 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-11-17
+
+File URL is http://www.vgmusic.com/new-files/Crashman.mid
+
+Uploaded by saikyoryu@netzero.net (Marc Concepcion)
+Originating IP Address: 64.20.17.223
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Crash Man's Stage (Drums Up! Remix)
+Sequenced by: Marc Concepcion <saikyoryu@netzero.net>
+Other Information: 
+Lots of note bends!  Please use wavetable synth.
+
+
+Midi TrackName Analysis:
+
+
+From Mega Man 2
+MIDI By Marc Concepcion
+Comments?
+saikyoryu@netzero.net
+Copyright 1989 Capcom USA

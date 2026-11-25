@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Dave Govett, George Alistair Sanger
+Sequencer: Dave Govett, George Alistair Sanger
+Num of tunes: 8
+Complete:
+
+*** Game info ***
+Name: Wing Commander
+Platform: PC
+Year: 1990
+Genre: Mix
+Publisher: Origin
+Developer: Origin

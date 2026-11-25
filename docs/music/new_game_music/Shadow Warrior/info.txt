@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Lee Jackson
+Sequencer: Lee Jackson
+Num of tunes: 5
+Complete:
+
+*** Game info ***
+Name: Shadow Warrior
+Platform: PC
+Year: 1997
+Genre: FPS
+Publisher: GT Interactive
+Developer: 3D Realms

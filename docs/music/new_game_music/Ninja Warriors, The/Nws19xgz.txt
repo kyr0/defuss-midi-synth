@@ -1,0 +1,100 @@
+<html>Added by: Necrosaro <necrosaro@vgmusic.com>
+Date Added: 1998-09-27
+
+File URL is http://www.vgmusic.com/new-files/Nws19xgz.mid
+
+Uploaded by askull@jps.net (John Michalski)
+
+Game System: Turbo-Grafx 16
+Game Name: The Ninja Warriors
+Song Title: Stage 3
+Sequenced by: Unknown
+Song Originally Composed by: Zuntata
+
+Other Information: Optimized for Yamaha XG synths, works with GS and GM but doesn't sound as good..
+
+Midi TrackName Analysis:
+
+
+XG SYSTEM ON!
+MU100 Native/Basic
+XG MASTER LEVEL
+XG MASTER REVERB
+XG MASTER CHORUS
+XG MASTER VAR.
+XG VAR. TYPE SEL.
+XG VARIATION CONNECT
+XG REVERB TYPE
+XG CHORUS TYPE
+XG DIST TYPE SELECT
+XG DIST PART
+XG MU80 EQ TYPE SEL
+XG MU80 EQ 8Khz Gain
+XG MU80 EQ 4Khz Gain
+XG MU80 EQ 1Khz Gain
+XG MU80 EQ 500hz G.
+XG MU80 EQ 80hz Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+ÇøÇ•ÅI
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+ÇøÇ•ÅI
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+MU90 P.EQ Low Freq
+MU90 P.EQ Low Gain
+MU90 P.EQ Hi Freq
+MU90 P.EQ  Hi Gain
+XG Drum Pitch C.
+XG Drum Pitch C.
+XG Drum Pitch C.
+XG Drum Cut Off Freq
+XG Drum Resonance
+XG Drum Pitch C.
+XG Drum Vol.
+XG Drum REVERB SEND
+XG Drum CHORUS SEND
+XG Drum VAR.   SEND
+XG Drum Pan
+XG Drum Pan
+XG Drum Pan
+XG Drum Vol.
+XG Drum Pan
+XG Drum Vol.
+XG Drum Pan
+XG Drum Vol.
+XG Drum Pan
+XG Drum Vol.
+XG Drum Vol.
+XG Drum Pitch C.
+XG EG Drum Decay1
+XG EG Drum Decay2
+XG Drum Vol.
+XG Drum Vol.

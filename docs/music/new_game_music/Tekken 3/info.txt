@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: 
+Num of tunes: 2
+Complete: 
+
+*** Game info ***
+Name: Tekken 3
+Platform: Sony PSX
+Year: 1998
+Genre: Beat'em up
+Publisher: Namco
+Developer: Namco

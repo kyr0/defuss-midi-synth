@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Davie M Karlsson
+Sequencer: Davie M Karlsson
+Num of tunes: 1
+Complete: 100%
+
+*** Game info ***
+Name: Tetrinet
+Platform: PC
+Year: 1997
+Genre: Tetris
+Publisher: St0rmCat
+Developer: St0rmCat

@@ -1,0 +1,22 @@
+File URL is http://www.vgmusic.com/new-files/mk2deadpool.mid
+
+Uploaded by gargos@vgmusic.com (Mark Jansen)
+Originating IP Address: 24.14.231.10
+
+File Type: MIDI
+Game System: Arcade
+Game Name: Mortal Kombat 2
+Song Title: Dead Pool
+Sequenced by: Mark Jansen
+Song Originally Composed by: Dan Forden
+
+Other Information: 
+I've had this unfinished for more than six months, I finally decided to add the last measure of drums (that was all that was left). Next I should finish my Castlevania 64 MIDI..
+
+
+Midi TrackName Analysis:
+
+
+Toms
+Congas
+Bass and Snare

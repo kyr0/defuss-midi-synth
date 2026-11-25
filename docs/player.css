@@ -3,38 +3,42 @@
  * defuss-shadcn's Audio, Playlist Item, Toggle Group, Select, Slider and Shader components in the page's DOS palette
  * (style.css). */
 .player { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
-.player, .crates, .sound-engine { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
-/* Sound Engine: the list of the user's devices (five rows at once) beside the zone their files are dropped on. */
-.sound-engine { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
-.engine-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); align-items: stretch; }
-.engine-devices { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; }
-.engine-panel { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; width: 100%; }
-.engine-panel[hidden] { display: none; }
-#engine, #engine-modes { flex-wrap: wrap; height: auto; }
-.engine-panel p { margin: 0; color: var(--muted-foreground); }
-#devices { width: 100%; font-size: 0.9rem; color: var(--foreground); background: var(--background); border: 2px solid var(--primary); padding: 0.2rem; }
-#devices option { padding: 0.3rem 0.4rem; }
-#devices option:checked { background: var(--primary); color: var(--primary-foreground); }
-.engine-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.engine-actions .btn[hidden] { display: none; }
-.device-drop { display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; padding: 1rem; border: 2px dashed var(--primary); text-align: center; }
-.sound-engine.dragging .device-drop, .sound-engine.dragging #devices { background: color-mix(in srgb, var(--primary) 18%, transparent); }
-.device-drop span { color: var(--muted-foreground); line-height: 1.3; }
+.player, .crates, .sound-cards { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+/* Sound card covers share the album sleeves' year sticker. */
+.sound-cards { padding: clamp(0.9rem, 2.5vw, 1.6rem); }
+.sound-cards .section-head { display: grid; }
+.card-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(.75rem, 2vw, 1.5rem); }
+.sound-card { min-width: 0; }
+.sound-card .card-cover {
+  position: relative; display: grid; width: 100%; gap: .45rem; padding: 0; border: 0;
+  background: transparent; color: var(--foreground); box-shadow: none; text-align: left;
+}
+.card-cover img {
+  display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: contain; background: #020a04;
+  border: 2px solid var(--border); box-shadow: 3px 3px 0 #000;
+}
+.card-cover strong { font: inherit; line-height: 1.15; }
+.card-cover:is(:hover, :focus-visible, [aria-pressed="true"]) img { border-color: var(--primary); }
+.card-cover[aria-pressed="true"] img { box-shadow: 3px 3px 0 var(--primary); }
+.card-cover[aria-pressed="true"] strong { color: var(--primary); }
+.sound-card .toggle-group { display: flex; flex-wrap: wrap; width: fit-content; height: auto; margin-top: .45rem; }
+.sound-card .toggle { height: auto; min-height: 1.7rem; padding: .15rem .45rem; font-size: .92rem; }
+.sound-card .toggle[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+#card-status { margin: .7rem 0 0; color: var(--dos-yellow); }
+#card-status:empty { display: none; }
 .release { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(1.2rem, 3.5vw, 2.4rem); align-items: start; }
 
-/* The stage: the cover in its own colors on a curved, scanlined tube (the crt shader); Bergium fades in over it while music
-   plays, at 50% opacity so the cover shows through (the human's choice of 2026-11-24). Its CRT layer is the picture; the raw
-   canvas under it is only the copy's source, so it stays transparent and cannot show through. */
+/* The opaque visualization fades over the cover. Its raw canvas feeds the CRT layer. */
 .stage { position: relative; aspect-ratio: 4 / 5; border: 2px solid var(--primary); background: #020a04; box-shadow: 6px 6px 0 #000; overflow: hidden; }
 .cover-art { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
 .cover-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .player-cover:not([src]) { visibility: hidden; }
-.player-visual { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.6s steps(6); }
-.player[data-playing="true"] .player-visual:not([hidden]) { opacity: 1; pointer-events: auto; }
+.player-visual { position: absolute; inset: 0; opacity: 0; background: #000; pointer-events: none; transition: opacity 0.45s ease; }
+.player-visual:not([inert], [hidden]) { opacity: 1; pointer-events: auto; }
 .player-visual[hidden] { display: none; }
 .player-visual canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 #visual { opacity: 0; }
-.visual-crt { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; opacity: 0.5; }
+.visual-crt { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
 .player-visual-bar {
   position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
   padding: 0.4rem 0.5rem; background: rgb(0 0 0 / 0.75); color: var(--primary);
@@ -54,8 +58,6 @@
 .player-options .select[hidden], .player-options .btn[hidden], .player-bank[hidden] { display: none; }
 .player-bank { color: var(--dos-yellow); }
 .player .toggle-group .toggle { border-radius: 0; }
-/* Ten hardware profiles do not fit one row on a phone: the engine buttons wrap. */
-.player #engine { flex-wrap: wrap; }
 .player .toggle-group .toggle[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
 
 /* The tracklist: dashed rows, the number in yellow, the length and the WAV button at the end */
@@ -84,10 +86,31 @@
 .player .audio .audio-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary); }
 .player .audio > .slider[data-size="xs"] { width: 5.5rem; flex: none; }
 
+.player-stats { display: flex; flex-wrap: wrap; gap: .2rem 1rem; margin-top: .45rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.player-stats b { font-weight: 400; color: var(--dos-cyan); }
+
 /* The crates: every album as a sleeve pinned askew, on the same CRT tube as the release's cover (a still frame), the
    chosen one framed in green; a click plays its first track */
 .crates { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
-.albums { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 2rem 1.4rem; padding: 0.6rem 0.4rem 0; }
+.crate-filter { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem 1rem; margin-bottom: 1rem; }
+.crate-filter input { width: min(100%, 24rem); padding: .45rem .65rem; color: var(--foreground); background: #030a05; border: 1px solid var(--border); font: inherit; }
+.crate-filter output { color: var(--dos-yellow); }
+.crates .virtual-list { height: min(60vh, 540px); --virtual-list-row-height: 252px; border-radius: 0; }
+.crates .virtual-list-cell { height: 100%; align-items: stretch; justify-content: start; text-align: left; background: transparent; border: 0; padding: 1rem .55rem .45rem; font: inherit; overflow: hidden; }
+.crates .virtual-list-cell[hidden] { display: none; }
+.crates .virtual-list-cell:hover { background: transparent; color: inherit; }
+.crates .album .shader { height: 154px; max-width: 100%; justify-self: center; }
+.crates .album:has(.shader) { width: min(100%, 15rem); margin-inline: auto; }
+.crates .file-panel { width: min(100%, 15rem); margin-inline: auto; }
+.crates .album strong, .crate-spine { overflow-wrap: anywhere; }
+.crates .album small { line-height: 1; }
+.crates .file-panel { height: 100%; padding: .65rem; }
+.crates .file-panel h3 { font-size: .78rem; }
+#computer-albums { --virtual-list-row-height: 112px; height: min(50vh, 352px); }
+.crate-spine { height: 100%; border: 1px solid var(--border); border-left: .35rem solid var(--dos-cyan); background: #071911; padding: .6rem; }
+.crate-spine:has(input:checked), .crate-spine:hover { border-color: var(--primary); }
+.crate-spine:has(.album-year) { padding-top: 1.8rem; }
+.crate-spine:focus-within { outline: 2px solid var(--ring); }
 .album { position: relative; display: grid; gap: 0.3rem; align-content: start; cursor: pointer; color: var(--foreground); }
 .album input { position: absolute; opacity: 0; pointer-events: none; }
 .album .shader {
@@ -122,7 +145,8 @@
 .file-button, .take-actions button { white-space: nowrap; }
 
 @media (max-width: 720px) {
-  .engine-body { grid-template-columns: 1fr; }
+  .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem .6rem; }
+  .card-cover .album-year { top: -.3rem; right: 0; }
   /* minmax(0, …): the bank list's long names must not widen the column past the screen */
   .release { grid-template-columns: minmax(0, 1fr); }
   .player-options .select { width: 100%; }
@@ -130,6 +154,28 @@
   .player .audio { flex-wrap: wrap; justify-content: space-between; row-gap: 0.3rem; }
   .player .audio .audio-body { order: -1; flex: 1 0 100%; }
   .release-meta h1 { font-size: 16px; }
-  .albums { grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 1.4rem 1rem; }
+  .crates .virtual-list-cell { padding-inline: .3rem; }
   .track-download span { display: none; }
 }
+
+.fx { padding: clamp(.9rem, 2.5vw, 1.6rem); }
+.fx-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr) minmax(0, .8fr); gap: 1rem; }
+.fx-module { min-width: 0; padding: .8rem; border: 1px solid var(--border); background: var(--background); }
+.fx-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; min-height: 2rem; margin-bottom: .6rem; }
+.fx-heading h3 { margin: 0; font-size: .72rem; color: var(--dos-yellow); }
+.fx-heading label { display: flex; gap: .35rem; align-items: center; cursor: pointer; }
+.fx-heading input { accent-color: var(--primary); }
+.fx-knobs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); justify-items: center; gap: .8rem .4rem; }
+#fx-eq + .fx-knobs { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: .5rem; }
+.fx .knob-value { color: var(--dos-cyan); }
+@media (max-width: 720px) {
+  .fx-grid { grid-template-columns: 1fr; }
+  .fx-knobs { grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr)); }
+}
+
+.fx-level-option { display: flex; align-items: center; gap: .35rem; margin: 0 0 .7rem; cursor: pointer; }
+.fx-level-option input { accent-color: var(--primary); }
+
+.player.local-file .stage { background: #000; }
+.player.local-file .cover-art { display: none; }
+.player.local-file :is(#album-title, #album-line, .mk-playlist-item-text) { overflow-wrap: anywhere; }

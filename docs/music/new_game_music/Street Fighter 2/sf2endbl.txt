@@ -1,0 +1,10 @@
+<html>File URL is http://www.vgmusic.com/snes/sf2endbl.mid
+
+
+Game System: snes
+Game Name: Street Fighter 2
+
+Song Title: End for Blanka
+
+Sequenced by: Markus Hein <heinm@cs.tu-berlin.de>
+

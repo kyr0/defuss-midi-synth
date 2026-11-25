@@ -1,0 +1,34 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/Ml2spzn2v1_3.mid
+
+Uploaded by alluro95@hotmail.com (Alluro95)
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Super Mario Land 2: 6 Golden Coins
+Song Title: Space Zone 2 (Awe Version)
+Sequenced by: Alluro95 <alluro95@hotmail.com>
+Song Originally Composed by: Kazumi Totaka
+
+Other Information: Fixed more volume problems[Note to updater: please change the filename to ML2SPZN2.MID as indicated in the tracknames of this MIDI file. Thank you!]
+
+Midi TrackName Analysis:
+
+
+Bass                
+Marimba             
+Marimba Echo        
+Strings             
+Bass Drum           
+Snare Drum          
+Hi-Hats             
+Space Zone 2 (Super Mario Land 2)
+(c) 1993 Nintendo
+Original composer: Kazumi Totaka
+MIDI version: Alluro95
+E-mail: alluro95@hotmail.com
+URL: http://members.tripod.com/alluro95
+Date finished: August 17, 1999
+Original Filename: ML2SPZN2.MID

@@ -25,15 +25,14 @@ Status is the state of 2026-11-25. VERIFIED: every module in this tree has the S
 
 ## Packs
 
-A pack (`.dspack`, format DSPK v1) holds every file a core needs, each under a numbered role. You make it once with the scripts, then pass it as `profileSources[profile].assets`, or as the second argument of `useProfile`, or pick it in the demo. The demo also takes the Roland and AWE ROM files themselves and packs them in the browser (`docs/profile-files.js`), with the same roles and bytes as `scripts/profile-assets.py` (for AWE, as `pack-awe` with `--ram` set to the RAM the page computes from the bank). The core checks the pack in `profile_init`: its roles, and each file's size and CRC32 (Sound Canvas), SHA-1 (MT-32, by Munt's table) or format (the others), so a wrong file fails before anything plays.
+A pack (`.dspack`, format DSPK v1) holds every file a core needs, each under a numbered role. You make it once with the scripts, then pass it as `profileSources[profile].assets`, or as the second argument of `useProfile`. The demo offers the packs in its sound card gallery. The core checks the pack in `profile_init`: its roles, and each file's size and CRC32 (Sound Canvas), SHA-1 (MT-32, by Munt's table) or format (the others), so a wrong file fails before anything plays.
 
 ```mermaid
 flowchart LR
   files["Your ROMs, wavesets or patches"] --> scripts["scripts/fetch-roms.py, scripts/profile-assets.py"]
   scripts --> pack["profile-assets/*.dspack"]
   pack --> api["profileSources or useProfile(profile, { assets })"]
-  pack --> page["Demo: Sound Engine, ROMs"]
-  files --> page
+  gallery["docs/soundcards"] --> page["Sound Card gallery"]
   page --> api
   api --> host["NativeProfileVoices copies the pack into the core"]
   host --> init["profile_init checks the pack"]

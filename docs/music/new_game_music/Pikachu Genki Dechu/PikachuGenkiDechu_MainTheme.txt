@@ -1,0 +1,33 @@
+<html>Added by: Chiba <chiba@vgmusic.com>
+Date Added: 2000-01-31
+
+File URL is http://www.vgmusic.com/new-files/pikachu.mid
+
+Uploaded by mattc73@hotmail.com (Mattc73)
+
+File Type: MIDI
+Game System: Nintendo 64
+Game Name: Pikachu Genki Dechu (Japan)
+Song Title: Main Theme
+
+Other Information: 
+
+Midi TrackName Analysis:
+
+
+E-PIANO
+E-PIANO2
+BASS
+PIZZICATO
+PIZZICATO-BASS
+MELO1
+MELO1-2
+STRINGS
+STRINGS2
+DRUM
+REV-CYMBAL
+CHORD
+MELO2
+MELO2-2
+BASSOON
+MERO3

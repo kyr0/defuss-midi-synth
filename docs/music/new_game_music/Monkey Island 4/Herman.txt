@@ -1,0 +1,29 @@
+File URL is http://www.vgmusic.com/new-files/Herman.mid
+Upload Date and Time: 06/04/2001 18:53:15
+
+Uploaded by monkeymadness@worldofmi.com (Mr.Monkey)
+Originating IP Address: 24.4.159.105
+
+File Type: MIDI
+Game System: Sony Playstation 2
+Game Name: Escape From Monkey Island
+Song Title: Herman Toothrot'S Theme
+Sequenced by: Peter Silk
+Song Originally Composed by: Michael Land
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+%00
+Track 2%00
+Track 3%00
+Track 4%00
+Track 5%00
+Track 6%00
+Track 7%00
+Track 8%00
+Track 10%00
+Track 11%00

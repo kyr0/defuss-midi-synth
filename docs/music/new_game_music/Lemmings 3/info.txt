@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Borg No. One, Mirsoft
+Type: Converted
+Format: MID (GM)
+Original Composer: Raymond Usher
+Sequencer: Raymond Usher
+Num of tunes: 09
+Complete: 100%
+
+*** Game info ***
+Name: Lemmings 3
+Platform: PC Dos
+Year: 1994
+Genre: Logical
+Publisher: Psygnosis
+Developer: DMA Design
+
+*** Additional info ***
+Thanks to Borg no. One for this great rip. I converted the HMI tunes to MID tunes using Winamp's Save function.

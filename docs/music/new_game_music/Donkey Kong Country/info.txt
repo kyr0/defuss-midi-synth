@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: David Wise
+Sequencer: Various Authors
+Num of tunes: 24
+Complete: 
+
+*** Game info ***
+Name: Donkey Kong Country
+Platform: SNES
+Year: 1994
+Genre: Jump'n'Run
+Publisher: Nintendo
+Developer: Rare

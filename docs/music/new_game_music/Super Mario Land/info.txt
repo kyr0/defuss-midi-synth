@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: H. Tanaka, N. Tennant, C. Lowe, D. Genz
+Sequencer: Cyrussaur, Alluro95, Dave Phaneuf, Daniel Genz, Jeff Daily, Daniel Lippert, Mark7, Preebster, Sivak Drac, FireBall3k
+Num of tunes: 17
+Complete: 
+
+*** Game info ***
+Name: Super Mario Land
+Platform: Gameboy
+Year: 1989
+Genre: Jump'n'Run
+Publisher: Nintendo
+Developer: Nintendo

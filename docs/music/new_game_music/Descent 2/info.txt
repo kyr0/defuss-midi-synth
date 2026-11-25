@@ -1,0 +1,40 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft, Verbatim ##58445
+Type: Game rip
+Format: MID (GM) (Converted from HMP using Winamp)
+Original Composer: Johann Langlie, Brian Luzietti, Mark Morgan, Larry Peacock, Peter Rotter, Leslie Spitzer, Ron Valdez, Andy Weiner, Dan Wentz, Tim Wiles
+Sequencer: Dan Wentz
+Num of tunes: 9
+Complete: 100%
+
+*** Game info ***
+Name: Descent 2
+Platform: PC
+Year: 1996
+Genre: FPS
+Publisher: Interplay
+Developer: Parallax Software
+
+*** Additional info ***
+Near MIDI, game has also excellent CD Audio Tracks.
+
+Tracks 01 - 07 is complete General Midi soundtrack from the full version 
+of game.
+
+Tracks 08 - 09 were found in Shareware version of the game, but they haven't 
+been found in the full version. (?)
+
+About "FM" Folder:
+In "FM" folder there are original FM files in in HMP format.
+Thanks to Verbatim who converted them to MIDI. His comments:
+
+"a good player are PGE Musplay
+
+http://wohlsoft.ru/docs/_laboratory/_Builds/win32/bin-w64/_packed/pge-project-master-win64.zip
+
+here select in PGE Musplay -> Setup -> Midi Setup -> ADL Midi Extra Setup 6 = HMI (Decscent 2)
+
+Chip emulator Nuked OPL 1.7 or 1.8 (needs more CPU power)"

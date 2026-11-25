@@ -1,0 +1,28 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 2000-02-20
+
+File URL is http://www.vgmusic.com/new-files/boss1.mid
+
+Uploaded by midiman10@hotmail.com (Tony Thai)
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Super Mario World
+Song Title: Koopa Kids
+Sequenced by: Tony Thai <midiman10@hotmail.com>
+Other Information: This may sound like the other one I sent but I fixed a little part of the drums.Oh yeah, this music has no errors. All notes are perfect. I loaded up ZSnes 988, played the game, and used F5 - F12 to make that instrument solo.
+
+Midi TrackName Analysis:
+
+
+Intro
+Intro
+Lead
+Bum bum bum
+Drums
+Boss Level
+From Super Mario World
+Sequenced by: 
+Tony Thai
+midiman10@hotmail.com
+This was made in AWE 64

@@ -1,0 +1,26 @@
+File URL is http://www.vgmusic.com/new-files/JurassicPark_EasternForest.mid
+Upload Date and Time: 09/06/2001 22:08:43
+
+Uploaded by father_tiresias@hotmail.com (Fairlight)
+Originating IP Address: 64.10.83.85
+
+File Type: MIDI
+Game System: Super Nintendo
+Game Name: Jurassic Park
+Song Title: Eastern Forest
+Sequenced by: Fairlight
+Song Originally Composed by: Unknown
+
+Other Information: 
+This is my version of my favorite of the three main songs in SNES Jurassic Park, and which plays when you reach the eastern forest part.  I couldn't tell the title nor the author for sure.
+-Fairlight (father_tiresias@hotmail.com)
+
+
+Midi TrackName Analysis:
+
+
+Intro
+BeatIn
+Flute1
+SoloVox
+Flute2

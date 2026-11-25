@@ -1,0 +1,22 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: zorloff
+Type: Game rip
+Format: MID (Converted from XMI with Winamp)
+Original Composer: Matt Nathan
+Sequencer: Matt Nathan
+Num of tunes: 26
+Complete: 100%
+
+*** Game info ***
+Name: Inherit the Earth
+Platform: PC Dos
+Year: 1994
+Genre: Adventure
+Publisher: New World Computing, Inc.
+Developer: Dreamers Guild, The
+
+*** Additional info ***
+Original XMI files included.

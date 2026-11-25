@@ -1,0 +1,3 @@
+Game System: Commodore 64
+Game Name: Arkanoid
+Song Title: Main Theme

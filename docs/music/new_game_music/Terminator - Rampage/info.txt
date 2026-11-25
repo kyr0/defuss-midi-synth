@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Converted
+Format: MID (GM)
+Original Composer: E. Heberling
+Sequencer: E. Heberling
+Num of tunes: 28
+Complete: 100%
+
+*** Game info ***
+Name: The Terminator: Rampage
+Platform: PC
+Year: 1993
+Genre: Action
+Publisher: Bethesda Softworks
+Developer: Bethesda Softworks

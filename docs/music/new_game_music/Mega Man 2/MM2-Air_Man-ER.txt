@@ -1,0 +1,34 @@
+<html>Added by: Mark Jansen <gargos@vgmusic.com>
+Date Added: 2000-08-16
+
+File URL is http://www.vgmusic.com/new-files/MM2-Air_Man-ER.mid
+
+Uploaded by DoinTheWorm@hotmail.com (Eric Ruth)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Air Man's Stage (Slow mix)
+Sequenced by: Eric Ruth <DoinTheWorm@hotmail.com>
+Song Originally Composed by: 
+
+Other Information: 
+Unfortunately all my themes came out a little slow during a transfer from MAC to PC.
+
+
+Midi TrackName Analysis:
+
+
+drums2
+drums3
+drums4
+bass
+brass1
+brass2
+brass3
+bass2
+flute
+voice
+piano
+synth
+crash

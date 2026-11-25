@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: Alfh Lyra, Ryoko Shinorhara, T.Komuro
+Sequencer: Various Authors
+Num of tunes: 100
+Complete: 
+
+*** Game info ***
+Name: Street Fighter 2
+Platform: Arcade, SNES, Sega Genesis
+Year: 1992
+Genre: Beat'em up
+Publisher: Capcom
+Developer: Capcom

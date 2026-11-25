@@ -1,0 +1,38 @@
+<html>Added by: The Jade Emperor <jade_emperor@vgmusic.com>
+Date Added: 2001-08-06
+
+File URL is http://www.vgmusic.com/new-files/mprainbow.mid
+
+Uploaded by sirius64@yahoo.com (Sirius)
+Originating IP Address: 203.155.35.90
+
+File Type: MIDI
+Game System: Nintendo 64
+Game Name: Mario Party
+Song Title: Mario's Rainbow Castle
+Sequenced by: Sirius <sirius64@yahoo.com>
+Other Information: 
+The ocarina and percussion are a bit messed up, but hope it sounds good anyway!
+
+
+Midi TrackName Analysis:
+
+
+tk16
+Flute
+Bright Piano
+Piano
+Harp
+Synth Strings
+Warm Pad
+Ocarina
+Pizzicato
+Acoustic Bass
+Jazz Kit
+Rev.Cymbal [pan left]
+Rev.Cymbal [pan right]
+Mario Party
+Mario's Rainbow Castle
+original:
+sequence: Aivi (Sirius64)
+<sirius64@yahoo.com>

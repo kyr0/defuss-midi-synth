@@ -1,0 +1,9 @@
+<html>File URL is http://www.vgmusic.com/nes/ff1shop.mid
+
+
+Game System: nes
+Game Name: Final Fantasy
+
+Song Title: Shop
+Sequenced by: Jimmy Ellinger <re0@ganet.net>
+

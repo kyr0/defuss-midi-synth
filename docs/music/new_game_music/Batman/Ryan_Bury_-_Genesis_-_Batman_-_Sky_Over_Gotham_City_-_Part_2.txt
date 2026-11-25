@@ -1,0 +1,26 @@
+File URL is http://www.vgmusic.com/new-files/Ryan_Bury_-_Genesis_-_Batman_-_Sky_Over_Gotham_City_-_Part_2.mid
+
+Uploaded by Chocolate_Jesus@Hotmail.com (Ryan Bury)
+Originating IP Address: 195.92.198.72
+
+File Type: MIDI
+Game System: Sega Genesis
+Game Name: Batman
+Song Title: Sky Over Gotham City - Part 2
+Sequenced by: Ryan Bury
+Other Information: 
+I think this is the first MIDI sequenced from this game...  Which is a pity, because it has some great music.  This was sequenced on an SB-128, so it'll sound best on such, but it should sound decent on any wavetable card.
+
+- Ryan
+
+
+
+
+Midi TrackName Analysis:
+
+
+Staff
+Staff-1
+Staff-2
+Staff-3
+Staff-4

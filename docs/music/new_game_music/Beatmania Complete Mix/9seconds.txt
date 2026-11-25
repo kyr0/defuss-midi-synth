@@ -1,0 +1,43 @@
+File URL is http://www.vgmusic.com/new-files/9seconds.mid
+Upload Date and Time: 06/15/2001 20:32:05
+
+Uploaded by alis_landale@jpopmusic.com (Rie)
+Originating IP Address: 216.192.42.10
+
+File Type: MIDI
+Game System: Arcade
+Game Name: Beatmania Complete Mix
+Song Title: Nine Seconds ('Fakey Funk Fan' Style) (WG/XG)
+Sequenced by: Rie
+Song Originally Composed by: Nouvo Nude
+
+Other Information: 
+Are you-a sick and tired of the fakey funk fans?
+That's because you're listening to this MIDI on
+FM-Synth!  This MIDI sounds much much better on
+any other MIDI equipment!  The fakey funk sound must live on! ^^
+
+
+Midi TrackName Analysis:
+
+
+"fakey-funk-fan Style"
+from beatmania 3rdMIX
+original composed by
+nouvo nude
+"f-f-f Style" seq'd by
+Rie (the BM98 fakey-funk-fan!)
+GIVE ME A COOL STUFF!
+or just give me an e mail--
+I removed the @ (at)
+and the . (period)
+...and the "com" suffix.
+Add it all back in:
+alis_landale jpopmusic
+You won't have any
+troubles de-coding
+my address, right?
+The following is a fake
+address for the spiders-
+mailto:spam@spam.spam
+BGmus:string ens 1

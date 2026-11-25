@@ -1,0 +1,21 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://gamemids.mirsoft.info
+
+*** Archive info ***
+Archiver: Kawocat
+Type: Game rip
+Format: MID (GM)
+Original Composer: Ichitarou, KITA-chan
+Sequencer: Shade
+Num of tunes: 16
+Complete: 100%
+
+*** Game info ***
+Name: Rance 1: Quest for Hikari
+Platform: PC
+Year: 1997
+Genre: Simulator
+Publisher: Alice Soft
+Developer: Alice Soft
+
+*** Additional info ***

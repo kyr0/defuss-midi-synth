@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Game rip
+Format: MID
+Original Composer: Martin Galway, Dana Glover, Dave Govett, George Alistair Sanger, Nenad Vugrinec
+Sequencer: Martin Galway, Dana Glover, Dave Govett, George Alistair Sanger, Nenad Vugrinec
+Num of tunes: 51
+Complete:
+
+*** Game info ***
+Name: Wing Commander 2
+Platform: PC
+Year: 1991
+Genre: Mix
+Publisher: Origin
+Developer: Origin

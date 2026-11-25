@@ -1,0 +1,27 @@
+<html>Added by: Princess Peach Toadstool <peach@vgmusic.com>
+Date Added: 1999-10-24
+
+File URL is http://www.vgmusic.com/new-files/mm2wilygdr.mid
+
+Uploaded by jonsbad@ionsys.com (Tooth)
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Dr. Wily Stage 1 (Drum & Guitar Remix)
+Sequenced by: Tooth <jonsbad@ionsys.com>
+Other Information: (This doesn't seem to just be an instrument change, but rather an attempt at enhancing the bass section altogether.  -Peach)
+
+Midi TrackName Analysis:
+
+
+Main Bass
+Percussion
+MetalCrash
+Main Drums
+Aux. Drums
+Guitar
+MegaMan 2
+Wily Stage 1
+Program 00613
+By Tooth

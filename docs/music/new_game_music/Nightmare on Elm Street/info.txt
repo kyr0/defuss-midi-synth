@@ -1,0 +1,19 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Mirsoft
+Type: Arranged
+Format: MID
+Original Composer: 
+Sequencer: Chris Francis, The Jade Emperor
+Num of tunes: 9
+Complete: 
+
+*** Game info ***
+Name: Nightmare on Elm Street
+Platform: NES
+Year: 1990
+Genre: Action
+Publisher: LJN
+Developer: Rare

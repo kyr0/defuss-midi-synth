@@ -1,0 +1,23 @@
+Archive created by -=MIRSOFT=-
+Look for game MIDs at http://go.to/gamemids
+
+*** Archive info ***
+Archiver: Damian6
+Type: Arranged
+Format: MID (GM,GS,XG,AWE)
+Original Composer: Robert Prince
+Sequencer: Damian6
+Num of tunes: 20
+Complete: 100%
+
+*** Game info ***
+Name: Duke Nukem 2
+Platform: PC
+Year: 1993
+Genre: Action
+Publisher: Apogee Software, Ltd.
+Developer: Apogee Software, Ltd.
+
+*** Additional info ***
+Complete set of Duke Nukem II game tunes converted from IMF to MID.
+In the words of the man himself: "Let's Rock!"

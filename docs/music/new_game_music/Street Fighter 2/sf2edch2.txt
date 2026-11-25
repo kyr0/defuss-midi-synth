@@ -1,0 +1,10 @@
+<html>File URL is http://www.vgmusic.com/snes/sf2edch2.mid
+
+
+Game System: snes
+Game Name: Street Fighter 2
+
+Song Title: End for Chun-Li (2)
+
+Sequenced by: Markus Hein <heinm@cs.tu-berlin.de>
+

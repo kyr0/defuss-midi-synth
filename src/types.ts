@@ -51,7 +51,15 @@ export interface MidiLoadOptions { tempo?: number }
  *  compressed bytes consumed). total is 0 while a server sends no length. url names the file. */
 export interface LoadProgress { phase: 'download' | 'decompress'; url: string; loaded: number; total: number }
 export type ProgressListener = (progress: LoadProgress) => void;
-export interface PlaybackInfo { title: string; duration: number; position: number; ended: boolean; rate: number }
+export interface MidiMetadata {
+  format: number;
+  trackCount: number;
+  initialBpm?: number;
+  timeSignature?: string;
+  copyright?: string;
+  text?: string;
+}
+export interface PlaybackInfo { metadata?: MidiMetadata; title: string; duration: number; position: number; ended: boolean; rate: number }
 export interface RenderStats { frame: number; queuedEvents: number; lateEvents: number }
 
 /** Operation codes of PackedEvent, shared by the queue and the engine. */

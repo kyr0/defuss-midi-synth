@@ -1,0 +1,26 @@
+<html>File URL is http://www.vgmusic.com/new-files/DKmiss2.mid
+Upload Date and Time: 10/04/2001 20:00:47
+
+Uploaded by <syo_axenn@hotmail.com> (FireMario)
+Originating IP Address: 200.45.69.34
+
+File Type: MIDI
+Game System: Gameboy
+Game Name: Donkey Kong
+Song Title: Miss 2 (Squashed)
+Sequenced by: FireMario
+Song Originally Composed by: Taisuke Araki
+
+Other Information: 
+
+
+
+Midi TrackName Analysis:
+
+
+Game: Donkey Kong
+Title: Miss 2
+Original Composer: Taisuke Araki
+System: Game Boy
+(c) 1994 Nintendo
+Secuenced by: FireMario (04/Oct/2001)

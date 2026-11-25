@@ -1,0 +1,27 @@
+<html>Added by: Pong64 <pong64@vgmusic.com>
+Date Added: 2000-08-23
+
+File URL is http://www.vgmusic.com/new-files/Bubblman.mid
+
+Uploaded by saikyoryu@netzero.net (Marc Concepcion)
+Originating IP Address: 64.20.17.229
+
+File Type: MIDI
+Game System: Nintendo
+Game Name: Mega Man 2
+Song Title: Bubble Man's Stage (Remix)
+Sequenced by: Marc Concepcion <saikyoryu@netzero.net>
+Other Information: 
+
+
+Midi TrackName Analysis:
+
+
+Piano
+Bass
+Perc
+Brass
+PianoEcho
+Accomp
+Main
+MainEcho

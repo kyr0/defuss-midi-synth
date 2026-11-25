@@ -1,0 +1,165 @@
+<html>File URL is http://www.vgmusic.com/new-files/ska_a_go_go.mid
+Upload Date and Time: 10/26/2001 21:40:13
+
+Uploaded by alis_landale@jpopmusic.com (Rie)
+Originating IP Address: 216.192.12.47
+
+File Type: MIDI
+Game System: Arcade
+Game Name: Beatmania Complete Mix
+Song Title: Ska A Go Go
+Sequenced by: Rie
+Song Originally Composed by: The Bald Heads
+
+Other Information: 
+I tried to transcribe the lyrics as best I
+could, and included them in Track #1.
+
+
+Midi TrackName Analysis:
+
+
+Music by THE BALD HEADS
+Lyrics entered by Rie Matsuzaka
+----<>----<>----<>----<>----<>----
+/Check
+out
+the
+sounds
+of
+groo-
+vy
+beats,
+\Straight
+from
+the
+heart!
+... <End of paragraph>
+/Me
+nev-
+er
+bor-
+row
+my
+o-
+ri-
+gi-
+nals
+man,
+\Lo-
+al
+rag-
+ga-
+muf-
+fin
+hea-
+then
+sell
+'em
+a-
+sham,
+/Wick-
+ed
+man
+go
+bam
+bam,
+Ras-
+ta
+man!
+... <End of paragraph>
+\All
+night
+they's
+danc-
+in'
+in-
+na
+with
+the
+groove,
+man!
+/O-
+ri-
+gi-
+nal
+Gor-
+gon
+man
+style,
+\Look
+they
+now
+rag-
+gin'
+my
+play
+style,
+/Say
+what?!!
+Huh?!!
+Huh?!!
+... <End of paragraph>
+\Do
+not
+go
+smoke
+pot-
+pour-
+ri,
+/Now
+will
+you
+talk
+a-
+bout
+cof-
+fee,
+\Do
+not
+go
+walk
+a-
+cross
+the
+street,
+/Don't
+think
+a-
+bout
+me!
+... <End of paragraph>
+\Look,
+I
+might
+as
+well
+be-
+come
+a
+D.
+J.
+/My
+bad
+bud-
+dy,
+\Oh... Natural love!
+from beatmania 2ndMIX
+original composed by
+The Bald Heads
+midi seq'd by Rie
+alis_landale@jpopmusic.com
+SFx:surf-guitar2
+SFx:brass
+SFx:brass2
+SFx:sax
+BGmus:vocal
+BGmus:v-echo1
+BGmus:v-echo2
+BGmus:v-echo3
+BGmus:waves
+SFx:square-fx
+SFx:waves2
+BGmus:feedback
+BGmus:feedback2
+SFx:slide
