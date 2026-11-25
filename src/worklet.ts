@@ -34,7 +34,13 @@ class MidiProcessor extends AudioWorkletProcessor {
    *  holds a boot, though a long boot still delays the quanta after the message. */
   private voices(part: EnginePart, module = part.module ?? this.modules.get(part.key)): Voices {
     if (!module) throw new Error('The engine part has no module');
+    const voices = this.build(part, module);
+    // Kept for a later part of the same key only once its core took it: a module it refused would refuse that one too
+    // (a later reload sends no module), where the loaded engine still plays on its own.
     this.modules.set(part.key, module);
+    return voices;
+  }
+  private build(part: EnginePart, module: WebAssembly.Module): Voices {
     // A later FM engine starts on the bank the loaded ones play (Engine.fmBank).
     const fmBank = this.session?.engine.fmBank() ?? this.settings.fmBank;
     if ('assets' in part) return new NativeProfileVoices(part.kind, instantiateProfile(module), new Uint8Array(part.assets), this.settings.sampleRate, fmBank);
@@ -87,7 +93,7 @@ class MidiProcessor extends AudioWorkletProcessor {
       const module = part.module ?? (part.wasm ? await WebAssembly.compile(part.wasm) : this.modules.get(part.key));
       if (this.closed || !this.session) throw new Error('Processor is not ready');
       const engine = this.session.engine;
-      engine.add(this.voices(part, module));
+      engine.add(this.voices(part, module), request.args[1] === true);
       this.port.postMessage({ id: request.id, result: engine.info() });
     } catch (error) {
       this.port.postMessage({ id: request.id, error: error instanceof Error ? error.message : String(error) });

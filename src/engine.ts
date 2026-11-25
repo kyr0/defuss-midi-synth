@@ -82,14 +82,30 @@ export class Engine {
   }
   /** The engines loaded so far. */
   has(kind: EngineKind): boolean { return this.loaded.has(kind); }
-  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. */
-  add(voices: Voices): void {
+  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. With replace, voices take
+   *  the place of the loaded engine of their kind (a native profile on new sources): when that one plays, a file plays
+   *  on through voices with its state replayed, as after use(). Replacing in place, rather than unloading the engine
+   *  and loading it anew, keeps the file's clock, the held notes and the other loaded engines, so the swap sounds like
+   *  a program change. VERIFIED: tests/profiles.test.ts "a new pack for a loaded one takes its place" (position kept,
+   *  the file's program replayed into the new engine). */
+  add(voices: Voices, replace = false): void {
+    let old: Voices | undefined;
     try {
       this.ensure();
-      if (this.has(voices.kind)) throw new Error(`The ${voices.kind} engine is already loaded`);
+      old = this.loaded.get(voices.kind);
+      if (old && !replace) throw new Error(`The ${voices.kind} engine is already loaded`);
       voices.message(MIDI_RESET, 0, 0);
-      this.attach(voices);
     } catch (error) { voices.close(); throw error; }
+    this.attach(voices);
+    if (!old) return;
+    if (this.active === old) {
+      const held = this.held.slice();
+      this.silence();
+      this.held.set(held);
+      this.active = voices;
+      this.restore();
+    }
+    old.close();
   }
   /** Makes kind's engine play. The voices of the other one end; a loaded file keeps its position and plays on, with
    *  its controllers and programs up to the position replayed into the new engine and its held notes struck again. */

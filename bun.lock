@@ -10,6 +10,7 @@
         "butterchurn-presets": "2.4.7",
         "defuss-brotli": "0.4.0",
         "defuss-shadcn": "0.10.0",
+        "defuss-storage": "0.4.1",
         "esbuild": "0.25.12",
         "oxlint": "1.26.0",
         "pkgroll": "2.29.1",
@@ -191,6 +192,8 @@
     "defuss-query": ["defuss-query@0.2.0", "", { "peerDependencies": { "defuss-morph": "^0.2.0" } }, "sha512-S18fLhxZXS8WTRXBqy0EQ9FZnecF6v1KEiGAoONjCQjOiJ5GiBY2ejiU+L0BIdDUkS1KYGi8KGZ4suC6l7r6lQ=="],
 
     "defuss-shadcn": ["defuss-shadcn@0.10.0", "", { "dependencies": { "defuss-dataview": "0.10.0", "defuss-morph": "0.2.0", "defuss-query": "0.2.0", "defuss-store": "0.1.0" } }, "sha512-iqWr4ZDa+PhVooH/KEAv0czqIUZMR807loeh3B3kOZqyx+2OknlldH5ILOkfuCboh4tuGCl2DrkBiKGOS971WA=="],
+
+    "defuss-storage": ["defuss-storage@0.4.1", "", {}, "sha512-C+p8PBqeAhCefACA/dKxVR9ZmAMIaLb7R30UiuA850gFUyP8gMJxsWa9qC4tsYeqhq8VUrz23NZFcxDR+QVD9w=="],
 
     "defuss-store": ["defuss-store@0.1.0", "", {}, "sha512-1FaR2bO8Zz8MyD95v1/+NXKcxsWarq3p1vazlwWfvW/JBWUcM/srvxNLFgFs2tUQh8bLLQUmYiZxCguTvLs85Q=="],
 

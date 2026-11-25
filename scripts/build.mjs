@@ -1,8 +1,9 @@
 import { build } from 'esbuild';
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { romTable } from './rom-table.mjs';
 // The package build runs pkgroll between these phases so cleaning cannot delete its output.
 if (process.argv.includes('--prepare')) {
   execFileSync(process.execPath, ['scripts/integrity.mjs'], { stdio: 'inherit' });
@@ -15,7 +16,6 @@ if (process.argv.includes('--prepare')) {
   await writeFile('dist/assets/brotli-decompressor.LICENSE.txt', `brotli-decompressor.wasm is the decoder of defuss-brotli 0.4.0.\n\n${(await readFile('node_modules/defuss-brotli/LICENSE', 'utf8')).trim()}\n\n${await readFile('node_modules/defuss-brotli/THIRD_PARTY_NOTICES.txt', 'utf8')}`);
   await cp('vendor/runtime/fm-synth.wasm', 'dist/assets/fm-synth.wasm');
   // Only public WASM/notice artifacts are installed. ROM packs are separately user-provided.
-  const { readdir } = await import('node:fs/promises');
   const profileDir = 'vendor/runtime/profiles';
   const profiles = await readdir(profileDir).catch(error => { if (error.code === 'ENOENT') return []; throw error; });
   if (profiles.length) await mkdir('dist/assets/profiles', { recursive: true });
@@ -37,11 +37,15 @@ if (process.argv.includes('--prepare')) {
     '', '== GNU General Public License 3.0 ==', (await adlmidi('LICENSE.GPL-3.txt')).trim(), ''].join('\n'));
   await writeFile('dist/assets/TimGM6mb.LICENSE.txt', `${(await readFile('vendor/soundfonts/TimGM6mb.copyright', 'utf8')).trim()}\n\n${await readFile('vendor/soundfonts/LICENSE.GPL-2.0.txt', 'utf8')}`);
 } else if (process.argv.includes('--finish')) {
+  // pkgroll bundles defuss-storage (MIT) into the profile store's chunks; its notice ships beside them.
+  const storage = JSON.parse(await readFile('node_modules/defuss-storage/package.json', 'utf8')).version;
+  await writeFile('dist/defuss-storage.LICENSE.txt', `The profile store (openProfileStore, createProfileStore) bundles defuss-storage ${storage}.\n\n${(await readFile('node_modules/defuss-storage/LICENSE', 'utf8')).trim()}\n`);
   await build({ entryPoints: ['src/worklet.ts'], outfile: 'dist/worklet.js', format: 'esm', bundle: true, target: 'es2022', sourcemap: true });
   await rm('docs/synth', { recursive: true, force: true });
   await cp('dist', 'docs/synth', { recursive: true });
   await cp('README.md', 'docs/llms.txt');
   await cp('LICENSE', 'docs/LICENSE.txt');
+  await writeFile('docs/roms.json', `${JSON.stringify(await romTable())}\n`);
   // The demo page's components: defuss-shadcn's runtime and the stylesheets of the components it uses, without their
   // source map comments (the maps stay in node_modules), and its licence and notice beside them.
   const shadcn = 'node_modules/defuss-shadcn/dist/components';
@@ -87,3 +91,4 @@ if (process.argv.includes('--prepare')) {
   await writeFile('docs/shadcn/LICENSE.txt', `${(await readFile('node_modules/defuss-shadcn/LICENSE', 'utf8')).trim()}\n\n${await readFile(`${shadcn}/NOTICE.txt`, 'utf8')}`);
   console.log('Built library, worklet, declarations and self-contained browser assets');
 } else throw new Error('Use --prepare or --finish; bun run build runs both phases');
+

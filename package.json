@@ -50,7 +50,7 @@
   "scripts": {
     "build": "node scripts/build.mjs --prepare && pkgroll && node scripts/build.mjs --finish",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/player.js && tsc --noEmit",
+    "lint": "oxlint --deny-warnings src tests scripts demo docs/app.js docs/player.js docs/profile-files.js && tsc --noEmit",
     "test": "node --experimental-transform-types --test tests/*.test.ts",
     "coverage": "node scripts/coverage.mjs",
     "e2e": "node scripts/e2e.mjs",
@@ -65,6 +65,7 @@
     "butterchurn-presets": "2.4.7",
     "defuss-brotli": "0.4.0",
     "defuss-shadcn": "0.10.0",
+    "defuss-storage": "0.4.1",
     "esbuild": "0.25.12",
     "oxlint": "1.26.0",
     "pkgroll": "2.29.1",

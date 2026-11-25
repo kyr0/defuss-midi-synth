@@ -1,5 +1,5 @@
-import { k as MidiParser, q as dataBytes, t as MIDI_RESET, u as packMessage, v as SYSEX_MAX, o as isReset, i as integer, h as inputBytes, x as MAX_BANK_BYTES, G as GM_PROGRAMS, y as isResetMessage, z as MAX_SOUNDFONT_BYTES, A as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, B as FM_BANKS, j as MAX_SONG_BYTES, f as finite, C as OP, D as OP_COUNT, E as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, H as instantiateProfile, m as moduleKey } from './parser-34fFPUv9.js';
-export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES } from './parser-34fFPUv9.js';
+import { k as MidiParser, u as dataBytes, v as MIDI_RESET, x as packMessage, y as SYSEX_MAX, q as isReset, i as integer, h as inputBytes, z as MAX_BANK_BYTES, G as GM_PROGRAMS, A as isResetMessage, B as MAX_SOUNDFONT_BYTES, C as masterVolume, N as NativeProfileVoices, n as normalizeOptions, e as engineKind, D as FM_BANKS, j as MAX_SONG_BYTES, f as finite, E as OP, H as OP_COUNT, I as isSysEx, O as OPERAND_MAX, M as MidiStream, s as selectEngine, d as isSynthProfile, w as withProfileSources, c as soundFontBytes, S as SOUNDFONT_ASSET, g as bankBytes, p as packEvent, r as readBytes, a as isNativeProfile, b as nativePart, J as instantiateProfile, m as moduleKey } from './profile-store-D7-fELbx.js';
+export { P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, t as openProfileStore } from './profile-store-D7-fELbx.js';
 
 const FM_BANK_NAMES = Object.freeze([
   "AIL (The Fat Man 2op set, default AIL)",
@@ -632,17 +632,33 @@ class Engine {
   has(kind) {
     return this.loaded.has(kind);
   }
-  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. */
-  add(voices) {
+  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. With replace, voices take
+   *  the place of the loaded engine of their kind (a native profile on new sources): when that one plays, a file plays
+   *  on through voices with its state replayed, as after use(). Replacing in place, rather than unloading the engine
+   *  and loading it anew, keeps the file's clock, the held notes and the other loaded engines, so the swap sounds like
+   *  a program change. VERIFIED: tests/profiles.test.ts "a new pack for a loaded one takes its place" (position kept,
+   *  the file's program replayed into the new engine). */
+  add(voices, replace = false) {
+    let old;
     try {
       this.ensure();
-      if (this.has(voices.kind)) throw new Error(`The ${voices.kind} engine is already loaded`);
+      old = this.loaded.get(voices.kind);
+      if (old && !replace) throw new Error(`The ${voices.kind} engine is already loaded`);
       voices.message(MIDI_RESET, 0, 0);
-      this.attach(voices);
     } catch (error) {
       voices.close();
       throw error;
     }
+    this.attach(voices);
+    if (!old) return;
+    if (this.active === old) {
+      const held = this.held.slice();
+      this.silence();
+      this.held.set(held);
+      this.active = voices;
+      this.restore();
+    }
+    old.close();
   }
   /** Makes kind's engine play. The voices of the other one end; a loaded file keeps its position and plays on, with
    *  its controllers and programs up to the position replayed into the new engine and its held notes struck again. */
@@ -1174,11 +1190,25 @@ class OfflineSynth {
   }
   /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does. A profile
    *  that is not available rejects with an Error naming it, and the engine that played plays on. sources (a native
-   *  profile's pack or module, as in profileSources) apply when the profile loads; a profile loaded or loading rejects
-   *  them, as its pack stays. */
+   *  profile's pack or module, as in profileSources) join that profile's profileSources: an unloaded profile loads with
+   *  them, a loaded one loads again with them in its place (a file plays on), and a pack or module its core rejects
+   *  leaves the loaded one. A profile still loading rejects them. */
   async useProfile(profile, sources) {
     if (!isSynthProfile(profile)) throw new RangeError("Unknown synth profile");
-    if (sources) this.loader.sources = withProfileSources(this.loader.sources, profile, sources, this.loading.has(profile) || this.engine.has(profile));
+    if (sources) {
+      const previous = this.loader.sources;
+      this.loader.sources = withProfileSources(this.loader.sources, profile, sources, this.loading.has(profile));
+      if (this.engine.has(profile)) {
+        const load = this.loader.voices(profile, () => this.engine.fmBank()).then((voices) => this.engine.add(voices, true)).finally(() => this.loading.delete(profile));
+        this.loading.set(profile, load);
+        try {
+          await load;
+        } catch (error) {
+          this.loader.sources = previous;
+          throw error;
+        }
+      }
+    }
     return this.useEngine(profile);
   }
   /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,

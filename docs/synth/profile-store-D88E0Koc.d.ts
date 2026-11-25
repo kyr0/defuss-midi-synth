@@ -162,5 +162,55 @@ type SoundFontSource = string | URL | ArrayBuffer | Uint8Array;
  *  asset directory. */
 type BankSource = string | URL | ArrayBuffer | Uint8Array;
 
-export { PROFILE_DESCRIPTORS as h, SYNTH_PROFILES as m };
-export type { BankSource as B, EngineOptions as E, FmInfo as F, LoadProgress as L, MidiLoadOptions as M, ProfileSourceMap as P, RenderStats as R, SynthProfile as S, TimedEvent as T, SoundFontSource as a, ProgressListener as b, SynthInfo as c, ProfileSources as d, SynthEvent as e, EngineKind as f, PlaybackInfo as g, Preset as i, ProfileAvailability as j, ProfileDescriptor as k, ProfileUserAssets as l, PackedEvent as n };
+/** The parts of a defuss-storage file handle the store uses; any adapter's StorageFile has them. */
+interface ProfileStorageFile {
+    readonly maxReadBytes: number;
+    size(): Promise<number>;
+    readInto(offset: number, target: Uint8Array): Promise<number>;
+    write(offset: number, data: Uint8Array): Promise<void>;
+    truncate(size: number): Promise<void>;
+    flush(): Promise<void>;
+    close(): Promise<void>;
+}
+/** The parts of a defuss-storage adapter the store uses: MemoryStorage, createFileStorage (Node), createOPFSStorage
+ *  (a dedicated worker) and createDirectoryStorage each fit. */
+interface ProfileStorage {
+    open(name: string, options?: {
+        create?: boolean;
+        readOnly?: boolean;
+    }): Promise<ProfileStorageFile>;
+    list(): Promise<string[]>;
+    remove(name: string): Promise<boolean>;
+}
+/** A profile's stored files: its pack (assets) and its module (wasm), as profileSources takes them. */
+interface StoredProfileSources {
+    assets?: Uint8Array;
+    wasm?: Uint8Array;
+}
+interface ProfileStore {
+    /** Stores profile's pack, module or both; a part not given keeps what was stored. Rejects with the adapter's error
+     *  (QUOTA_EXCEEDED, UNSUPPORTED where a browser cannot write OPFS files from this thread). */
+    save(profile: NativeProfile, sources: {
+        assets?: Uint8Array | ArrayBuffer;
+        wasm?: Uint8Array | ArrayBuffer;
+    }): Promise<void>;
+    /** profile's stored files, or undefined when none is stored. A pack whose records do not add up to its size, or a
+     *  module WebAssembly.validate refuses, the trace of a save that stopped partway, counts as not stored. */
+    load(profile: NativeProfile): Promise<StoredProfileSources | undefined>;
+    /** The profiles with a stored file. */
+    profiles(): Promise<NativeProfile[]>;
+    /** Removes profile's files; resolves whether there were any. */
+    remove(profile: NativeProfile): Promise<boolean>;
+}
+/** A profile store on storage, a defuss-storage adapter (or anything with its open, list and remove). */
+declare function createProfileStore(storage: ProfileStorage): ProfileStore;
+/** The profile store of this origin's private file system, in its directory defuss-storage/<name>: the directory that
+ *  defuss-storage's createOPFSStorage({ name }) uses, so a dedicated worker with that adapter sees the same files. It
+ *  goes through the directory adapter because the OPFS adapter needs a dedicated worker's sync access handles, and a
+ *  page calls this on its main thread. The two adapters lock files under different names, so they do not exclude each
+ *  other: use one of them for a store at a time. VERIFIED (review probe, Chromium 141, 2026-11-25): a page's load read
+ *  a file a worker's OPFS adapter held open. Rejects outside a browser with OPFS. */
+declare function openProfileStore(name?: string): Promise<ProfileStore>;
+
+export { PROFILE_DESCRIPTORS as h, SYNTH_PROFILES as p, createProfileStore as r, openProfileStore as s };
+export type { BankSource as B, EngineOptions as E, FmInfo as F, LoadProgress as L, MidiLoadOptions as M, ProfileSourceMap as P, RenderStats as R, SynthProfile as S, TimedEvent as T, SoundFontSource as a, ProgressListener as b, SynthInfo as c, ProfileSources as d, SynthEvent as e, EngineKind as f, PlaybackInfo as g, Preset as i, ProfileAvailability as j, ProfileDescriptor as k, ProfileStorage as l, ProfileStorageFile as m, ProfileStore as n, ProfileUserAssets as o, StoredProfileSources as q, PackedEvent as t };

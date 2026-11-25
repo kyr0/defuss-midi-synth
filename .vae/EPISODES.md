@@ -47,3 +47,12 @@ Wrap: EVERY lead becomes a test | .vae/VERIFY.py rule | one MEMORY line with BC,
 2026-11-25T02:23:24Z s=5ed957d1 FINDING src/engine.ts:info (sb16-cqm) learn=test: drift between the table and the FM module fails the test
 2026-11-25T02:23:24Z s=5ed957d1 FINDING tests/profiles.test.ts learn=none: test hygiene
 2026-11-25T02:25:45Z s=5ed957d1 DONE fp=43e75ffd9185 cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,README.md(+89)
+2026-11-25T03:22:29Z s=5ed957d1 FAIL lint,tests.no-mocks
+2026-11-25T03:31:35Z s=5ed957d1 FAIL env.example
+2026-11-25T04:29:27Z s=5ed957d1 FAIL prose,gitignore
+2026-11-25T05:09:56Z s=5ed957d1 DONE fp=be2f86b97221 cov=98.0% paths=ARCH.md,CHANGELOG.md,HARDWARE_PROFILES.md,Makefile(+45)
+2026-11-25T05:09:56Z s=5ed957d1 FINDING docs/player.js:playEngine learn=test: The e2e never clicked the button of the engine already playing; the new step drives exactly that path in a real browser.
+2026-11-25T05:09:56Z s=5ed957d1 FINDING src/worklet.ts:voices learn=test: A reload sends no module, so a cache poisoned by a refused module only shows on the following reload; the e2e API block now runs that sequence in the worklet.
+2026-11-25T05:09:56Z s=5ed957d1 FINDING docs/profile-files.js:devicesIn add(); docs/packs.json; scripts/packs-catalog.py learn=test: A default pack's name stays fixed while its content follows --activate; binding catalog entries to the file hash is now unit-tested.
+2026-11-25T05:09:56Z s=5ed957d1 FINDING docs/player.js:choose/chooseDevice/playDevice learn=test: Concurrent choices of one profile hit the library's loading guard; the e2e now makes two quick same-profile choices and checks what plays and what is stored.
+2026-11-25T05:09:56Z s=5ed957d1 FINDING src/profile-store.ts:WRITE_CHUNK; tests/profile-store.test.ts learn=none: A stale comment and test name, no behavior; the claim is now labelled by its evidence.

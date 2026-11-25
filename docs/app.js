@@ -7,9 +7,16 @@ const $ = id => document.getElementById(id);
 // (scripts/compress-banks.mjs; the library unpacks it with defuss-brotli). It comes from the Hugging Face model repo of
 // this project's soundbanks: at 104 MB it exceeds GitHub's 100 MB file limit, so git keeps it in LFS, which GitHub
 // Pages does not serve. The Hub allows cross-origin requests.
-const SOUNDFONT = new URL('https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br');
+// On this machine's own addresses the demo server (scripts/serve.mjs) also serves files no public copy of the site
+// holds: the AWE cards' local builds and E-mu's 2GMGSMT SoundFont. With that SoundFont the SoundFont engine is the
+// "Sound Blaster 128" and plays it; elsewhere it plays the OPL-3 FM 128M SoundFont.
+const LOCAL = new URL('./local/', import.meta.url);
+const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+  ? await fetch(new URL('index.json', LOCAL)).then(r => r.ok ? r.json() : [], () => []) : [];
+const PCI128 = local.includes('pci128.sf2') ? new URL('pci128.sf2', LOCAL) : undefined;
+const SOUNDFONT = PCI128 ?? new URL('https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br');
 let synth, starting, analyser, waveform, customFont, customBank, player;
-const soundFontName = () => customFont ? 'Your SoundFont file' : 'OPL-3 FM 128M SoundFont (104 MB)';
+const soundFontName = () => customFont ? 'Your SoundFont file' : PCI128 ? 'E-mu 2GMGSMT SoundFont (2 MB)' : 'OPL-3 FM 128M SoundFont (104 MB)';
 const progress = createProgress($('load-progress'));
 // Pressed keys by pointer or key code; lit notes by source (a pointer, a key code, a Web MIDI channel); the scope's end.
 const active = new Map(), lit = new Map();
@@ -39,7 +46,7 @@ const FM_KINDS = ['fm', 'sb16-opl3', 'sb16-cqm'];
 function showEngine(info) {
   $('engine-label').textContent = FM_KINDS.includes(info.kind)
     ? `LIBADLMIDI / NUKED ${info.kind === 'sb16-cqm' ? 'CQM' : 'OPL3'} · ${info.fm.bank < 0 ? 'WOPL FILE' : `BANK ${info.fm.bank}`}`
-    : info.kind === 'soundfont' ? `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : 'OPL-3 FM 128M'}` : info.engine.toUpperCase();
+    : info.kind === 'soundfont' ? `TINYSOUNDFONT / ${customFont ? 'YOUR SOUNDFONT' : PCI128 ? '2GMGSMT' : 'OPL-3 FM 128M'}` : info.engine.toUpperCase();
 }
 async function applyPreset() {
   releaseKeys();
@@ -50,11 +57,11 @@ async function applyPreset() {
   $('bank-label').textContent = `Bank ${bank} · ${bankName(bank)} · channel ${channel + 1}`;
 }
 /** What a WAV download plays on: the engine shown, album's FM bank (the piano's bank without an album) or the user's
- *  WOPL file, the SoundFont, and the user's pack for a profile of the hardware list. */
+ *  WOPL file, the SoundFont, and the user's files (pack, module) of the device of the ROMs list that plays. */
 function sound(album) {
   const info = synth.info, own = FM_KINDS.includes(info.kind) && info.fm.bank < 0, pack = player?.packs[info.kind];
   return { engine: info.kind, fmBank: own ? 0 : album?.fm.bank ?? Math.max(0, info.fm?.bank ?? 0), bank: own ? customBank : undefined, soundfont: customFont ?? SOUNDFONT,
-    profileSources: pack ? { [info.kind]: { assets: pack } } : undefined };
+    profileSources: pack ? { [info.kind]: pack } : undefined };
 }
 /** Starts audio once, from a click: the power button or any player control. Resolves with the synthesizer. */
 function start() {
@@ -84,6 +91,8 @@ $('power').onclick = run(start);
 player = await createPlayer({
   start,
   soundFontName,
+  soundFontEngine: PCI128 ? 'Sound Blaster 128' : 'SoundFont',
+  local: { url: LOCAL, names: local },
   sound,
   progress,
   analyser: () => analyser,

@@ -1,0 +1,224 @@
+{
+  "awe32--emu8000-gm-rom-synthgm.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, General MIDI bank + ROM",
+    "sha256": "d62c148cddccc39acd1aeb64373a2d7d01370d4319ebbd3beb365475e2b6cc97"
+  },
+  "awe32--emu8000-gm-rom-synthgs.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, GS bank + ROM",
+    "sha256": "7fd81be2f64ddac1cac6dad678dc63b8b59389c79a985a01604d93df2025fc7f"
+  },
+  "awe32--emu8000-gm-rom-synthmt.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, MT32 bank + ROM",
+    "sha256": "99ecc22d4cbd39ff3adc05a2ca20b5ba4cbb5a00183531bc04af003a176e388e"
+  },
+  "awe32--synthgm.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, General MIDI bank + ROM",
+    "sha256": "d62c148cddccc39acd1aeb64373a2d7d01370d4319ebbd3beb365475e2b6cc97"
+  },
+  "awe32--synthgs.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, GS bank + ROM",
+    "sha256": "7fd81be2f64ddac1cac6dad678dc63b8b59389c79a985a01604d93df2025fc7f"
+  },
+  "awe32--synthmt.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, MT32 bank + ROM",
+    "sha256": "99ecc22d4cbd39ff3adc05a2ca20b5ba4cbb5a00183531bc04af003a176e388e"
+  },
+  "awe32-timgm6mb.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, TimGM6mb1.sf2 bank",
+    "sha256": "7c6d25802ae2ae26190f868bfc1025b383818b16dee7ba675a64776f9f7b9e33"
+  },
+  "awe32.dspack": {
+    "manufacturer": "Creative",
+    "year": "1994",
+    "model": "Sound Blaster AWE32, General MIDI bank + ROM",
+    "sha256": "d62c148cddccc39acd1aeb64373a2d7d01370d4319ebbd3beb365475e2b6cc97"
+  },
+  "awe64--emu8000-gm-rom-synthgm.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, General MIDI bank + ROM",
+    "sha256": "e2f2755d7926edd0c8ada295e40488485501ddde6dd3b625e8d835c1e4e86ea8"
+  },
+  "awe64--emu8000-gm-rom-synthgs.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, GS bank + ROM",
+    "sha256": "78b0f125860ce8f2ad4bd8f75b48395de600ab044b7605e8738f25a2cfc4c2bb"
+  },
+  "awe64--emu8000-gm-rom-synthmt.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, MT32 bank + ROM",
+    "sha256": "0792cf7350e5c85823021333c3fe198a0155c96216ee2ccbb80d5ede43dfe94a"
+  },
+  "awe64--synthgm.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, General MIDI bank + ROM",
+    "sha256": "e2f2755d7926edd0c8ada295e40488485501ddde6dd3b625e8d835c1e4e86ea8"
+  },
+  "awe64--synthgs.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, GS bank + ROM",
+    "sha256": "78b0f125860ce8f2ad4bd8f75b48395de600ab044b7605e8738f25a2cfc4c2bb"
+  },
+  "awe64--synthmt.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, MT32 bank + ROM",
+    "sha256": "0792cf7350e5c85823021333c3fe198a0155c96216ee2ccbb80d5ede43dfe94a"
+  },
+  "awe64-timgm6mb.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, TimGM6mb1.sf2 bank",
+    "sha256": "6b79e85d31978bb59dc345a40eb0347ec27c501ecc6eb3792d3ccd458ce86afb"
+  },
+  "awe64.dspack": {
+    "manufacturer": "Creative",
+    "year": "1996",
+    "model": "Sound Blaster AWE64, General MIDI bank + ROM",
+    "sha256": "e2f2755d7926edd0c8ada295e40488485501ddde6dd3b625e8d835c1e4e86ea8"
+  },
+  "EAPCI2M.ECW": {
+    "manufacturer": "Creative",
+    "year": "1998",
+    "model": "Sound Blaster PCI 128, 2 Megabyte Waveset Version 2",
+    "sha256": "984c5097d9b4cc66674b0ec250bdd1c0d3081b076d418d5fc207da52868f8e81"
+  },
+  "EAPCI4M.ECW": {
+    "manufacturer": "Creative",
+    "year": "1998",
+    "model": "Sound Blaster PCI 128, 4 Megabyte Waveset Version 3",
+    "sha256": "411612743edbde4c6cd19a45a09974c9ce508056b18fb0edaaaad5c7eea4f5db"
+  },
+  "EAPCI8M.ECW": {
+    "manufacturer": "Creative",
+    "year": "1998",
+    "model": "Sound Blaster PCI 128, 8 Megabyte GM/GS Waveset Version 4",
+    "sha256": "4995a23e7a4c34a96f1a223f0d648eb497ae845aa42877cba193bc8cbc84293f"
+  },
+  "gus-gf1-1024k.dspack": {
+    "manufacturer": "Advanced Gravis",
+    "year": "1992",
+    "model": "UltraSound, 1024 KiB",
+    "sha256": "461cbd816d6244de0c75450be8319761d7110b43679a1cba5c169698b93fff9c"
+  },
+  "gus-gf1-256k.dspack": {
+    "manufacturer": "Advanced Gravis",
+    "year": "1992",
+    "model": "UltraSound, 256 KiB",
+    "sha256": "2a6beefd3538dc5243d4023be3d155a275da367e2a1e67aefd3b83ef153971b2"
+  },
+  "gus-gf1-512k.dspack": {
+    "manufacturer": "Advanced Gravis",
+    "year": "1992",
+    "model": "UltraSound, 512 KiB",
+    "sha256": "6eb28b7789184eb5f77d9674595b37aca24c4bc3d9b3ee6383f485e8b9000845"
+  },
+  "gus-gf1-768k.dspack": {
+    "manufacturer": "Advanced Gravis",
+    "year": "1992",
+    "model": "UltraSound, 768 KiB",
+    "sha256": "8c1b560b2bdb54956309046cb3b9324ec0d39e5c96da890fc3d75a35470aea81"
+  },
+  "roland-mt32--mt-32-control-1-04-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 1.04 + PCM",
+    "sha256": "45d69c2cf6ccc7943bd96c0dba4452c084f198beefad2d094d0920872e90a1a6"
+  },
+  "roland-mt32--mt-32-control-1-05-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 1.05 + PCM",
+    "sha256": "057fac97717cc3317e01bcc26e53bf494e21b6c85babe740bc55d966a30640b9"
+  },
+  "roland-mt32--mt-32-control-1-06-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 1.06 + PCM",
+    "sha256": "48f622b3ed626c07c20cdca4a772e5871cd6726aebb609cb5f0316b41b6235fb"
+  },
+  "roland-mt32--mt-32-control-1-07-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 1.07 + PCM",
+    "sha256": "166d4581b5c4164414af928785970a9c6209046a6a7fe7487588167eea9fe4be"
+  },
+  "roland-mt32--mt-32-control-2-03-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 2.03 + PCM",
+    "sha256": "176c1ee510123cf7dcec0dbe615c971f7d2d5d82333054ec3c6d5ff06a8cdf74"
+  },
+  "roland-mt32--mt-32-control-2-04-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 2.04 + PCM",
+    "sha256": "0a005a797139ba6b54b9f8caf6d4ea1c40e8af5a31dd26ed9521a7fcf19cc7c5"
+  },
+  "roland-mt32--mt-32-control-2-06-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 2.06 + PCM",
+    "sha256": "65704258514cc94f8a258fe195db55664d037523b740191404e2ae57f419d052"
+  },
+  "roland-mt32--mt-32-control-2-07-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 2.07 + PCM",
+    "sha256": "bf017ef64b574a163322fada95ee925a806a6c65a22f1131b7bfd95f30441905"
+  },
+  "roland-mt32--mt-32-control-blueridge-pcm.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control BlueRidge + PCM",
+    "sha256": "762568ed0c62ceb26e036820f43426b11f3ae5d8d0ea9290750d81de1cf0d053"
+  },
+  "roland-mt32.dspack": {
+    "manufacturer": "Roland",
+    "year": "1987",
+    "model": "MT-32, control 1.07 + PCM",
+    "sha256": "166d4581b5c4164414af928785970a9c6209046a6a7fe7487588167eea9fe4be"
+  },
+  "roland-sc55--sc-55-v1-21.dspack": {
+    "manufacturer": "Roland",
+    "year": "1991",
+    "model": "SC-55, v1.21",
+    "sha256": "03c34d525f93b9d775f6aefa4386d3173bc7de5e03bbaa04c13fab5393da00a0"
+  },
+  "roland-sc55.dspack": {
+    "manufacturer": "Roland",
+    "year": "1991",
+    "model": "SC-55, v1.21",
+    "sha256": "03c34d525f93b9d775f6aefa4386d3173bc7de5e03bbaa04c13fab5393da00a0"
+  },
+  "roland-sc55mk2--sc-55mkii-v1-01.dspack": {
+    "manufacturer": "Roland",
+    "year": "1993",
+    "model": "SC-55mkII, v1.01",
+    "sha256": "8cae3c9bf3cc81567730662dcae837d38745a60eb14a47f81c72767ab74d5a7b"
+  },
+  "roland-sc55mk2.dspack": {
+    "manufacturer": "Roland",
+    "year": "1993",
+    "model": "SC-55mkII, v1.01",
+    "sha256": "8cae3c9bf3cc81567730662dcae837d38745a60eb14a47f81c72767ab74d5a7b"
+  }
+}

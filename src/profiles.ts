@@ -48,11 +48,13 @@ export function isNativeProfile(value: unknown): value is NativeProfile {
   return isSynthProfile(value) && value !== 'soundfont' && value !== 'sb16-opl3';
 }
 /** The profile sources with sources for profile, given to useProfile: a native profile's pack (and module) you supply
- *  after the synth exists, such as ROMs a user picks in a page. They apply when the profile loads; a profile loaded
- *  or loading keeps what it has, so another pack takes a new synth. */
-export function withProfileSources(map: ProfileSourceMap | undefined, profile: SynthProfile, sources: ProfileSources, busy: boolean): ProfileSourceMap {
+ *  after the synth exists, such as ROMs a user picks in a page. They apply when the profile loads, or, for a loaded
+ *  profile, when useProfile loads it again on them. A profile still loading takes none, instead of queueing them: two
+ *  loads of one profile would race for its engine's place, and the caller (the demo's ROMs list) can wait for the
+ *  first. */
+export function withProfileSources(map: ProfileSourceMap | undefined, profile: SynthProfile, sources: ProfileSources, loading: boolean): ProfileSourceMap {
   if (!isNativeProfile(profile)) throw new RangeError(`The ${profile} profile takes no profile sources`);
-  if (busy) throw new Error(`The ${profile} profile is loaded; its sources apply to a new synth`);
+  if (loading) throw new Error(`The ${profile} profile is loading; give its sources once it has loaded`);
   return { ...map, [profile]: { ...map?.[profile], ...sources } };
 }
 /** Prevent contradictory legacy/profile selection instead of silently choosing one. */

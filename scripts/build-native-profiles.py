@@ -16,8 +16,14 @@ def run(*args,cwd=None): subprocess.run([str(a) for a in args],cwd=cwd,check=Tru
 def checkout(name,cache):
     url,rev=LOCK[name]; path=cache/name
     if not path.exists():
-        path.mkdir(parents=True); run('git','init',path); run('git','-C',path,'remote','add','origin',url)
-        run('git','-C',path,'fetch','--depth=1','origin',rev); run('git','-C',path,'checkout','--detach','FETCH_HEAD')
+        # Fetched beside the cache and moved in once complete: a checkout that stopped partway is never taken for one.
+        part=cache/(name+'.partial'); shutil.rmtree(part,ignore_errors=True); part.mkdir(parents=True)
+        run('git','init',part); run('git','-C',part,'remote','add','origin',url)
+        run('git','-C',part,'fetch','--depth=1','origin',rev); run('git','-C',part,'checkout','--detach','FETCH_HEAD')
+        part.rename(path)
+    # Its own repository, not one that holds the cache (git looks upward from a directory without one).
+    if Path(subprocess.check_output(['git','-C',path,'rev-parse','--show-toplevel'],text=True).strip()).resolve()!=path.resolve():
+        raise RuntimeError(f'{path} is no checkout of {name}: remove it and build again')
     head=subprocess.check_output(['git','-C',path,'rev-parse','HEAD'],text=True).strip()
     if head!=rev: raise RuntimeError(f'{path}: expected {rev}, got {head}')
     if subprocess.check_output(['git','-C',path,'status','--porcelain','--untracked-files=no'],text=True).strip(): raise RuntimeError(f'{path} has modifications')

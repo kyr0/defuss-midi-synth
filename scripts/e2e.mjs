@@ -1,15 +1,20 @@
 import { chromium } from '@playwright/test';
-import { serve } from './serve.mjs';
+import { LOCAL_FILES, serve } from './serve.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { midiFixture, musFixture, rmiFixture, soundfont } from '../tests/fixtures.ts';
-import { gusFixture } from '../tests/vintage-fixtures.ts';
+import { dspack, ecwFixture, gusFixture } from '../tests/vintage-fixtures.ts';
+import { existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { compress, init as brotli } from 'defuss-brotli/compressor';
 await brotli();
-const server = await serve('docs');
+// The page as a public copy has it, but with the AWE builds of this machine where they exist; the Sound Blaster 128
+// SoundFont gets a server of its own below.
+const server = await serve('docs', 0, { local: { 'awe32.wasm': LOCAL_FILES['awe32.wasm'], 'awe64.wasm': LOCAL_FILES['awe64.wasm'] } });
 // SwiftShader gives headless Chromium WebGL2, so the player's shader renders instead of its poster.
 const browser = await chromium.launch({ args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-const page = await browser.newPage({ viewport: { width: 1280, height: 1100 } });
+// One context, so a second page shares the first one's origin storage (OPFS).
+const context = await browser.newContext({ viewport: { width: 1280, height: 1100 } });
+const page = await context.newPage();
 const errors = []; page.on('pageerror', error => errors.push(error.message));
 page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
 page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
@@ -158,13 +163,14 @@ try {
   await page.click('#engine .toggle[value=soundfont]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / OPL-3 FM 128M', null, { timeout: 120000 });
   assert.equal(await text('#message'), 'SoundFont: 129 presets.'); assert.equal(await text('#soundfont-name'), 'OPL-3 FM 128M SoundFont (104 MB)');
+  assert.equal(await text('#soundfont-info'), 'Plays OPL-3 FM 128M SoundFont (104 MB).'); assert.equal(await page.locator('#panel-sb16').isHidden(), true);
   assert.equal(await page.locator('#fm-banks').isHidden(), true);
   await network.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }); await network.detach();
   assert.deepEqual(await page.evaluate(() => [...window.__labels]), ['Downloading OPL-3_FM_128M.sf2.br', 'Decompressing OPL-3_FM_128M.sf2.br']);
   assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont comes from the Hub');
   await page.waitForSelector('#load-progress', { state: 'hidden' });
   await sounding();
-  await page.click('#engine .toggle[value=sb16-opl3]');
+  await page.click('#engine .toggle[value=sb16]');
   await page.waitForFunction(() => document.querySelector('#engine-label').textContent === 'LIBADLMIDI / NUKED OPL3 · BANK 16');
   assert.match(await text('#message'), /^Sound Blaster 16 \(OPL3\): .*18 voices\.$/);
   // A track's WAV button renders it on the engine and bank shown without choosing it.
@@ -180,7 +186,7 @@ try {
   const label = value => page.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
   await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
   await album('jazz-jackrabbit-2-1998'); await title('Lab Rat · Jazz Jackrabbit 2');
-  await label('LIBADLMIDI / NUKED OPL3 · BANK 0'); await pressed('#engine .toggle[value=sb16-opl3]', 'true'); await sounding();
+  await label('LIBADLMIDI / NUKED OPL3 · BANK 0'); await pressed('#engine .toggle[value=sb16]', 'true'); await pressed('#engine-modes .toggle[value=sb16-opl3]', 'true'); await sounding();
   await page.click('#engine .toggle[value=soundfont]'); await label('TINYSOUNDFONT / OPL-3 FM 128M');
   await page.click('#tracks li:nth-child(2) label'); await title('Carrotus · Jazz Jackrabbit 2');
   assert.equal(await text('#engine-label'), 'TINYSOUNDFONT / OPL-3 FM 128M');
@@ -188,37 +194,125 @@ try {
   await album('doom-1993'); await title('Intro · Doom'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
   assert.deepEqual(hub, ['https://huggingface.co/kyr0/midi-synth/resolve/main/soundfonts/OPL-3_FM_128M/OPL-3_FM_128M.sf2.br'], 'the SoundFont loads once');
   // The CQM plays the game's bank too.
-  await page.click('#engine .toggle[value=sb16-cqm]'); await label('LIBADLMIDI / NUKED CQM · BANK 16'); await sounding();
+  await page.click('#engine-modes .toggle[value=sb16-cqm]'); await label('LIBADLMIDI / NUKED CQM · BANK 16'); await sounding();
   assert.match(await text('#message'), /^Sound Blaster 16 \(CQM\): .*18 voices\.$/);
-  // A profile of the hardware list asks for the user's pack and plays with it: a GF1 pack of the tests' own patches on
-  // the real core. A WAV download renders with the same pack; a pack the core rejects leaves the engine that played.
-  assert.deepEqual(await page.locator('#hardware option').allTextContents(), ['Your hardware files…', 'Sound Blaster PCI 128 · your ECW pack',
-    'Gravis UltraSound (GF1) · your patch pack', 'Roland SC-55 · your ROM pack', 'Roland SC-55mkII · your ROM pack', 'Roland MT-32 · your ROM pack',
-    'Sound Blaster AWE32 · local build only', 'Sound Blaster AWE64 · local build only']);
-  assert.deepEqual(await page.locator('#hardware option[disabled]').evaluateAll(o => o.map(x => x.value)), ['awe32', 'awe64']);
-  const pack = async (kind, name, buffer) => {
-    const chooser = page.waitForEvent('filechooser'); await page.selectOption('#hardware', kind);
-    await (await chooser).setFiles({ name, mimeType: 'application/octet-stream', buffer });
-  };
-  await pack('gus-gf1', 'gus.dspack', gusFixture()); await label('GRAVIS ULTRASOUND (GF1)');
-  assert.match(await text('#message'), /^Gravis UltraSound \(GF1\): 129 presets\.$/);
-  for (const kind of ['sb16-opl3', 'sb16-cqm', 'soundfont']) await pressed(`#engine .toggle[value=${kind}]`, 'false');
-  assert.equal(await page.locator('#hardware').inputValue(), 'gus-gf1'); assert.equal(await text('#soundfont-name'), 'Gravis UltraSound (GF1)');
+  // The Sound Engine's ROMs: files dropped once become devices of its list, named by packs.json or by devices.json and
+  // their revision or own name, the newest release first; a device chosen plays on the real core: GF1 packs of the
+  // tests' own patches, an ECW waveset, an AWE pack. A WAV download renders with the device that plays; files the core
+  // rejects leave the device that played. The files are kept in OPFS: a second page of the same origin plays them
+  // without asking.
+  await page.click('#engine .toggle[value=roms]'); await pressed('#engine .toggle[value=roms]', 'true');
+  assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED CQM · BANK 16', 'the ROMs button with no device plays nothing');
+  assert.deepEqual(await page.locator('#devices option').allTextContents(), ['Drop your files to list their devices']);
+  // The button of the engine that plays shows its controls again; then back to the ROMs.
+  await page.click('#engine .toggle[value=sb16]'); await pressed('#engine .toggle[value=sb16]', 'true');
+  assert.equal(await page.locator('#panel-sb16').isVisible(), true); assert.equal(await page.locator('#panel-roms').isHidden(), true);
+  await page.click('#engine .toggle[value=roms]'); await pressed('#engine .toggle[value=roms]', 'true');
+  assert.equal(await page.locator('#forget-files').isHidden(), true, 'nothing stored yet');
+  const shows = async pattern => page.waitForFunction(source => new RegExp(source).test(document.querySelector('#message').textContent), pattern.source);
+  const clear = () => page.evaluate(() => { document.querySelector('#message').textContent = ''; });
+  // A drop as the browser makes it: a DragEvent with the files in its DataTransfer, on the list.
+  const dropFiles = files => page.evaluate(list => {
+    const transfer = new DataTransfer();
+    for (const [name, data] of list) transfer.items.add(new File([new Uint8Array(data)], name));
+    document.querySelector('#devices').dispatchEvent(new DragEvent('drop', { dataTransfer: transfer, bubbles: true, cancelable: true }));
+  }, files.map(([name, data]) => [name, [...data]]));
+  const choose = async (name, p = page) => p.selectOption('#devices', { label: name });
+  // The tests' synthetic files share names with the packs of docs/packs.json but not their bytes, so their own names
+  // (the file's, the waveset's) name them.
+  const gus32 = 'Advanced Gravis UltraSound, 1024k (1992)', gus14 = 'Advanced Gravis UltraSound, 256k (1992)';
+  const pci = 'Creative Sound Blaster PCI 128, Defuss synthetic fixture (1998)', badMt32 = 'Roland MT-32, mt32-bad (1987)';
+  await clear(); await dropFiles([['mt32-bad.dspack', dspack(9, [[1, Buffer.from('x')], [2, Buffer.from('y')]])], ['gus-gf1-1024k.dspack', gusFixture()],
+    ['notes.txt', Buffer.from('not a device')], ['gus-gf1-256k.dspack', gusFixture(14)]]);
+  await shows(/^3 devices from 4 files; not a device: notes\.txt\.$/);
+  assert.deepEqual(await page.locator('#devices option').allTextContents(), [gus14, gus32, badMt32]);
+  assert.equal(await page.locator('#devices option:checked').textContent(), gus14, 'the newest chosen');
+  // A later drop sorts in: the PCI 128 (1998) goes first and is chosen.
+  await clear(); await dropFiles([['EAPCI2M.ECW', ecwFixture()]]); await shows(/^1 device from 1 file\.$/);
+  assert.deepEqual(await page.locator('#devices option').allTextContents(), [pci, gus14, gus32, badMt32]);
+  assert.equal(await page.locator('#devices option:checked').textContent(), pci);
+  await choose(gus32); await label('GRAVIS ULTRASOUND (GF1)');
+  await page.locator('#forget-files').waitFor({ state: 'visible' });
+  assert.equal(await text('#message'), 'Gravis UltraSound (GF1): 129 presets. This browser keeps your files for later visits.');
+  await pressed('#engine .toggle[value=roms]', 'true'); await pressed('#engine .toggle[value=sb16]', 'false');
+  assert.equal(await text('#soundfont-name'), 'Gravis UltraSound (GF1)');
   const gusDownload = page.waitForEvent('download', { timeout: 60000 }); await page.click('#tracks li:nth-child(1) .track-download');
   await (await gusDownload).saveAs('output/browser-track-gf1.wav');
   assert.ok((await wavStats('output/browser-track-gf1.wav')).frames >= 8.5 * 48000, 'the WAV renders with the GF1 pack');
-  await pack('roland-mt32', 'mt32.dspack', Buffer.from('not a pack'));
-  await page.waitForFunction(() => /roland-mt32/.test(document.querySelector('#message').textContent));
-  assert.equal(await text('#engine-label'), 'GRAVIS ULTRASOUND (GF1)'); assert.equal(await page.locator('#hardware').inputValue(), 'gus-gf1');
-  await page.click('#engine .toggle[value=sb16-opl3]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
-  assert.equal(await page.locator('#hardware').inputValue(), '');
+  const files = (p = page) => p.evaluate(async () => {
+    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
+    const out = {}; for await (const [name, handle] of dir.entries()) out[name] = (await handle.getFile()).size; return out;
+  });
+  // The stored GF1 pack's voice count, its last byte (tests/vintage-fixtures.ts gusFixture); undefined while a save
+  // swaps the file in, when reading it can fail for a moment.
+  const storedVoices = () => page.evaluate(async () => {
+    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
+    const bytes = new Uint8Array(await (await (await dir.getFileHandle('gus-gf1.dspack')).getFile()).arrayBuffer()); return bytes[bytes.length - 1];
+  }).catch(() => undefined);
+  const stored = async voices => { for (let i = 0; i < 300 && await storedVoices() !== voices; i++) await page.waitForTimeout(100); assert.equal(await storedVoices(), voices); };
+  // The other GF1 pack loads in the first one's place; the one stored is now the 256k pack.
+  await clear(); await choose(gus14); await shows(/^Gravis UltraSound \(GF1\): 129 presets\. This browser keeps/);
+  await stored(14);
+  // Two choices of the same profile in quick succession, as two arrow keys make them: they load one after the other,
+  // and the second, a third GF1 pack dropped now, plays and is stored last.
+  const gus24 = 'Advanced Gravis UltraSound, 512k (1992)';
+  await clear(); await dropFiles([['gus-gf1-512k.dspack', gusFixture(24)]]); await shows(/^1 device from 1 file\.$/);
+  await clear();
+  await page.evaluate(async ([first, then]) => {
+    const list = document.querySelector('#devices'), pick = label => { list.value = [...list.options].find(o => o.text === label).value; list.dispatchEvent(new Event('change')); };
+    pick(first); await new Promise(resolve => setTimeout(resolve, 0)); pick(then);
+  }, [gus32, gus24]);
+  await stored(24); await shows(/^Gravis UltraSound \(GF1\): 129 presets\. This browser keeps/);
+  assert.equal(await page.locator('#devices option:checked').textContent(), gus24);
+  // A pack the core rejects leaves the GF1 that played, chosen in the list.
+  await clear(); await choose(badMt32); await shows(/roland-mt32/);
+  assert.equal(await text('#engine-label'), 'GRAVIS ULTRASOUND (GF1)'); assert.equal(await page.locator('#devices option:checked').textContent(), gus24);
+  await choose(pci); await label('SOUND BLASTER PCI 128');
+  // Load pack… opens the file chooser. An AWE pack (the GPL bank in 6 MiB of RAM) plays on its card's local build,
+  // which the local server provides where it is built (not in a fresh checkout); without it the pack needs it.
+  const awePack = dspack(3, [[32, await readFile('vendor/soundfonts/TimGM6mb.sf2')], [33, Buffer.from([0, 0, 0, 0x18, 0, 0])]]), aweName = 'Creative Sound Blaster AWE32, TimGM6mb1.sf2 (1994)';
+  const chooser = page.waitForEvent('filechooser'); await page.click('#load-pack');
+  await clear(); await (await chooser).setFiles([{ name: 'awe32-test.dspack', mimeType: 'application/octet-stream', buffer: awePack }]); await shows(/^1 device from 1 file\.$/);
+  if (existsSync('profile-assets/local-builds/awe32.wasm')) {
+    await choose(aweName); await label('SOUND BLASTER AWE32');
+    const aweDownload = page.waitForEvent('download', { timeout: 120000 }); await page.click('#tracks li:nth-child(1) .track-download');
+    await (await aweDownload).saveAs('output/browser-track-awe32.wav');
+    const awe = await wavStats('output/browser-track-awe32.wav');
+    assert.ok(awe.frames >= 8.5 * 48000 && awe.peak > 1000, 'the WAV renders with the AWE module and bank');
+  } else assert.equal(await page.locator('#devices option', { hasText: `${aweName} (needs awe32.wasm)` }).isDisabled(), true);
+  // A second page of this origin lists the stored devices: its ROMs button plays the first, and one chosen plays
+  // without any file; a stored pack the core refuses is deleted when it fails; Forget deletes them all.
+  const second = await context.newPage();
+  second.on('pageerror', error => errors.push(error.message)); second.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+  second.on('filechooser', () => errors.push('the second page asked for the stored files'));
+  const engineOf = (p, value) => p.waitForFunction(value => document.querySelector('#engine-label').textContent === value, value);
+  await second.goto(url); await second.locator('#devices option', { hasText: 'stored in this browser' }).first().waitFor({ state: 'attached' });
+  await second.click('#engine .toggle[value=roms]'); await engineOf(second, 'SOUND BLASTER PCI 128');
+  await choose('Advanced Gravis UltraSound, stored in this browser (1992)', second); await engineOf(second, 'GRAVIS ULTRASOUND (GF1)');
+  await second.evaluate(async bytes => {
+    const dir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('defuss-storage')).getDirectoryHandle('defuss-midi-synth');
+    const writable = await (await dir.getFileHandle('roland-mt32.dspack', { create: true })).createWritable();
+    await writable.write(new Uint8Array(bytes)); await writable.close();
+  }, [...dspack(9, [[1, Buffer.from('x')], [2, Buffer.from('y')]])]);
+  await second.reload(); await second.locator('#devices option', { hasText: 'Roland MT-32, stored' }).waitFor({ state: 'attached' });
+  await second.click('#engine .toggle[value=roms]'); await engineOf(second, 'SOUND BLASTER PCI 128');
+  await choose('Roland MT-32, stored in this browser (1987)', second);
+  await second.waitForFunction(() => /^Your stored files for Roland MT-32 did not play \(.*\): drop them again$/.test(document.querySelector('#message').textContent));
+  assert.equal(await second.locator('#devices option', { hasText: 'Roland MT-32' }).count(), 0); assert.equal((await files(second))['roland-mt32.dspack'], undefined);
+  await second.click('#forget-files'); await second.locator('#forget-files').waitFor({ state: 'hidden' });
+  assert.deepEqual(await files(second), {}); await second.close();
+  // The Sound Blaster 16 plays on the chip it played last (the CQM), and its chip switch changes it.
+  await page.click('#engine .toggle[value=sb16]'); await label('LIBADLMIDI / NUKED CQM · BANK 16');
+  assert.equal(await page.locator('#panel-roms').isHidden(), true);
+  await page.click('#engine-modes .toggle[value=sb16-opl3]'); await label('LIBADLMIDI / NUKED OPL3 · BANK 16');
   // Bergium draws, steps to the next preset of the page's list, and stops.
   const frames = Number(await page.getAttribute('#visual', 'data-frames') ?? 0);
   await page.waitForFunction(frames => Number(document.querySelector('#visual').dataset.frames) >= frames + 30, frames, { timeout: 20000 });
   const shown = await text('#visual-name'); await page.click('#visual-next');
   await page.waitForFunction(shown => document.querySelector('#visual-name').textContent !== shown, shown);
   assert.deepEqual(await page.locator('#visualizer .toggle').allTextContents(), ['No Visuals', 'Bergium']);
-  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16 (OPL3)', 'Sound Blaster 16 (CQM)', 'SoundFont']);
+  assert.deepEqual(await page.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16', 'SoundFont', 'ROMs']);
+  assert.deepEqual(await page.locator('#engine-modes .toggle').allTextContents(), ['OPL3', 'CQM']);
   await page.screenshot({ path: 'output/visualizer.png', clip: await page.locator('#visual-panel').boundingBox() });
   await page.click('#visualizer .toggle[value=off]'); assert.equal(await page.locator('#visual-panel').isHidden(), true);
   // The instrument below the player, on the FM engine.
@@ -251,7 +345,7 @@ try {
   await page.setInputFiles('#file', { name: 'test.wopl.br', mimeType: 'application/octet-stream', buffer: Buffer.from(compress(await readFile('tests/test.wopl'), { quality: 5 })) });
   await page.waitForFunction(() => document.querySelector('#message').textContent === 'FM bank loaded from your WOPL file.');
   assert.equal(await text('#engine-label'), 'LIBADLMIDI / NUKED OPL3 · WOPL FILE');
-  await pressed('#engine .toggle[value=sb16-opl3]', 'true');
+  await pressed('#engine .toggle[value=sb16]', 'true'); await pressed('#engine-modes .toggle[value=sb16-opl3]', 'true');
   assert.equal(await page.locator('#fm-banks').inputValue(), '-1'); assert.equal(await page.locator('#fm-banks option:checked').textContent(), 'Your WOPL file');
   const fmDownload = page.waitForEvent('download'); await page.click('#take-download');
   await (await fmDownload).saveAs('output/browser-fm-recording.wav');
@@ -276,7 +370,7 @@ try {
   assert.equal(await page.locator('#program option').count(), 2, 'a rejected SoundFont keeps the loaded one');
   // Public API test using a real AudioContext, real WASM, real worklet and analyzer.
   const fmModulesBefore = fmModules.length;
-  const evidence = await page.evaluate(async ({ midiBytes, sineFont }) => {
+  const evidence = await page.evaluate(async ({ midiBytes, sineFont, gus32, gus14 }) => {
     const { MidiSynth } = await import('./synth/index.js');
     const context = new AudioContext({ sampleRate: 48000 }); await context.resume();
     const synth = await MidiSynth.create({ context, baseUrl: new URL('./synth/', location.href), queueCapacity: 64 });
@@ -328,7 +422,14 @@ try {
     let badSysex = false; try { await synth.send({ type: 'sysex', data: [0xf0, 0x80, 0xf7] }); } catch (e) { badSysex = e instanceof RangeError; }
     const opl3 = await synth.useProfile('sb16-opl3');
     let missing = ''; try { await synth.useProfile('roland-mt32'); } catch (e) { missing = e.message; }
-    const sysex = { heldVoices, afterSend, afterMidi, badSysex, opl3: opl3.kind, opl3Voices: opl3.maxVoices, missing, stillPlaying: synth.info.kind };
+    const stillPlaying = synth.info.kind;
+    // A module the loaded profile's core refuses (another profile's) leaves the GF1 playing, and a pack given later loads
+    // on the GF1's own module, not on the one refused.
+    await synth.useProfile('gus-gf1', { assets: new Uint8Array(gus32) });
+    const foreign = await (await fetch(new URL('./synth/assets/profiles/sb-pci128.wasm', location.href))).arrayBuffer();
+    let refused = ''; try { await synth.useProfile('gus-gf1', { wasm: foreign }); } catch (e) { refused = e.message; }
+    const gusAfter = (await synth.useProfile('gus-gf1', { assets: new Uint8Array(gus14) })).maxVoices;
+    const sysex = { heldVoices, afterSend, afterMidi, badSysex, opl3: opl3.kind, opl3Voices: opl3.maxVoices, missing, stillPlaying, refused, gusAfter };
     const back = await synth.useEngine('soundfont');
     const engines = { kind: fm.kind, engines: fm.engines, banks: fm.fm.banks.length, bank: synth.info.fm.bank, voices: fm.maxVoices, fmSounding, fmBadBank, fmDrumChannel, badRate, back: back.kind, backPresets: back.presets.length };
     synth.setGain(0.3); await synth.resume();
@@ -340,7 +441,7 @@ try {
     const owned = await MidiSynth.create({ baseUrl:new URL('./synth/',location.href) }); await owned.resume(); await owned.dispose();
     return { sysex, info: { engine: info.engine, presets: info.presets.length, first: info.presets[0], maxVoices: info.maxVoices }, sounding, voices, drums, badPreset, overflow,
       duration:meta.duration, paused, pausedAgain, ended, sinePresets: sines.presets.length, badFont, keptFont, stats, callerContextPreserved, disposedRejected, ownedContextClosed:owned.context.state === 'closed', engines, sourceRms, silenced };
-  }, { midiBytes: [...midiFixture()], sineFont: [...soundfont()] });
+  }, { midiBytes: [...midiFixture()], sineFont: [...soundfont()], gus32: [...gusFixture()], gus14: [...gusFixture(14)] });
   assert.equal(evidence.info.engine, 'TinySoundFont 0.9'); assert.equal(evidence.info.presets, 136);
   assert.ok(evidence.sounding > 0.001, 'Actual audio output must be nonzero'); assert.ok(evidence.voices > 0);
   assert.ok(evidence.drums > 0.001, 'A drum kit on channel 4 must sound');
@@ -355,9 +456,30 @@ try {
   assert.equal(sysex.afterMidi, 0, 'GM System On by sendMidi ends it'); assert.equal(sysex.badSysex, true);
   assert.equal(sysex.opl3, 'sb16-opl3'); assert.equal(sysex.opl3Voices, 18); assert.match(sysex.missing, /roland-mt32/);
   assert.equal(sysex.stillPlaying, 'sb16-opl3');
+  assert.match(sysex.refused, /gus-gf1/); assert.equal(sysex.gusAfter, 14, 'a later pack loads on the GF1 module, not the refused one');
   assert.equal(fmModules.length - fmModulesBefore, 1, 'fm and sb16-opl3 load fm-synth.wasm once');
   assert.ok(evidence.sourceRms > 0.001 && evidence.silenced < evidence.sourceRms / 10, `source ${evidence.sourceRms} sounds while output at gain 0 gives ${evidence.silenced}`);
   assert.equal(evidence.callerContextPreserved, true); assert.equal(evidence.disposedRejected, true); assert.equal(evidence.ownedContextClosed,true);
+  // Served with E-mu's 2GMGSMT SoundFont (profile-assets/pci128.sf2, where this machine has it), the SoundFont engine is
+  // the Sound Blaster 128 and plays that bank, and a track's WAV renders with it.
+  if (existsSync(LOCAL_FILES['pci128.sf2'])) {
+    const localServer = await serve('docs', 0, { local: LOCAL_FILES }), sb128 = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
+    try {
+      sb128.on('pageerror', error => errors.push(error.message)); sb128.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+      sb128.on('response', response => { if (response.status() >= 400) errors.push(`${response.url()}: HTTP ${response.status()}`); });
+      await sb128.goto(`http://127.0.0.1:${localServer.address().port}`);
+      await sb128.waitForFunction(() => document.querySelectorAll('#albums input').length === 34);
+      assert.deepEqual(await sb128.locator('#engine .toggle').allTextContents(), ['Sound Blaster 16', 'Sound Blaster 128', 'ROMs']);
+      await sb128.click('#engine .toggle[value=soundfont]');
+      await sb128.waitForFunction(() => document.querySelector('#engine-label').textContent === 'TINYSOUNDFONT / 2GMGSMT', null, { timeout: 60000 });
+      assert.match(await sb128.locator('#message').textContent(), /^Sound Blaster 128: \d+ presets\.$/);
+      assert.equal(await sb128.locator('#soundfont-info').textContent(), 'Plays E-mu 2GMGSMT SoundFont (2 MB).');
+      const sb128Download = sb128.waitForEvent('download', { timeout: 60000 }); await sb128.click('#tracks li:nth-child(1) .track-download');
+      await (await sb128Download).saveAs('output/browser-track-sb128.wav');
+      const wav = await wavStats('output/browser-track-sb128.wav');
+      assert.ok(wav.frames >= 8.5 * 48000 && wav.peak > 300, `Sound Blaster 128 WAV: ${wav.frames} frames, peak ${wav.peak}`);
+    } finally { await sb128.context().close(); await new Promise(resolve => localServer.close(resolve)); }
+  }
   assert.equal(errors.length, 0, errors.join('\n'));
   await page.screenshot({ path:'output/demo-desktop.png', fullPage:true });
   // The phone layout section by section: Chromium fails to capture the 9,194 px phone page whole while its WebGL
@@ -370,4 +492,9 @@ try {
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth),true,'Mobile must not overflow horizontally');
   const result = { passed: true, browser: await browser.version(), ...evidence, errors };
   await writeFile('output/e2e.json', JSON.stringify(result,null,2)+'\n'); console.log(JSON.stringify(result,null,2));
+} catch (error) {
+  // What the page said when the run failed, and how it looked.
+  console.error(`page message: ${await page.locator('#message').textContent().catch(() => '(none)')}`);
+  await page.screenshot({ path: 'output/e2e-failure.png', fullPage: true }).catch(() => {});
+  throw error;
 } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }

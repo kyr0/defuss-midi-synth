@@ -1,5 +1,5 @@
-import { E as EngineOptions, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, c as SynthInfo, d as ProfileSources, T as TimedEvent, e as SynthEvent, f as EngineKind, B as BankSource, M as MidiLoadOptions, g as PlaybackInfo, R as RenderStats } from './assets-g7P72yF5.js';
-export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, i as Preset, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileUserAssets, m as SYNTH_PROFILES } from './assets-g7P72yF5.js';
+import { E as EngineOptions, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, c as SynthInfo, d as ProfileSources, T as TimedEvent, e as SynthEvent, f as EngineKind, B as BankSource, M as MidiLoadOptions, g as PlaybackInfo, R as RenderStats } from './profile-store-D88E0Koc.js';
+export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, i as Preset, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileStorage, m as ProfileStorageFile, n as ProfileStore, o as ProfileUserAssets, p as SYNTH_PROFILES, q as StoredProfileSources, r as createProfileStore, s as openProfileStore } from './profile-store-D88E0Koc.js';
 
 interface SynthOptions extends Omit<EngineOptions, 'sampleRate'> {
     profile?: SynthProfile;
@@ -59,9 +59,14 @@ declare class MidiSynth {
     get info(): SynthInfo;
     /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does: loaded on
      *  first use, a file keeps its position. A profile that is not available rejects with an Error naming it, and the
-     *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) apply when the
-     *  profile loads; a profile loaded or loading rejects them, as its pack stays. */
+     *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) join that
+     *  profile's profileSources: an unloaded profile loads with them, a loaded one loads again with them in its place (a
+     *  file plays on), and a pack or module its core rejects leaves the loaded one. A profile still loading rejects them. */
     useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo>;
+    /** Loads kind again on its profileSources, in place of the loaded engine; the worklet keeps the compiled module
+     *  unless a new one comes (withWasm), so a new pack costs no new fetch or compile of its core. The previous sources
+     *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses. */
+    private reload;
     private fail;
     private request;
     /** Schedules a batch atomically. Resolve means accepted, not yet played. A sysex event carries one message F0

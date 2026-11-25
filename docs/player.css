@@ -3,7 +3,22 @@
  * defuss-shadcn's Audio, Playlist Item, Toggle Group, Select, Slider and Shader components in the page's DOS palette
  * (style.css). */
 .player { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
-.player, .crates { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+.player, .crates, .sound-engine { background: var(--panel); border: 2px solid var(--primary); box-shadow: var(--pixel-shadow); }
+/* Sound Engine: the list of the user's devices (five rows at once) beside the zone their files are dropped on. */
+.sound-engine { padding: clamp(0.9rem, 2.5vw, 1.6rem); scroll-margin-top: 1rem; }
+.engine-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); align-items: stretch; }
+.engine-devices { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; }
+.engine-panel { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; width: 100%; }
+.engine-panel[hidden] { display: none; }
+.engine-panel p { margin: 0; color: var(--muted-foreground); }
+#devices { width: 100%; font-size: 0.9rem; color: var(--foreground); background: var(--background); border: 2px solid var(--primary); padding: 0.2rem; }
+#devices option { padding: 0.3rem 0.4rem; }
+#devices option:checked { background: var(--primary); color: var(--primary-foreground); }
+.engine-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.engine-actions .btn[hidden] { display: none; }
+.device-drop { display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; padding: 1rem; border: 2px dashed var(--primary); text-align: center; }
+.sound-engine.dragging .device-drop, .sound-engine.dragging #devices { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+.device-drop span { color: var(--muted-foreground); line-height: 1.3; }
 .release { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(1.2rem, 3.5vw, 2.4rem); align-items: start; }
 
 /* The stage: the cover in its own colors on a curved, scanlined tube (the crt shader); Bergium fades in over it while music
@@ -35,7 +50,7 @@
 .artist { margin: 0 0 1rem; color: var(--dos-cyan); }
 .player-options { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
 .player-options .select { width: auto; min-width: 7rem; max-width: 100%; }
-.player-options .select[hidden], .player-bank[hidden] { display: none; }
+.player-options .select[hidden], .player-options .btn[hidden], .player-bank[hidden] { display: none; }
 .player-bank { color: var(--dos-yellow); }
 .player .toggle-group .toggle { border-radius: 0; }
 /* Ten hardware profiles do not fit one row on a phone: the engine buttons wrap. */
@@ -106,6 +121,7 @@
 .file-button, .take-actions button { white-space: nowrap; }
 
 @media (max-width: 720px) {
+  .engine-body { grid-template-columns: 1fr; }
   /* minmax(0, …): the bank list's long names must not widen the column past the screen */
   .release { grid-template-columns: minmax(0, 1fr); }
   .player-options .select { width: 100%; }

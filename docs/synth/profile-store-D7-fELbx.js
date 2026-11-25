@@ -103,9 +103,9 @@ function isSynthProfile(value) {
 function isNativeProfile(value) {
   return isSynthProfile(value) && value !== "soundfont" && value !== "sb16-opl3";
 }
-function withProfileSources(map, profile, sources, busy) {
+function withProfileSources(map, profile, sources, loading) {
   if (!isNativeProfile(profile)) throw new RangeError(`The ${profile} profile takes no profile sources`);
-  if (busy) throw new Error(`The ${profile} profile is loaded; its sources apply to a new synth`);
+  if (loading) throw new Error(`The ${profile} profile is loading; give its sources once it has loaded`);
   return { ...map, [profile]: { ...map?.[profile], ...sources } };
 }
 function selectEngine(engine, profile) {
@@ -732,7 +732,7 @@ const MAX_PROFILE_WASM_BYTES = 64 * 1024 * 1024;
 function moduleKey(kind) {
   return kind === "fm" || kind === "sb16-opl3" ? FM_WASM_ASSET : kind === "soundfont" ? WASM_ASSET : `assets/profiles/${kind}.wasm`;
 }
-async function bytes(source, base, limit, timeout, progress) {
+async function bytes$1(source, base, limit, timeout, progress) {
   const data = source instanceof ArrayBuffer ? new Uint8Array(source) : source instanceof Uint8Array ? source : await readBytes(new URL(source, base), timeout, progress);
   if (!data.length || data.length > limit) throw new RangeError(`its length must be 1 to ${limit} bytes, not ${data.length}`);
   const copy = new Uint8Array(data.length);
@@ -750,8 +750,8 @@ async function nativePart(kind, base, sources, compile, timeout, progress, withW
   const none = (what) => Promise.reject(new Error(`no ${what} was given, and the package has none`));
   const wasmSource = override?.wasm ?? (d.availability === "local-build-required" ? void 0 : `${stem}.wasm`);
   const [module, pack] = await Promise.allSettled([
-    withWasm ? wasmSource === void 0 ? none("local build") : bytes(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress) : void 0,
-    override?.assets ? bytes(override.assets, base, MAX_PROFILE_ASSET_BYTES, timeout, progress) : d.userAssets === "required" ? none("pack of your files") : new ArrayBuffer(0)
+    withWasm ? wasmSource === void 0 ? none("local build") : bytes$1(wasmSource, base, MAX_PROFILE_WASM_BYTES, timeout, progress) : void 0,
+    override?.assets ? bytes$1(override.assets, base, MAX_PROFILE_ASSET_BYTES, timeout, progress) : d.userAssets === "required" ? none("pack of your files") : new ArrayBuffer(0)
   ]);
   if (module.status === "rejected") throw unavailable(kind, "module", module.reason);
   if (pack.status === "rejected") throw unavailable(kind, "asset pack", pack.reason);
@@ -915,4 +915,106 @@ class MidiStream {
   }
 }
 
-export { masterVolume as A, FM_BANKS as B, OP as C, OP_COUNT as D, isSysEx as E, FM_WASM_ASSET as F, GM_PROGRAMS as G, instantiateProfile as H, MidiStream as M, NativeProfileVoices as N, OPERAND_MAX as O, PROFILE_DESCRIPTORS as P, SOUNDFONT_ASSET as S, WASM_ASSET as W, isNativeProfile as a, nativePart as b, soundFontBytes as c, isSynthProfile as d, engineKind as e, finite as f, bankBytes as g, inputBytes as h, integer as i, MAX_SONG_BYTES as j, MidiParser as k, SYNTH_PROFILES as l, moduleKey as m, normalizeOptions as n, isReset as o, packEvent as p, dataBytes as q, readBytes as r, selectEngine as s, MIDI_RESET as t, packMessage as u, SYSEX_MAX as v, withProfileSources as w, MAX_BANK_BYTES as x, isResetMessage as y, MAX_SOUNDFONT_BYTES as z };
+const PARTS = [["assets", "dspack"], ["wasm", "wasm"]];
+const WRITE_CHUNK = 64 * 1024 * 1024, MIN_WRITE = 64 * 1024;
+const fileName = (profile, ext) => `${profile}.${ext}`;
+const notFound = (error) => error?.code === "NOT_FOUND";
+const bytes = (data) => data instanceof Uint8Array ? data : new Uint8Array(data);
+function checkProfile(profile) {
+  if (!isNativeProfile(profile)) throw new RangeError(`The profile store holds native profiles' files, not ${String(profile)}`);
+}
+function wholePack(data) {
+  if (data.length < 16 || data[0] !== 68 || data[1] !== 83 || data[2] !== 80 || data[3] !== 75) return false;
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+  let at = 16;
+  for (let i = view.getUint32(12, true); i > 0; i--) {
+    if (at + 8 > data.length) return false;
+    at += 8 + view.getUint32(at + 4, true);
+  }
+  return at === data.length;
+}
+async function withFile(storage, name, options, fn) {
+  const file = await storage.open(name, options);
+  try {
+    return await fn(file);
+  } finally {
+    await file.close();
+  }
+}
+async function readAll(file, name) {
+  const size = await file.size();
+  if (size > MAX_PROFILE_ASSET_BYTES) throw new RangeError(`${name} is larger than any pack a core takes (${size} bytes)`);
+  const data = new Uint8Array(size);
+  for (let at = 0; at < size; ) {
+    const n = await file.readInto(at, data.subarray(at, Math.min(size, at + file.maxReadBytes)));
+    if (n <= 0) throw new Error(`${name} ended at ${at} of ${size} bytes`);
+    at += n;
+  }
+  return data;
+}
+function createProfileStore(storage) {
+  return {
+    async save(profile, sources) {
+      checkProfile(profile);
+      for (const [part, ext] of PARTS) {
+        const given = sources[part];
+        if (given === void 0) continue;
+        const data = bytes(given);
+        if (data.length > MAX_PROFILE_ASSET_BYTES) throw new RangeError(`The ${part} of ${profile} is larger than any core takes (${data.length} bytes)`);
+        await withFile(storage, fileName(profile, ext), { create: true }, async (file) => {
+          let chunk = WRITE_CHUNK;
+          for (let at = 0; at < data.length; ) {
+            try {
+              await file.write(at, data.subarray(at, at + chunk));
+            } catch (error) {
+              if (!(error instanceof RangeError) || chunk <= MIN_WRITE) throw error;
+              chunk /= 2;
+              continue;
+            }
+            if (at === 0) await file.truncate(Math.min(chunk, data.length));
+            at += chunk;
+          }
+          if (!data.length) await file.truncate(0);
+          await file.flush();
+        });
+      }
+    },
+    async load(profile) {
+      checkProfile(profile);
+      const found = {};
+      for (const [part, ext] of PARTS) {
+        const name = fileName(profile, ext);
+        try {
+          const data = await withFile(storage, name, { readOnly: true }, (file) => readAll(file, name));
+          if (part === "wasm" ? WebAssembly.validate(data) : wholePack(data)) found[part] = data;
+        } catch (error) {
+          if (!notFound(error)) throw error;
+        }
+      }
+      return found.assets || found.wasm ? found : void 0;
+    },
+    async profiles() {
+      const kinds = /* @__PURE__ */ new Set();
+      for (const name of await storage.list()) {
+        const match = /^(.+)\.(dspack|wasm)$/.exec(name);
+        if (match && isNativeProfile(match[1])) kinds.add(match[1]);
+      }
+      return [...kinds].sort();
+    },
+    async remove(profile) {
+      checkProfile(profile);
+      let removed = false;
+      for (const [, ext] of PARTS) removed = await storage.remove(fileName(profile, ext)) || removed;
+      return removed;
+    }
+  };
+}
+async function openProfileStore(name = "defuss-midi-synth") {
+  const storage = globalThis.navigator?.storage;
+  if (!storage?.getDirectory) throw new Error("openProfileStore needs a browser with the origin private file system; elsewhere use createProfileStore with a defuss-storage adapter");
+  const { createDirectoryStorage } = await import('./directory-C3TRdeBx.js');
+  const root = await (await (await storage.getDirectory()).getDirectoryHandle("defuss-storage", { create: true })).getDirectoryHandle(name, { create: true });
+  return createProfileStore(await createDirectoryStorage(root));
+}
+
+export { isResetMessage as A, MAX_SOUNDFONT_BYTES as B, masterVolume as C, FM_BANKS as D, OP as E, FM_WASM_ASSET as F, GM_PROGRAMS as G, OP_COUNT as H, isSysEx as I, instantiateProfile as J, MidiStream as M, NativeProfileVoices as N, OPERAND_MAX as O, PROFILE_DESCRIPTORS as P, SOUNDFONT_ASSET as S, WASM_ASSET as W, isNativeProfile as a, nativePart as b, soundFontBytes as c, isSynthProfile as d, engineKind as e, finite as f, bankBytes as g, inputBytes as h, integer as i, MAX_SONG_BYTES as j, MidiParser as k, SYNTH_PROFILES as l, moduleKey as m, normalizeOptions as n, createProfileStore as o, packEvent as p, isReset as q, readBytes as r, selectEngine as s, openProfileStore as t, dataBytes as u, MIDI_RESET as v, withProfileSources as w, packMessage as x, SYSEX_MAX as y, MAX_BANK_BYTES as z };

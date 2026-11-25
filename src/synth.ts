@@ -108,12 +108,31 @@ export class MidiSynth {
   get info(): SynthInfo { return this.current; }
   /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does: loaded on
    *  first use, a file keeps its position. A profile that is not available rejects with an Error naming it, and the
-   *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) apply when the
-   *  profile loads; a profile loaded or loading rejects them, as its pack stays. */
+   *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) join that
+   *  profile's profileSources: an unloaded profile loads with them, a loaded one loads again with them in its place (a
+   *  file plays on), and a pack or module its core rejects leaves the loaded one. A profile still loading rejects them. */
   async useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo> {
     if (!isSynthProfile(profile)) throw new RangeError('Unknown synth profile');
-    if (sources) this.sources = withProfileSources(this.sources, profile, sources, this.loading.has(profile) || this.current.engines.includes(profile));
+    if (sources) {
+      const previous = this.sources;
+      this.sources = withProfileSources(this.sources, profile, sources, this.loading.has(profile));
+      if (this.current.engines.includes(profile)) {
+        try { await this.reload(profile, sources.wasm !== undefined); }
+        catch (error) { this.sources = previous; throw error; }
+      }
+    }
     return this.useEngine(profile);
+  }
+  /** Loads kind again on its profileSources, in place of the loaded engine; the worklet keeps the compiled module
+   *  unless a new one comes (withWasm), so a new pack costs no new fetch or compile of its core. The previous sources
+   *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses. */
+  private reload(kind: SynthProfile, withWasm: boolean): Promise<void> {
+    const load = (async () => {
+      const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, withWasm);
+      this.current = await this.request<SynthInfo>('addEngine', [part, true]);
+    })().finally(() => this.loading.delete(kind));
+    this.loading.set(kind, load);
+    return load;
   }
   private fail(error: Error): void {
     this.failure = error; this.node.disconnect();

@@ -1,5 +1,5 @@
-import { f as EngineKind, i as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, n as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './assets-g7P72yF5.js';
-export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileUserAssets, m as SYNTH_PROFILES, e as SynthEvent } from './assets-g7P72yF5.js';
+import { f as EngineKind, i as Preset, E as EngineOptions, c as SynthInfo, M as MidiLoadOptions, g as PlaybackInfo, t as PackedEvent, R as RenderStats, S as SynthProfile, P as ProfileSourceMap, a as SoundFontSource, b as ProgressListener, d as ProfileSources, B as BankSource, T as TimedEvent } from './profile-store-D88E0Koc.js';
+export { F as FmInfo, L as LoadProgress, h as PROFILE_DESCRIPTORS, j as ProfileAvailability, k as ProfileDescriptor, l as ProfileStorage, m as ProfileStorageFile, n as ProfileStore, o as ProfileUserAssets, p as SYNTH_PROFILES, q as StoredProfileSources, e as SynthEvent, r as createProfileStore, s as openProfileStore } from './profile-store-D88E0Koc.js';
 
 /** A synthesizer the engine drives: complete MIDI channel messages in, planar Float32 PCM out. */
 interface Voices {
@@ -63,8 +63,13 @@ declare class Engine {
     info(): SynthInfo;
     /** The engines loaded so far. */
     has(kind: EngineKind): boolean;
-    /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. */
-    add(voices: Voices): void;
+    /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. With replace, voices take
+     *  the place of the loaded engine of their kind (a native profile on new sources): when that one plays, a file plays
+     *  on through voices with its state replayed, as after use(). Replacing in place, rather than unloading the engine
+     *  and loading it anew, keeps the file's clock, the held notes and the other loaded engines, so the swap sounds like
+     *  a program change. VERIFIED: tests/profiles.test.ts "a new pack for a loaded one takes its place" (position kept,
+     *  the file's program replayed into the new engine). */
+    add(voices: Voices, replace?: boolean): void;
     /** Makes kind's engine play. The voices of the other one end; a loaded file keeps its position and plays on, with
      *  its controllers and programs up to the position replayed into the new engine and its held notes struck again. */
     use(kind: EngineKind): void;
@@ -221,8 +226,9 @@ declare class OfflineSynth {
     get info(): SynthInfo;
     /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does. A profile
      *  that is not available rejects with an Error naming it, and the engine that played plays on. sources (a native
-     *  profile's pack or module, as in profileSources) apply when the profile loads; a profile loaded or loading rejects
-     *  them, as its pack stays. */
+     *  profile's pack or module, as in profileSources) join that profile's profileSources: an unloaded profile loads with
+     *  them, a loaded one loads again with them in its place (a file plays on), and a pack or module its core rejects
+     *  leaves the loaded one. A profile still loading rejects them. */
     useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo>;
     /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,
      *  as in the browser. */

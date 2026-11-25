@@ -5,4 +5,6 @@ export type { EngineOptions, EngineKind, FmInfo, LoadProgress, ProgressListener,
 export { GM_PROGRAMS } from './gm.ts';
 
 export { SYNTH_PROFILES, PROFILE_DESCRIPTORS } from './profiles.ts';
+export { createProfileStore, openProfileStore } from './profile-store.ts';
+export type { ProfileStore, ProfileStorage, ProfileStorageFile, StoredProfileSources } from './profile-store.ts';
 export type { SynthProfile, ProfileSourceMap, ProfileSources, ProfileDescriptor, ProfileAvailability, ProfileUserAssets } from './profiles.ts';

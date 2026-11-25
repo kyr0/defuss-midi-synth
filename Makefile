@@ -22,8 +22,10 @@ build: ## Build ESM, types, worklet and browser demo
 lint: ## Check TypeScript and lint without warnings
 	$(BUN) run lint
 	$(NODE) scripts/integrity.mjs
-test: build ## Run real WASM and scheduling tests
+test: build ## Run real WASM and scheduling tests, and the ROM script's tests
 	$(BUN) run test
+	python3 -m unittest tests/test_fetch_roms.py
+	python3 tests/verify-rom-packer.py
 coverage: ## Measure shared engine and scheduler coverage
 	$(NODE) scripts/coverage.mjs
 e2e: build ## Test built package and real Chromium AudioWorklet

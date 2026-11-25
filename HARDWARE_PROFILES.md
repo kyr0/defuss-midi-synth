@@ -25,14 +25,15 @@ Status is the state of 2026-11-25. VERIFIED: every module in this tree has the S
 
 ## Packs
 
-A pack (`.dspack`, format DSPK v1) holds every file a core needs, each under a numbered role. You make it once with the scripts, then pass it as `profileSources[profile].assets`, or as the second argument of `useProfile`, or pick it in the demo. The core checks the pack in `profile_init`: its roles, and each file's size and CRC32 (Sound Canvas), SHA-1 (MT-32, by Munt's table) or format (the others), so a wrong file fails before anything plays.
+A pack (`.dspack`, format DSPK v1) holds every file a core needs, each under a numbered role. You make it once with the scripts, then pass it as `profileSources[profile].assets`, or as the second argument of `useProfile`, or pick it in the demo. The demo also takes the Roland and AWE ROM files themselves and packs them in the browser (`docs/profile-files.js`), with the same roles and bytes as `scripts/profile-assets.py` (for AWE, as `pack-awe` with `--ram` set to the RAM the page computes from the bank). The core checks the pack in `profile_init`: its roles, and each file's size and CRC32 (Sound Canvas), SHA-1 (MT-32, by Munt's table) or format (the others), so a wrong file fails before anything plays.
 
 ```mermaid
 flowchart LR
   files["Your ROMs, wavesets or patches"] --> scripts["scripts/fetch-roms.py, scripts/profile-assets.py"]
   scripts --> pack["profile-assets/*.dspack"]
   pack --> api["profileSources or useProfile(profile, { assets })"]
-  pack --> page["Demo: Your hardware files"]
+  pack --> page["Demo: Sound Engine, ROMs"]
+  files --> page
   page --> api
   api --> host["NativeProfileVoices copies the pack into the core"]
   host --> init["profile_init checks the pack"]
@@ -49,11 +50,12 @@ DSPK v1 is the 4 bytes `DSPK`, then u32 little-endian version 1, model (the desc
 | `roland-sc55`, `roland-sc55mk2` | 1 the H8/532 internal ROM; 2 the control ROM; then either 3, the descrambled wave ROM, or 16 onward, the raw wave chips in board order. |
 | `roland-mt32` | 1 the control ROM; 2 the PCM ROM. Full images only: interleave split control halves byte by byte and join split PCM halves first. |
 
-`scripts/roms/<profile>.json` lists the known ROM revisions of each profile, with size, role and SHA-1 (Munt and MAME pin SHA-1, not SHA-256) and the source of each hash. The scripts name no ROM source: the dumps are copyrighted firmware, so you supply them from your own hardware or a source you may use. `fetch-roms.py` reads a URL or a path per file from `profile-assets/rom-sources.json`, accepts a file only when its size and hash match a listed revision, and packs a complete Roland set; an AWE ROM it checks, and `pack-awe` below packs it with a bank:
+`scripts/roms/<profile>.json` lists the known ROM revisions of each profile, with size, role and SHA-1 (Munt and MAME pin SHA-1, not SHA-256) and the source of each hash. The scripts name no ROM source: the dumps are copyrighted firmware, so you supply them from your own hardware or a source you may use. `fetch-roms.py` reads an HTTPS URL, a path or a ZIP member per file from `profile-assets/rom-sources.json`, accepts a file only when its size and every hash a listed revision has match, and packs every complete Roland set into `profile-assets/<profile>--<set>.dspack`, the default set also into `profile-assets/<profile>.dspack`; an AWE ROM it checks, and `pack-awe` below packs it with a bank:
 
 ```sh
-python3 scripts/fetch-roms.py init                     # writes profile-assets/rom-sources.json, one entry per file
-python3 scripts/fetch-roms.py roland-sc55 roland-mt32  # writes profile-assets/<profile>.dspack
+python3 scripts/fetch-roms.py init                     # writes profile-assets/rom-sources.json: each set's files, shared files, a default
+python3 scripts/fetch-roms.py roland-sc55 roland-mt32  # one pack per revision, and the default one as <profile>.dspack
+python3 scripts/fetch-roms.py roland-mt32 --set "MT-32 control 1.04 + PCM" --activate  # makes that set the default pack
 python3 scripts/profile-assets.py pack roland-mt32 profile-assets/roland-mt32.dspack 1=CONTROL.ROM 2=PCM.ROM
 ```
 

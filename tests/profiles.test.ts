@@ -204,13 +204,22 @@ test('sb16-cqm follows the FM bank: the fmBank option, setFmBank, loadFmBank, an
 });
 
 // useProfile(profile, sources): a pack supplied after the synth exists, as a page takes ROMs or patches its user picks.
-test('useProfile with sources: a pack given later loads the profile; a loaded profile keeps its pack', async () => {
+test('useProfile with sources: a pack given later loads the profile; a new pack for a loaded one takes its place', async () => {
   const s = await OfflineSynth.create({ baseUrl: assets });
   try {
     await assert.rejects(s.useProfile('gus-gf1'), /gus-gf1/, 'without a pack the profile is not available');
     assert.equal(s.info.kind, 'soundfont', 'the engine that played plays on');
-    assert.equal((await s.useProfile('gus-gf1', { assets: gusFixture() })).kind, 'gus-gf1');
-    await assert.rejects(s.useProfile('gus-gf1', { assets: gusFixture(14) }), /loaded; its sources apply to a new synth/);
+    assert.equal((await s.useProfile('gus-gf1', { assets: gusFixture() })).maxVoices, 32);
+    // The demo switches between variants of one device (GUS memory sizes, MT-32 revisions) this way.
+    s.loadMidi(midiFixture()); s.play(); s.render(12000);
+    const at = s.engine.playbackInfo().position;
+    assert.equal((await s.useProfile('gus-gf1', { assets: gusFixture(14) })).maxVoices, 14, 'the new pack plays');
+    assert.equal(s.engine.playbackInfo().position, at, 'the file keeps its position');
+    await assert.rejects(s.useProfile('gus-gf1', { assets: dspack(9, [[1, Buffer.from('x')]]) }));
+    assert.equal(s.info.kind, 'gus-gf1'); assert.equal(s.info.maxVoices, 14, 'a pack the core rejects leaves the loaded one');
+    // Channel 16, which the file leaves on program 0: the file's own programs are replayed into the new engine.
+    s.schedule([{ time: s.session.frame / 48000, type: 'noteOn', channel: 15, note: 60, velocity: 110 }]);
+    assert.ok(s.render(9600).left.some(x => x !== 0), 'and it sounds');
     await assert.rejects(s.useProfile('sb16-opl3', { assets: gusFixture() }), RangeError);
   } finally { s.close(); }
 });

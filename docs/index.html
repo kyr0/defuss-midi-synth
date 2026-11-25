@@ -41,6 +41,44 @@
   </header>
 
   <main>
+    <!-- The sound engine: a button per engine, and under it the controls that engine needs: the Sound Blaster 16's chip,
+         the SoundFont engine's SoundFont, the devices of the user's files (dropped once, chosen by name). -->
+    <section class="sound-engine" id="sound-engine" aria-labelledby="sound-engine-title">
+      <div class="section-head">
+        <h2 id="sound-engine-title">Sound Engine</h2>
+        <p>The Sound Blaster 16 and the SoundFont engine play built in. The Sound Blaster PCI 128, Gravis UltraSound, Roland SC-55, SC-55mkII, MT-32 and the AWE cards play with your own files, which stay on your device.</p>
+      </div>
+      <div class="engine-body">
+        <div class="engine-devices">
+          <div class="toggle-group" role="group" aria-label="Sound engine" data-variant="outline" id="engine">
+            <button class="toggle" type="button" aria-pressed="true" value="sb16">Sound Blaster 16</button>
+            <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundFont</button>
+            <button class="toggle" type="button" aria-pressed="false" value="roms">ROMs</button>
+          </div>
+          <div class="engine-panel" id="panel-sb16">
+            <div class="toggle-group" role="group" aria-label="Chip" data-variant="outline" data-size="sm" id="engine-modes">
+              <button class="toggle" type="button" aria-pressed="true" value="sb16-opl3">OPL3</button>
+              <button class="toggle" type="button" aria-pressed="false" value="sb16-cqm">CQM</button>
+            </div>
+          </div>
+          <div class="engine-panel" id="panel-soundfont" hidden><p id="soundfont-info"></p></div>
+          <!-- Files dropped on the list, or anywhere on this section, add their devices to it. -->
+          <div class="engine-panel" id="panel-roms" hidden>
+            <select id="devices" size="5" aria-label="Your devices"></select>
+            <div class="engine-actions">
+              <button class="btn" type="button" data-size="sm" id="load-pack">Load pack…</button>
+              <button class="btn" type="button" data-variant="outline" data-size="sm" id="forget-files" hidden>Forget your files</button>
+            </div>
+            <input id="device-files" type="file" multiple hidden>
+          </div>
+        </div>
+        <div class="device-drop" id="device-drop">
+          <strong>Drop your files on the list or here</strong>
+          <span>Packs (.dspack), ECW wavesets (EAPCI2M, 4M or 8M.ECW) and Roland ROM files, all at once. The list names each device by its maker, model and year, newest first. AWE packs play on a local build of their card (awe32.wasm, awe64.wasm), which the local server provides; elsewhere drop it with them.</span>
+        </div>
+      </div>
+    </section>
+
     <!-- The release: the album's cover on a CRT tube, with Bergium over it while music plays; its title and tracklist beside it. -->
     <section class="player" id="player" aria-labelledby="album-title">
       <div class="release">
@@ -65,23 +103,6 @@
               <button class="toggle" type="button" aria-pressed="false" value="off">No Visuals</button>
               <button class="toggle" type="button" aria-pressed="true" value="milkdrop">Bergium</button>
             </div>
-            <div class="toggle-group" role="group" aria-label="Synthesizer" data-variant="outline" id="engine">
-              <button class="toggle" type="button" aria-pressed="true" value="sb16-opl3">Sound Blaster 16 (OPL3)</button>
-              <button class="toggle" type="button" aria-pressed="false" value="sb16-cqm">Sound Blaster 16 (CQM)</button>
-              <button class="toggle" type="button" aria-pressed="false" value="soundfont">SoundFont</button>
-            </div>
-            <!-- Profiles that run original ROMs, wavesets or patches: they play only with a pack of the user's own. -->
-            <select class="select" data-size="sm" id="hardware" aria-label="Hardware with your files">
-              <option value="">Your hardware files…</option>
-              <option value="sb-pci128">Sound Blaster PCI 128 · your ECW pack</option>
-              <option value="gus-gf1">Gravis UltraSound (GF1) · your patch pack</option>
-              <option value="roland-sc55">Roland SC-55 · your ROM pack</option>
-              <option value="roland-sc55mk2">Roland SC-55mkII · your ROM pack</option>
-              <option value="roland-mt32">Roland MT-32 · your ROM pack</option>
-              <option value="awe32" disabled>Sound Blaster AWE32 · local build only</option>
-              <option value="awe64" disabled>Sound Blaster AWE64 · local build only</option>
-            </select>
-            <input id="profile-pack" type="file" accept=".dspack" hidden>
             <select class="select" data-size="sm" id="fm-banks" aria-label="FM bank"></select>
             <span id="soundfont-name" class="player-bank" hidden></span>
           </div>
@@ -155,7 +176,7 @@
             <dt>Sound Blaster 16 (OPL3)</dt><dd>One emulated Yamaha YMF262 (Nuked OPL3), driven by libADLMIDI game banks. Not an analog board model.</dd>
             <dt>Sound Blaster 16 (CQM)</dt><dd>One emulated Creative CQM, the OPL3-compatible chip of later Sound Blaster 16 cards (Nuked CQM), with the same game banks.</dd>
             <dt>SoundFont</dt><dd>Sample-based TinySoundFont, not hardware emulation.</dd>
-            <dt>Your hardware files</dt><dd>Sound Blaster PCI 128, Gravis UltraSound, Roland SC-55, SC-55mkII and MT-32 run on emulators of their chips and play only with a pack of your own wavesets, patches or ROMs (scripts/fetch-roms.py and scripts/profile-assets.py make one). It stays on your device.</dd>
+            <dt>Your hardware files</dt><dd>The ROMs of the Sound Engine section run emulators of their chips with your own files, which stay on your device. Drop them all at once: packs (.dspack, which scripts/profile-assets.py makes), the ECW wavesets of the Sound Blaster PCI 128 (EAPCI2M.ECW, EAPCI4M.ECW or EAPCI8M.ECW, 2 to 8 MB: the wavetable sample bank of its Ensoniq AudioPCI drivers), and the Roland SC-55, SC-55mkII and MT-32 ROM files themselves, which the page identifies by their hashes. The list names each device by maker, model and year, newest first. An AWE pack plays on its card's local build, which only the local demo server provides. The page keeps the files you play in this browser's storage, so a later visit plays them without asking; Forget your files deletes them.</dd>
           </dl>
         </div>
         <div class="mk-footer-col">

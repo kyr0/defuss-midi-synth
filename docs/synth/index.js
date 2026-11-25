@@ -1,5 +1,5 @@
-import { M as MidiStream, f as finite, i as integer, n as normalizeOptions, s as selectEngine, a as isNativeProfile, b as nativePart, r as readBytes, F as FM_WASM_ASSET, W as WASM_ASSET, c as soundFontBytes, d as isSynthProfile, w as withProfileSources, p as packEvent, S as SOUNDFONT_ASSET, e as engineKind, g as bankBytes, h as inputBytes, m as moduleKey, O as OPERAND_MAX, j as MAX_SONG_BYTES } from './parser-34fFPUv9.js';
-export { G as GM_PROGRAMS, k as MidiParser, P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as isReset } from './parser-34fFPUv9.js';
+import { M as MidiStream, f as finite, i as integer, n as normalizeOptions, s as selectEngine, a as isNativeProfile, b as nativePart, r as readBytes, F as FM_WASM_ASSET, W as WASM_ASSET, c as soundFontBytes, d as isSynthProfile, w as withProfileSources, p as packEvent, S as SOUNDFONT_ASSET, e as engineKind, g as bankBytes, h as inputBytes, m as moduleKey, O as OPERAND_MAX, j as MAX_SONG_BYTES } from './profile-store-D7-fELbx.js';
+export { G as GM_PROGRAMS, k as MidiParser, P as PROFILE_DESCRIPTORS, l as SYNTH_PROFILES, o as createProfileStore, q as isReset, t as openProfileStore } from './profile-store-D7-fELbx.js';
 
 class MidiSynth {
   constructor(context, node, info, base, owned, timeout, options) {
@@ -128,12 +128,35 @@ class MidiSynth {
   }
   /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does: loaded on
    *  first use, a file keeps its position. A profile that is not available rejects with an Error naming it, and the
-   *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) apply when the
-   *  profile loads; a profile loaded or loading rejects them, as its pack stays. */
+   *  engine that played plays on. sources (a native profile's pack or module, as in profileSources) join that
+   *  profile's profileSources: an unloaded profile loads with them, a loaded one loads again with them in its place (a
+   *  file plays on), and a pack or module its core rejects leaves the loaded one. A profile still loading rejects them. */
   async useProfile(profile, sources) {
     if (!isSynthProfile(profile)) throw new RangeError("Unknown synth profile");
-    if (sources) this.sources = withProfileSources(this.sources, profile, sources, this.loading.has(profile) || this.current.engines.includes(profile));
+    if (sources) {
+      const previous = this.sources;
+      this.sources = withProfileSources(this.sources, profile, sources, this.loading.has(profile));
+      if (this.current.engines.includes(profile)) {
+        try {
+          await this.reload(profile, sources.wasm !== void 0);
+        } catch (error) {
+          this.sources = previous;
+          throw error;
+        }
+      }
+    }
     return this.useEngine(profile);
+  }
+  /** Loads kind again on its profileSources, in place of the loaded engine; the worklet keeps the compiled module
+   *  unless a new one comes (withWasm), so a new pack costs no new fetch or compile of its core. The previous sources
+   *  are restored by useProfile when this rejects, so a refused pack leaves what plays and what a later reload uses. */
+  reload(kind, withWasm) {
+    const load = (async () => {
+      const part = await MidiSynth.part(kind, this.base, this.options.soundfont, this.timeout, false, this.options.onProgress, this.sources, withWasm);
+      this.current = await this.request("addEngine", [part, true]);
+    })().finally(() => this.loading.delete(kind));
+    this.loading.set(kind, load);
+    return load;
   }
   fail(error) {
     this.failure = error;

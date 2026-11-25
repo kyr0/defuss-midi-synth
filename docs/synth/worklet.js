@@ -1254,17 +1254,33 @@ var Engine = class _Engine {
   has(kind) {
     return this.loaded.has(kind);
   }
-  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. */
-  add(voices) {
+  /** Adds the other engine, made by SoundFontVoices or FmVoices with this engine's options. With replace, voices take
+   *  the place of the loaded engine of their kind (a native profile on new sources): when that one plays, a file plays
+   *  on through voices with its state replayed, as after use(). Replacing in place, rather than unloading the engine
+   *  and loading it anew, keeps the file's clock, the held notes and the other loaded engines, so the swap sounds like
+   *  a program change. VERIFIED: tests/profiles.test.ts "a new pack for a loaded one takes its place" (position kept,
+   *  the file's program replayed into the new engine). */
+  add(voices, replace = false) {
+    let old;
     try {
       this.ensure();
-      if (this.has(voices.kind)) throw new Error(`The ${voices.kind} engine is already loaded`);
+      old = this.loaded.get(voices.kind);
+      if (old && !replace) throw new Error(`The ${voices.kind} engine is already loaded`);
       voices.message(MIDI_RESET, 0, 0);
-      this.attach(voices);
     } catch (error) {
       voices.close();
       throw error;
     }
+    this.attach(voices);
+    if (!old) return;
+    if (this.active === old) {
+      const held = this.held.slice();
+      this.silence();
+      this.held.set(held);
+      this.active = voices;
+      this.restore();
+    }
+    old.close();
   }
   /** Makes kind's engine play. The voices of the other one end; a loaded file keeps its position and plays on, with
    *  its controllers and programs up to the position replayed into the new engine and its held notes struck again. */
@@ -1755,7 +1771,11 @@ var MidiProcessor = class extends AudioWorkletProcessor {
    *  holds a boot, though a long boot still delays the quanta after the message. */
   voices(part, module = part.module ?? this.modules.get(part.key)) {
     if (!module) throw new Error("The engine part has no module");
+    const voices = this.build(part, module);
     this.modules.set(part.key, module);
+    return voices;
+  }
+  build(part, module) {
     const fmBank = this.session?.engine.fmBank() ?? this.settings.fmBank;
     if ("assets" in part) return new NativeProfileVoices(part.kind, instantiateProfile(module), new Uint8Array(part.assets), this.settings.sampleRate, fmBank);
     const instance = new WebAssembly.Instance(module, SYNTH_IMPORTS);
@@ -1852,7 +1872,7 @@ var MidiProcessor = class extends AudioWorkletProcessor {
       const module = part.module ?? (part.wasm ? await WebAssembly.compile(part.wasm) : this.modules.get(part.key));
       if (this.closed || !this.session) throw new Error("Processor is not ready");
       const engine = this.session.engine;
-      engine.add(this.voices(part, module));
+      engine.add(this.voices(part, module), request.args[1] === true);
       this.port.postMessage({ id: request.id, result: engine.info() });
     } catch (error) {
       this.port.postMessage({ id: request.id, error: error instanceof Error ? error.message : String(error) });

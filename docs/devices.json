@@ -1,0 +1,12 @@
+{
+  "sb16-opl3": { "manufacturer": "Creative", "model": "Sound Blaster 16", "year": "1992" },
+  "sb16-cqm": { "manufacturer": "Creative", "model": "Sound Blaster 16", "year": "1992" },
+  "sb-pci128": { "manufacturer": "Creative", "model": "Sound Blaster PCI 128", "year": "1998" },
+  "awe64": { "manufacturer": "Creative", "model": "Sound Blaster AWE64", "year": "1996" },
+  "awe32": { "manufacturer": "Creative", "model": "Sound Blaster AWE32", "year": "1994" },
+  "roland-sc55mk2": { "manufacturer": "Roland", "model": "SC-55mkII", "year": "1993" },
+  "gus-gf1": { "manufacturer": "Advanced Gravis", "model": "UltraSound", "year": "1992" },
+  "roland-sc55": { "manufacturer": "Roland", "model": "SC-55", "year": "1991" },
+  "roland-mt32": { "manufacturer": "Roland", "model": "MT-32", "year": "1987" },
+  "soundfont": { "manufacturer": "", "model": "SoundFont", "year": "" }
+}

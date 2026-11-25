@@ -3,6 +3,8 @@ import { NativeProfileVoices, instantiateProfile } from './profile-voices.ts';
 import { isNativeProfile, isSynthProfile, selectEngine, withProfileSources, type SynthProfile, type ProfileSources, type ProfileSourceMap } from './profiles.ts';
 import type { Voices } from './voices.ts';
 export { SYNTH_PROFILES, PROFILE_DESCRIPTORS } from './profiles.ts';
+export { createProfileStore, openProfileStore } from './profile-store.ts';
+export type { ProfileStore, ProfileStorage, ProfileStorageFile, StoredProfileSources } from './profile-store.ts';
 export type { SynthProfile, ProfileSourceMap, ProfileSources, ProfileDescriptor, ProfileAvailability, ProfileUserAssets } from './profiles.ts';
 import { bankBytes, readBytes, SOUNDFONT_ASSET, soundFontBytes, type BankSource, type SoundFontSource } from './assets.ts';
 import { Engine, SYNTH_IMPORTS } from './engine.ts';
@@ -81,11 +83,22 @@ export class OfflineSynth {
   get info(): SynthInfo { return this.engine.info(); }
   /** Makes a hardware profile play (SYNTH_PROFILES; the legacy 'fm' engine is not one), as useEngine does. A profile
    *  that is not available rejects with an Error naming it, and the engine that played plays on. sources (a native
-   *  profile's pack or module, as in profileSources) apply when the profile loads; a profile loaded or loading rejects
-   *  them, as its pack stays. */
+   *  profile's pack or module, as in profileSources) join that profile's profileSources: an unloaded profile loads with
+   *  them, a loaded one loads again with them in its place (a file plays on), and a pack or module its core rejects
+   *  leaves the loaded one. A profile still loading rejects them. */
   async useProfile(profile: SynthProfile, sources?: ProfileSources): Promise<SynthInfo> {
     if (!isSynthProfile(profile)) throw new RangeError('Unknown synth profile');
-    if (sources) this.loader.sources = withProfileSources(this.loader.sources, profile, sources, this.loading.has(profile) || this.engine.has(profile));
+    if (sources) {
+      const previous = this.loader.sources;
+      this.loader.sources = withProfileSources(this.loader.sources, profile, sources, this.loading.has(profile));
+      if (this.engine.has(profile)) {
+        // Loaded: the profile loads again on the new sources in place of the loaded engine, as in the browser.
+        const load = this.loader.voices(profile, () => this.engine.fmBank()).then(voices => this.engine.add(voices, true))
+          .finally(() => this.loading.delete(profile));
+        this.loading.set(profile, load);
+        try { await load; } catch (error) { this.loader.sources = previous; throw error; }
+      }
+    }
     return this.useEngine(profile);
   }
   /** Makes kind's engine play, loading it first when needed; a loaded file plays on and scheduled events are cleared,
